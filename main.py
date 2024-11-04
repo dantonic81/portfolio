@@ -1,4 +1,5 @@
 import csv
+import requests
 
 def read_portfolio(csv_file_path):
     portfolio = []
@@ -14,11 +15,6 @@ def read_portfolio(csv_file_path):
 
 # Usage
 portfolio = read_portfolio('crypto_portfolio.csv')
-print(portfolio)
-
-
-
-import requests
 
 def get_top_100_crypto():
     url = "https://api.coingecko.com/api/v3/coins/markets"
@@ -32,17 +28,40 @@ def get_top_100_crypto():
     response = requests.get(url, params=params)
     return response.json()
 
-# Usage
+# Fetch top 100 crypto data
 top_100_cryptos = get_top_100_crypto()
-print(top_100_cryptos)  # Print first 5 for testing
 
-def find_missing_cryptos(portfolio, top_100):
-    portfolio_symbols = {item['abbreviation'] for item in portfolio}
-    missing_cryptos = [crypto for crypto in top_100 if crypto['symbol'].upper() not in portfolio_symbols]
-    return missing_cryptos
+def calculate_portfolio_value(portfolio, top_100):
+    # Map to find current price by symbol
+    price_lookup = {crypto['symbol'].upper(): crypto['current_price'] for crypto in top_100}
 
-# Usage
-missing_cryptos = find_missing_cryptos(portfolio, top_100_cryptos)
-print("Missing Cryptos in Portfolio:")
-for crypto in missing_cryptos:
-    print(f"{crypto['name']} ({crypto['symbol'].upper()}) - ${crypto['current_price']}")
+    total_value = 0.0
+    for asset in portfolio:
+        symbol = asset['abbreviation']
+        amount = asset['amount']
+        current_price = price_lookup.get(symbol, 0)  # Default to 0 if not found
+        asset_value = amount * current_price
+        asset['current_price'] = current_price
+        asset['value'] = asset_value
+        total_value += asset_value
+
+    return total_value
+
+# Calculate total portfolio value and update portfolio data with current price and value
+total_portfolio_value = calculate_portfolio_value(portfolio, top_100_cryptos)
+
+# Display portfolio with metrics
+print("Your Portfolio:")
+for asset in portfolio:
+    print(f"{asset['name']} ({asset['abbreviation']}):")
+    print(f"  Amount: {asset['amount']}")
+    print(f"  Current Price: ${asset['current_price']}")
+    print(f"  Value: ${asset['value']}")
+
+print(f"\nTotal Portfolio Value: ${total_portfolio_value}")
+
+# Calculate and display percentage allocation
+print("\nPortfolio Allocation:")
+for asset in portfolio:
+    allocation = (asset['value'] / total_portfolio_value) * 100 if total_portfolio_value > 0 else 0
+    print(f"{asset['name']} ({asset['abbreviation']}): {allocation:.2f}% of portfolio")
