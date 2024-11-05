@@ -21,4 +21,4 @@ COPY --from=build /usr/local/lib/python3.12/site-packages /usr/local/lib/python3
 COPY --from=build /app/ ./
 
 # Run the application
-CMD [ "python", "etl.py" ]
+CMD [ "python", "main.py" ]
