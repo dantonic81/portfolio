@@ -4,20 +4,20 @@ x-common-service-config: &common-service-config
   restart: unless-stopped
 
 services:
-  etl:
-    container_name: etl
-    image: python:3.12-slim
-    build:
-      context: .
-      dockerfile: ./Dockerfile
-    command: ["python", "/app/etl.py"]
-    volumes:
-      - ./etl.py:/app/etl.py
-    depends_on:
-      postgres:
-        condition: service_healthy
-    env_file:
-      - .env
+#  etl:
+#    container_name: etl
+#    image: python:3.12-slim
+#    build:
+#      context: .
+#      dockerfile: ./Dockerfile
+#    command: ["python", "/app/etl.py"]
+#    volumes:
+#      - ./etl.py:/app/etl.py
+#    depends_on:
+#      postgres:
+#        condition: service_healthy
+#    env_file:
+#      - .env
 
 
   postgres:
