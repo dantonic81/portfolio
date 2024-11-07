@@ -20,5 +20,8 @@ WORKDIR /app
 COPY --from=build /usr/local/lib/python3.12/site-packages /usr/local/lib/python3.12/site-packages
 COPY --from=build /app/ ./
 
+# Expose the port for Flask
+EXPOSE 8000
+
 # Run the application
 CMD [ "python", "main.py" ]

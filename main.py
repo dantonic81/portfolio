@@ -1,6 +1,10 @@
 import csv
 import requests
+from flask import Flask, jsonify
 
+app = Flask(__name__)
+
+# Original functions
 def read_portfolio(csv_file_path):
     portfolio = []
     with open(csv_file_path, mode='r') as file:
@@ -12,9 +16,6 @@ def read_portfolio(csv_file_path):
                 'amount': float(row['amount'])
             })
     return portfolio
-
-# Usage
-portfolio = read_portfolio('crypto_portfolio.csv')
 
 def get_top_100_crypto():
     url = "https://api.coingecko.com/api/v3/coins/markets"
@@ -28,18 +29,14 @@ def get_top_100_crypto():
     response = requests.get(url, params=params)
     return response.json()
 
-# Fetch top 100 crypto data
-top_100_cryptos = get_top_100_crypto()
-
 def calculate_portfolio_value(portfolio, top_100):
-    # Map to find current price by symbol
     price_lookup = {crypto['symbol'].upper(): crypto['current_price'] for crypto in top_100}
 
     total_value = 0.0
     for asset in portfolio:
         symbol = asset['abbreviation']
         amount = asset['amount']
-        current_price = price_lookup.get(symbol, 0)  # Default to 0 if not found
+        current_price = price_lookup.get(symbol, 0)
         asset_value = amount * current_price
         asset['current_price'] = current_price
         asset['value'] = asset_value
@@ -47,21 +44,47 @@ def calculate_portfolio_value(portfolio, top_100):
 
     return total_value
 
-# Calculate total portfolio value and update portfolio data with current price and value
-total_portfolio_value = calculate_portfolio_value(portfolio, top_100_cryptos)
+# Route to show portfolio value in JSON format
+@app.route('/portfolio', methods=['GET'])
+def get_portfolio_value():
+    portfolio = read_portfolio('crypto_portfolio.csv')
+    top_100_cryptos = get_top_100_crypto()
+    total_portfolio_value = calculate_portfolio_value(portfolio, top_100_cryptos)
 
-# Display portfolio with metrics
-print("Your Portfolio:")
-for asset in portfolio:
-    print(f"{asset['name']} ({asset['abbreviation']}):")
-    print(f"  Amount: {asset['amount']}")
-    print(f"  Current Price: ${asset['current_price']}")
-    print(f"  Value: ${asset['value']}")
+    # Adding the portfolio data to the response
+    portfolio_data = []
+    for asset in portfolio:
+        portfolio_data.append({
+            'name': asset['name'],
+            'abbreviation': asset['abbreviation'],
+            'amount': asset['amount'],
+            'current_price': asset['current_price'],
+            'value': asset['value']
+        })
 
-print(f"\nTotal Portfolio Value: ${total_portfolio_value}")
+    return jsonify({
+        'portfolio': portfolio_data,
+        'total_portfolio_value': total_portfolio_value
+    })
 
-# Calculate and display percentage allocation
-print("\nPortfolio Allocation:")
-for asset in portfolio:
-    allocation = (asset['value'] / total_portfolio_value) * 100 if total_portfolio_value > 0 else 0
-    print(f"{asset['name']} ({asset['abbreviation']}): {allocation:.2f}% of portfolio")
+# Route for the portfolio allocation
+@app.route('/portfolio/allocation', methods=['GET'])
+def get_portfolio_allocation():
+    portfolio = read_portfolio('crypto_portfolio.csv')
+    top_100_cryptos = get_top_100_crypto()
+    total_portfolio_value = calculate_portfolio_value(portfolio, top_100_cryptos)
+
+    allocation_data = []
+    for asset in portfolio:
+        allocation = (asset['value'] / total_portfolio_value) * 100 if total_portfolio_value > 0 else 0
+        allocation_data.append({
+            'name': asset['name'],
+            'abbreviation': asset['abbreviation'],
+            'allocation_percentage': round(allocation, 2)
+        })
+
+    return jsonify({'allocation': allocation_data})
+
+# Run the Flask web server on port 8000
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=8000, debug=True)
