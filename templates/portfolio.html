@@ -1,0 +1,35 @@
+<!-- templates/portfolio.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crypto Portfolio</title>
+</head>
+<body>
+    <h1>Your Crypto Portfolio</h1>
+
+    <h2>Total Portfolio Value: ${{ total_portfolio_value }}</h2>
+
+    <h3>Portfolio Breakdown:</h3>
+    <ul>
+        {% for asset in portfolio %}
+            <li>
+                <strong>{{ asset.name }} ({{ asset.abbreviation }})</strong><br>
+                Amount: {{ asset.amount }}<br>
+                Current Price: ${{ asset.current_price }}<br>
+                Value: ${{ asset.value }}<br>
+            </li>
+        {% endfor %}
+    </ul>
+
+    <h3>Portfolio Allocation:</h3>
+    <ul>
+        {% for allocation in allocation_data %}
+            <li>
+                {{ allocation.name }} ({{ allocation.abbreviation }}): {{ allocation.allocation_percentage }}% of portfolio
+            </li>
+        {% endfor %}
+    </ul>
+</body>
+</html>

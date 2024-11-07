@@ -1,6 +1,6 @@
 import csv
 import requests
-from flask import Flask, jsonify
+from flask import Flask, jsonify, render_template
 
 app = Flask(__name__)
 
@@ -44,8 +44,27 @@ def calculate_portfolio_value(portfolio, top_100):
 
     return total_value
 
-# Route to show portfolio value in JSON format
+# Route to show portfolio in HTML format
 @app.route('/portfolio', methods=['GET'])
+def show_portfolio():
+    portfolio = read_portfolio('crypto_portfolio.csv')
+    top_100_cryptos = get_top_100_crypto()
+    total_portfolio_value = calculate_portfolio_value(portfolio, top_100_cryptos)
+
+    # Portfolio allocation
+    allocation_data = []
+    for asset in portfolio:
+        allocation = (asset['value'] / total_portfolio_value) * 100 if total_portfolio_value > 0 else 0
+        allocation_data.append({
+            'name': asset['name'],
+            'abbreviation': asset['abbreviation'],
+            'allocation_percentage': round(allocation, 2)
+        })
+
+    return render_template('portfolio.html', portfolio=portfolio, total_portfolio_value=total_portfolio_value, allocation_data=allocation_data)
+
+# Route to show portfolio value in JSON format
+@app.route('/portfolio/json', methods=['GET'])
 def get_portfolio_value():
     portfolio = read_portfolio('crypto_portfolio.csv')
     top_100_cryptos = get_top_100_crypto()
@@ -66,24 +85,6 @@ def get_portfolio_value():
         'portfolio': portfolio_data,
         'total_portfolio_value': total_portfolio_value
     })
-
-# Route for the portfolio allocation
-@app.route('/portfolio/allocation', methods=['GET'])
-def get_portfolio_allocation():
-    portfolio = read_portfolio('crypto_portfolio.csv')
-    top_100_cryptos = get_top_100_crypto()
-    total_portfolio_value = calculate_portfolio_value(portfolio, top_100_cryptos)
-
-    allocation_data = []
-    for asset in portfolio:
-        allocation = (asset['value'] / total_portfolio_value) * 100 if total_portfolio_value > 0 else 0
-        allocation_data.append({
-            'name': asset['name'],
-            'abbreviation': asset['abbreviation'],
-            'allocation_percentage': round(allocation, 2)
-        })
-
-    return jsonify({'allocation': allocation_data})
 
 # Run the Flask web server on port 8000
 if __name__ == '__main__':
