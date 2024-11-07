@@ -1,9 +1,10 @@
+<!-- templates/unowned.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Crypto Portfolio</title>
+    <title>Unowned Crypto (Top 100)</title>
 
     <!-- Bootstrap CDN link -->
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
@@ -36,6 +37,31 @@
         </div>
     </nav>
 
+    <div class="container mt-5">
+        <h1 class="text-center">Unowned Crypto (Top 100)</h1>
+
+        <!-- Missing Cryptos List -->
+        <h3 class="mt-4">Missing Crypto:</h3>
+        <div class="row">
+            {% if missing_cryptos %}
+                {% for crypto in missing_cryptos %}
+                    <div class="col-md-4 mb-4">
+                        <div class="card">
+                            <div class="card-body">
+                                <h5 class="card-title">{{ crypto.name }} ({{ crypto.abbreviation }})</h5>
+                                <p class="card-text">
+                                    <strong>Rank:</strong> {{ crypto.rank }}<br>
+                                    <strong>Current Price:</strong> ${{ crypto.current_price }}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <p>No missing cryptocurrencies from the top 100!</p>
+            {% endif %}
+        </div>
+    </div>
 
     <!-- Bootstrap and optional custom JavaScript -->
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
