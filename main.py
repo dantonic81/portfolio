@@ -29,8 +29,8 @@ def get_top_1000_crypto():
     response = requests.get(url, params=params)
     return response.json()
 
-def calculate_portfolio_value(portfolio, top_100):
-    price_lookup = {crypto['symbol'].upper(): crypto['current_price'] for crypto in top_100}
+def calculate_portfolio_value(portfolio, top_1000):
+    price_lookup = {crypto['symbol'].upper(): crypto['current_price'] for crypto in top_1000}
 
     total_value = 0.0
     for asset in portfolio:
@@ -48,8 +48,8 @@ def calculate_portfolio_value(portfolio, top_100):
 @app.route('/portfolio', methods=['GET'])
 def show_portfolio():
     portfolio = read_portfolio('crypto_portfolio.csv')
-    top_100_cryptos = get_top_1000_crypto()
-    total_portfolio_value = calculate_portfolio_value(portfolio, top_100_cryptos)
+    top_1000_cryptos = get_top_1000_crypto()
+    total_portfolio_value = calculate_portfolio_value(portfolio, top_1000_cryptos)
 
     # Portfolio allocation
     allocation_data = []
