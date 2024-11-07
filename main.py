@@ -4,6 +4,7 @@ from flask import Flask, jsonify, render_template
 
 app = Flask(__name__)
 
+
 # Original functions
 def read_portfolio(csv_file_path):
     portfolio = []
@@ -40,7 +41,10 @@ def get_top_1000_crypto():
 
             # Check if the response contains the expected number of coins
             if len(data) > 0:
-                all_cryptos.extend(data)  # Add results to the list
+                for index, crypto in enumerate(data, start=1 + (page - 1) * 250):
+                    # Add rank to each crypto dictionary
+                    crypto['rank'] = index
+                all_cryptos.extend(data)
             else:
                 print(f"No data on page {page}.")
                 break
@@ -53,27 +57,35 @@ def get_top_1000_crypto():
 
     return all_cryptos
 
-def calculate_portfolio_value(portfolio, top_1000):
-    price_lookup = {crypto['symbol'].upper(): crypto['current_price'] for crypto in top_1000}
 
+def calculate_portfolio_value(portfolio, top_1000):
+    # Build a dictionary that maps symbols to crypto data including price and rank
+    price_lookup = {crypto['symbol'].upper(): {'price': crypto['current_price'], 'rank': crypto['market_cap_rank']} for crypto in
+                    top_1000}
+    print(price_lookup.get('rank'))
     total_value = 0.0
     for asset in portfolio:
         symbol = asset['abbreviation']
         amount = asset['amount']
-        current_price = price_lookup.get(symbol, 0)
+        crypto_data = price_lookup.get(symbol, {'price': 0, 'rank': None})
+
+        current_price = crypto_data['price']
         asset_value = amount * current_price
+
         asset['current_price'] = current_price
         asset['value'] = round(asset_value, 8)
+        asset['rank'] = crypto_data['rank']
+
         total_value += asset_value
 
     return total_value
+
 
 # Route to show portfolio in HTML format
 @app.route('/portfolio', methods=['GET'])
 def show_portfolio():
     portfolio = read_portfolio('crypto_portfolio.csv')
     top_1000_cryptos = get_top_1000_crypto()
-    print(top_1000_cryptos)  # Check what this variable contains
     total_portfolio_value = round(calculate_portfolio_value(portfolio, top_1000_cryptos), 2)
 
     # Portfolio allocation
@@ -83,13 +95,16 @@ def show_portfolio():
         allocation_data.append({
             'name': asset['name'],
             'abbreviation': asset['abbreviation'],
-            'allocation_percentage': round(allocation, 2)
+            'allocation_percentage': round(allocation, 2),
+            'rank': asset['rank']  # Include rank in the allocation data
         })
 
     # Sort allocation_data in descending order by 'allocation_percentage'
     allocation_data = sorted(allocation_data, key=lambda x: x['allocation_percentage'], reverse=True)
 
-    return render_template('portfolio.html', portfolio=portfolio, total_portfolio_value=total_portfolio_value, allocation_data=allocation_data)
+    return render_template('portfolio.html', portfolio=portfolio, total_portfolio_value=total_portfolio_value,
+                           allocation_data=allocation_data)
+
 
 # Route to show portfolio value in JSON format
 @app.route('/portfolio/json', methods=['GET'])
@@ -106,13 +121,15 @@ def get_portfolio_value():
             'abbreviation': asset['abbreviation'],
             'amount': asset['amount'],
             'current_price': asset['current_price'],
-            'value': asset['value']
+            'value': asset['value'],
+            'rank': asset['rank']  # Include rank in JSON output
         })
 
     return jsonify({
         'portfolio': portfolio_data,
         'total_portfolio_value': total_portfolio_value
     })
+
 
 # Run the Flask web server on port 8000
 if __name__ == '__main__':
