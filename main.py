@@ -1,8 +1,16 @@
 import csv
 import requests
+import time
 from flask import Flask, jsonify, render_template
 
 app = Flask(__name__)
+
+# Cache for storing the crypto data and timestamp
+crypto_cache = {
+    'data': None,
+    'timestamp': None
+}
+CACHE_EXPIRY = 120  # Cache expiry time in seconds
 
 
 # Original functions
@@ -20,6 +28,11 @@ def read_portfolio(csv_file_path):
 
 
 def get_top_1000_crypto():
+    # Check if cached data exists and is still valid
+    if crypto_cache['data'] and (time.time() - crypto_cache['timestamp']) < CACHE_EXPIRY:
+        print("Using cached data.")
+        return crypto_cache['data']
+
     url = "https://api.coingecko.com/api/v3/coins/markets"
     params = {
         'vs_currency': 'usd',
@@ -38,12 +51,9 @@ def get_top_1000_crypto():
 
         if response.status_code == 200:
             data = response.json()
-
-            # Check if the response contains the expected number of coins
             if len(data) > 0:
                 for index, crypto in enumerate(data, start=1 + (page - 1) * 250):
-                    # Add rank to each crypto dictionary
-                    crypto['rank'] = index
+                    crypto['rank'] = index  # Add rank
                 all_cryptos.extend(data)
             else:
                 print(f"No data on page {page}.")
@@ -52,17 +62,18 @@ def get_top_1000_crypto():
             print(f"Error fetching data from page {page}. Status Code: {response.status_code}")
             break
 
-    # Verify the total number of results
-    print(f"Total results fetched: {len(all_cryptos)}")
+    # Update cache if we retrieved all 1000 records successfully
+    if len(all_cryptos) >= 1000:
+        crypto_cache['data'] = all_cryptos
+        crypto_cache['timestamp'] = time.time()
+        print(f"Cached {len(all_cryptos)} records.")
 
     return all_cryptos
 
 
 def calculate_portfolio_value(portfolio, top_1000):
-    # Build a dictionary that maps symbols to crypto data including price and rank
     price_lookup = {crypto['symbol'].upper(): {'price': crypto['current_price'], 'rank': crypto['market_cap_rank']} for crypto in
                     top_1000}
-    print(price_lookup.get('rank'))
     total_value = 0.0
     for asset in portfolio:
         symbol = asset['abbreviation']
@@ -96,11 +107,12 @@ def show_portfolio():
             'name': asset['name'],
             'abbreviation': asset['abbreviation'],
             'allocation_percentage': round(allocation, 2),
-            'rank': asset['rank']  # Include rank in the allocation data
+            'value': asset['value'],
+            'rank': asset['rank']
         })
 
-    # Sort allocation_data in descending order by 'allocation_percentage'
-    allocation_data = sorted(allocation_data, key=lambda x: x['allocation_percentage'], reverse=True)
+    allocation_data = sorted(allocation_data, key=lambda x: x['value'], reverse=True)
+    portfolio = sorted(portfolio, key=lambda x: x['value'], reverse=True)
 
     return render_template('portfolio.html', portfolio=portfolio, total_portfolio_value=total_portfolio_value,
                            allocation_data=allocation_data)
@@ -113,7 +125,6 @@ def get_portfolio_value():
     top_1000_cryptos = get_top_1000_crypto()
     total_portfolio_value = calculate_portfolio_value(portfolio, top_1000_cryptos)
 
-    # Adding the portfolio data to the response
     portfolio_data = []
     for asset in portfolio:
         portfolio_data.append({
@@ -122,8 +133,10 @@ def get_portfolio_value():
             'amount': asset['amount'],
             'current_price': asset['current_price'],
             'value': asset['value'],
-            'rank': asset['rank']  # Include rank in JSON output
+            'rank': asset['rank']
         })
+
+    portfolio_data = sorted(portfolio_data, key=lambda x: x['value'], reverse=True)
 
     return jsonify({
         'portfolio': portfolio_data,
