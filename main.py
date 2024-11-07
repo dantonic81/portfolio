@@ -72,13 +72,26 @@ def get_top_1000_crypto():
 
 
 def calculate_portfolio_value(portfolio, top_1000):
-    price_lookup = {crypto['symbol'].upper(): {'price': crypto['current_price'], 'rank': crypto['market_cap_rank']} for crypto in
-                    top_1000}
+    # Build a lookup dictionary for fast access by both name and symbol
+    price_lookup = {
+        crypto['name'].lower(): {'price': crypto['current_price'], 'rank': crypto['market_cap_rank']}
+        for crypto in top_1000
+    }
+
+    # Add symbol-based lookup as a fallback
+    price_lookup.update({
+        crypto['symbol'].upper(): {'price': crypto['current_price'], 'rank': crypto['market_cap_rank']}
+        for crypto in top_1000
+    })
+
     total_value = 0.0
     for asset in portfolio:
+        name = asset['name'].lower()
         symbol = asset['abbreviation']
         amount = asset['amount']
-        crypto_data = price_lookup.get(symbol, {'price': 0, 'rank': None})
+
+        # Try to look up by name first, then fallback to symbol
+        crypto_data = price_lookup.get(name) or price_lookup.get(symbol, {'price': 0, 'rank': None})
 
         current_price = crypto_data['price']
         asset_value = amount * current_price
