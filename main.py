@@ -186,6 +186,11 @@ def show_unowned_cryptos():
 
     return render_template('unowned.html', missing_cryptos=missing_cryptos)
 
+@app.route('/outliers', methods=['GET'])
+def show_outlier_cryptos():
+    outlier_cryptos = []
+    return render_template('outliers.html', outlier_cryptos=outlier_cryptos)
+
 # Run the Flask web server on port 8000
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=8000, debug=True)

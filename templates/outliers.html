@@ -1,0 +1,30 @@
+<!-- templates/outliers.html -->
+{% extends "base.html" %}
+
+{% block title %}Outlier Crypto (Top 100){% endblock %}
+
+{% block content %}
+    <h1 class="text-center">Outlier Crypto - Machine Learning Model Isolation Forest (Top 100)</h1>
+
+    <!-- Missing Cryptos List -->
+    <h3 class="mt-4">Outlier Crypto:</h3>
+    <div class="row">
+        {% if outlier_cryptos %}
+            {% for crypto in outlier_cryptos %}
+                <div class="col-md-4 mb-4">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ crypto.name }} ({{ crypto.abbreviation }})</h5>
+                            <p class="card-text">
+                                <strong>Rank:</strong> {{ crypto.rank }}<br>
+                                <strong>Current Price:</strong> ${{ crypto.current_price }}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        {% else %}
+            <p>No outlier cryptocurrencies from the top 100!</p>
+        {% endif %}
+    </div>
+{% endblock %}
