@@ -157,6 +157,35 @@ def get_portfolio_value():
     })
 
 
+@app.route('/unowned', methods=['GET'])
+def show_unowned_cryptos():
+    # Read the portfolio and get the top 100 cryptos from CoinGecko
+    portfolio = read_portfolio('crypto_portfolio.csv')
+    top_1000_cryptos = get_top_1000_crypto()
+    top_100_cryptos = top_1000_cryptos[:100]  # Get only the top 100
+
+    # Create a set of owned crypto names and abbreviations from the portfolio
+    owned_cryptos = {asset['name'].lower() for asset in portfolio}
+    owned_cryptos.update({asset['abbreviation'].upper() for asset in portfolio})
+
+    # Compare with the top 100 and find the missing ones
+    missing_cryptos = []
+    for crypto in top_100_cryptos:
+        name = crypto['name'].lower()
+        abbreviation = crypto['symbol'].upper()
+        if name not in owned_cryptos and abbreviation not in owned_cryptos:
+            missing_cryptos.append({
+                'name': crypto['name'],
+                'abbreviation': crypto['symbol'],
+                'rank': crypto['rank'],
+                'current_price': crypto['current_price']
+            })
+
+    # Sort the missing cryptos by rank for easier viewing
+    missing_cryptos = sorted(missing_cryptos, key=lambda x: x['rank'])
+
+    return render_template('unowned.html', missing_cryptos=missing_cryptos)
+
 # Run the Flask web server on port 8000
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=8000, debug=True)

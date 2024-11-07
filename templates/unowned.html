@@ -36,47 +36,6 @@
         </div>
     </nav>
 
-    <div class="container mt-5">
-        <h1 class="text-center">Your Crypto Portfolio</h1>
-
-        <!-- Portfolio Total Value -->
-        <div class="row">
-            <div class="col-md-12">
-                <h2 class="text-center">Total Portfolio Value: <span class="text-success">${{ total_portfolio_value }}</span></h2>
-            </div>
-        </div>
-
-        <!-- Portfolio Breakdown -->
-        <h3 class="mt-4">Portfolio Breakdown:</h3>
-        <div class="row">
-            {% for asset in portfolio %}
-                <div class="col-md-4 mb-4">
-                    <div class="card">
-                        <div class="card-body">
-                            <h5 class="card-title">{{ asset.name }} ({{ asset.abbreviation }})</h5>
-                            <p class="card-text">
-                                <strong>Amount:</strong> {{ asset.amount }}<br>
-                                <strong>Current Price:</strong> ${{ asset.current_price }}<br>
-                                <strong>Value:</strong> ${{ asset.value }}<br>
-                                <strong>Rank:</strong> {{ asset.rank }}
-                            </p>
-                        </div>
-                    </div>
-                </div>
-            {% endfor %}
-        </div>
-
-        <!-- Portfolio Allocation -->
-        <h3 class="mt-4">Portfolio Allocation:</h3>
-        <ul class="list-group">
-            {% for allocation in allocation_data %}
-                <li class="list-group-item">
-                    <strong>{{ allocation.name }} ({{ allocation.abbreviation }}):</strong>
-                    {{ allocation.allocation_percentage }}% of portfolio
-                </li>
-            {% endfor %}
-        </ul>
-    </div>
 
     <!-- Bootstrap and optional custom JavaScript -->
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
