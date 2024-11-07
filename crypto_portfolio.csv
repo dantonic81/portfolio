@@ -11,7 +11,7 @@ Qubic,QUBIC,54824
 Bittensor,TAO,0.00182
 Toncoin,TON,2.18
 Bitcoin,BTC,0.02667
-Solana,SOL,1.00466
+Solana,SOL,1.00559
 Ethereum,ETH,0.028684
 XRP,XRP,31.176
 Cardano,ADA,27.1072
@@ -28,7 +28,7 @@ NEAR Protocol,NEAR,0.529752
 Osmosis,OSMO,5.00073
 VeChain,VET,81.44
 Axelar,AXL,1.91373
-Tezos,XTZ,1.80615
+Tezos,XTZ,1.808
 Algorand,ALGO,9.991
 BNB,BNB,0.001778
 Injective,INJ,0.033
@@ -187,4 +187,4 @@ BEAM,BEAMX,1
 Celer Network,CELR,1
 ImmutableX,IMX,0.01464879
 Scroll,SCR,0.01011122
-VeThor,VTHO,1.00725
+VeThor,VTHO,1.12421
