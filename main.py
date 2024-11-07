@@ -86,6 +86,9 @@ def show_portfolio():
             'allocation_percentage': round(allocation, 2)
         })
 
+    # Sort allocation_data in descending order by 'allocation_percentage'
+    allocation_data = sorted(allocation_data, key=lambda x: x['allocation_percentage'], reverse=True)
+
     return render_template('portfolio.html', portfolio=portfolio, total_portfolio_value=total_portfolio_value, allocation_data=allocation_data)
 
 # Route to show portfolio value in JSON format
