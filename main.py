@@ -17,12 +17,12 @@ def read_portfolio(csv_file_path):
             })
     return portfolio
 
-def get_top_100_crypto():
+def get_top_1000_crypto():
     url = "https://api.coingecko.com/api/v3/coins/markets"
     params = {
         'vs_currency': 'usd',
         'order': 'market_cap_desc',
-        'per_page': 100,
+        'per_page': 1000,
         'page': 1,
         'sparkline': 'false'
     }
@@ -48,7 +48,7 @@ def calculate_portfolio_value(portfolio, top_100):
 @app.route('/portfolio', methods=['GET'])
 def show_portfolio():
     portfolio = read_portfolio('crypto_portfolio.csv')
-    top_100_cryptos = get_top_100_crypto()
+    top_100_cryptos = get_top_1000_crypto()
     total_portfolio_value = calculate_portfolio_value(portfolio, top_100_cryptos)
 
     # Portfolio allocation
@@ -67,8 +67,8 @@ def show_portfolio():
 @app.route('/portfolio/json', methods=['GET'])
 def get_portfolio_value():
     portfolio = read_portfolio('crypto_portfolio.csv')
-    top_100_cryptos = get_top_100_crypto()
-    total_portfolio_value = calculate_portfolio_value(portfolio, top_100_cryptos)
+    top_1000_cryptos = get_top_1000_crypto()
+    total_portfolio_value = calculate_portfolio_value(portfolio, top_1000_cryptos)
 
     # Adding the portfolio data to the response
     portfolio_data = []
