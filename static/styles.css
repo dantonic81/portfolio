@@ -1,0 +1,53 @@
+/* Top Header Styles */
+.top-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #1e1e2f;
+  color: #ffffff;
+  padding: 20px;
+  border-bottom: 2px solid #323244;
+}
+
+.portfolio-value {
+  flex-grow: 1;
+  text-align: center;
+}
+
+.portfolio-value h2 {
+  margin: 0;
+  font-size: 1.5em;
+}
+
+.value {
+  font-size: 1.6em;
+  font-weight: bold;
+}
+
+.change {
+  font-weight: bold;
+  margin-left: 10px;
+}
+
+.change.positive {
+  color: #28a745; /* Green for positive change */
+}
+
+.change.negative {
+  color: #dc3545; /* Red for negative change */
+}
+
+.quick-actions button {
+  background-color: #3b3b5b;
+  color: #ffffff;
+  border: none;
+  padding: 10px 15px;
+  margin: 0 5px;
+  cursor: pointer;
+  border-radius: 5px;
+  transition: background-color 0.3s;
+}
+
+.quick-actions button:hover {
+  background-color: #56568f;
+}

@@ -186,6 +186,12 @@ def show_unowned_cryptos():
 
     return render_template('unowned.html', missing_cryptos=missing_cryptos)
 
+
+@app.route('/')
+def index():
+    return render_template('index.html')
+
+
 @app.route('/outliers', methods=['GET'])
 def show_outlier_cryptos():
     outlier_cryptos = []

@@ -1,0 +1,20 @@
+<!-- templates/index.html -->
+{% extends 'base.html' %}
+
+{% block title %}Crypto Portfolio - Home{% endblock %}
+
+{% block content %}
+<div class="jumbotron text-center">
+    <h1 class="display-4">Welcome to Your Crypto Portfolio!</h1>
+    <p class="lead">Track your cryptocurrency assets, discover new opportunities, and analyze market trends.</p>
+    <hr class="my-4">
+    <p>Get insights on your owned assets, explore top cryptocurrencies, and find outliers in the market.</p>
+
+    <!-- Add buttons linking to the new sections -->
+    <div class="d-flex justify-content-center">
+        <a class="btn btn-primary btn-lg mx-2" href="{{ url_for('show_portfolio') }}">View Owned Portfolio</a>
+        <a class="btn btn-secondary btn-lg mx-2" href="{{ url_for('show_unowned_cryptos') }}">Unowned (Top 100)</a>
+        <a class="btn btn-warning btn-lg mx-2" href="{{ url_for('show_outlier_cryptos') }}">Outliers (Top 100)</a>
+    </div>
+</div>
+{% endblock %}
