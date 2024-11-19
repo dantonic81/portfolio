@@ -53,9 +53,13 @@
 }
 
 .btn-warning {
+  color: #fff;
   background-color: #C1080B;
+  border-color: #DE4203;
 }
 
 .btn-warning:hover {
+  color: #fff;
   background-color: #C91C1C;
+  border-color: #DE4203;
 }
