@@ -1,29 +1,92 @@
 import csv
 import requests
 import time
+import sqlite3
 from flask import Flask, jsonify, render_template
 
 app = Flask(__name__)
+
+DATABASE = 'crypto_portfolio.db'
+CACHE_EXPIRY = 120  # Cache expiry time in seconds
 
 # Cache for storing the crypto data and timestamp
 crypto_cache = {
     'data': None,
     'timestamp': None
 }
-CACHE_EXPIRY = 120  # Cache expiry time in seconds
 
 
-# Original functions
-def read_portfolio(csv_file_path):
-    portfolio = []
+# Helper function to connect to SQLite
+def get_db_connection():
+    conn = sqlite3.connect(DATABASE)
+    conn.row_factory = sqlite3.Row
+    return conn
+
+
+# Initialize the SQLite database
+def init_db():
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+    # Create tables
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS portfolio (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            name TEXT,
+            abbreviation TEXT,
+            amount REAL
+        )
+    ''')
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS cryptocurrencies (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            name TEXT,
+            symbol TEXT,
+            current_price REAL,
+            market_cap_rank INTEGER
+        )
+    ''')
+
+    conn.commit()
+
+    # Check if the portfolio table is empty before loading CSV data
+    cursor.execute('SELECT COUNT(*) FROM portfolio')
+    portfolio_count = cursor.fetchone()[0]
+    print(portfolio_count)
+
+    if portfolio_count == 0:
+        print("Loading portfolio data from CSV...")
+        load_portfolio_from_csv('crypto_portfolio.csv')
+    else:
+        print("Portfolio data already loaded.")
+
+    conn.close()
+
+
+# Load portfolio data from CSV into SQLite (One-time operation)
+def load_portfolio_from_csv(csv_file_path):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
     with open(csv_file_path, mode='r') as file:
         reader = csv.DictReader(file)
         for row in reader:
-            portfolio.append({
-                'name': row['name'],
-                'abbreviation': row['abbreviation'].upper(),
-                'amount': float(row['amount'])
-            })
+            cursor.execute('''
+                INSERT INTO portfolio (name, abbreviation, amount)
+                VALUES (?, ?, ?)
+            ''', (row['name'], row['abbreviation'].upper(), float(row['amount'])))
+
+    conn.commit()
+    conn.close()
+
+
+# Fetch portfolio from SQLite
+def read_portfolio():
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute('SELECT name, abbreviation, amount FROM portfolio')
+    portfolio = [dict(row) for row in cursor.fetchall()]
+    conn.close()
     return portfolio
 
 
@@ -107,7 +170,7 @@ def calculate_portfolio_value(portfolio, top_1000):
 
 @app.context_processor
 def inject_total_portfolio_value():
-    portfolio = read_portfolio('crypto_portfolio.csv')
+    portfolio = read_portfolio()
     top_1000_cryptos = get_top_1000_crypto()
     total_portfolio_value = calculate_portfolio_value(portfolio, top_1000_cryptos)
     return {'total_portfolio_value': total_portfolio_value}
@@ -116,7 +179,7 @@ def inject_total_portfolio_value():
 # Route to show portfolio in HTML format
 @app.route('/portfolio', methods=['GET'])
 def show_portfolio():
-    portfolio = read_portfolio('crypto_portfolio.csv')
+    portfolio = read_portfolio()
     top_1000_cryptos = get_top_1000_crypto()
     total_portfolio_value = calculate_portfolio_value(portfolio, top_1000_cryptos)
 
@@ -142,7 +205,7 @@ def show_portfolio():
 # Route to show portfolio value in JSON format
 @app.route('/portfolio/json', methods=['GET'])
 def get_portfolio_value():
-    portfolio = read_portfolio('crypto_portfolio.csv')
+    portfolio = read_portfolio()
     top_1000_cryptos = get_top_1000_crypto()
     total_portfolio_value = calculate_portfolio_value(portfolio, top_1000_cryptos)
 
@@ -168,7 +231,7 @@ def get_portfolio_value():
 @app.route('/unowned', methods=['GET'])
 def show_unowned_cryptos():
     # Read the portfolio and get the top 100 cryptos from CoinGecko
-    portfolio = read_portfolio('crypto_portfolio.csv')
+    portfolio = read_portfolio()
     top_1000_cryptos = get_top_1000_crypto()
     top_100_cryptos = top_1000_cryptos[:100]  # Get only the top 100
 
@@ -205,6 +268,8 @@ def show_outlier_cryptos():
     outlier_cryptos = []
     return render_template('outliers.html', outlier_cryptos=outlier_cryptos)
 
+
 # Run the Flask web server on port 8000
 if __name__ == '__main__':
+    init_db()
     app.run(host='0.0.0.0', port=8000, debug=True)
