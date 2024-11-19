@@ -1,19 +1,13 @@
 import csv
 import requests
-import time
 import sqlite3
+from datetime import datetime
 from flask import Flask, jsonify, render_template
 
 app = Flask(__name__)
 
 DATABASE = 'crypto_portfolio.db'
 CACHE_EXPIRY = 120  # Cache expiry time in seconds
-
-# Cache for storing the crypto data and timestamp
-crypto_cache = {
-    'data': None,
-    'timestamp': None
-}
 
 
 # Helper function to connect to SQLite
@@ -43,7 +37,8 @@ def init_db():
             name TEXT,
             symbol TEXT,
             current_price REAL,
-            market_cap_rank INTEGER
+            market_cap_rank INTEGER,
+            timestamp TEXT
         )
     ''')
 
@@ -91,47 +86,64 @@ def read_portfolio():
 
 
 def get_top_1000_crypto():
-    # Check if cached data exists and is still valid
-    if crypto_cache['data'] and (time.time() - crypto_cache['timestamp']) < CACHE_EXPIRY:
-        print("Using cached data.")
-        return crypto_cache['data']
+    conn = get_db_connection()
+    cursor = conn.cursor()
 
+    # Check if cache exists and is valid
+    cursor.execute('SELECT MAX(timestamp) FROM cryptocurrencies')
+    result = cursor.fetchone()
+    cached_timestamp = result[0]  # This will be in ISO 8601 format
+
+    if cached_timestamp:
+        # Convert to datetime for comparison
+        last_cache_time = datetime.fromisoformat(cached_timestamp)
+        if (datetime.now() - last_cache_time).total_seconds() < CACHE_EXPIRY:
+            print("Using cached data from SQLite.")
+            cursor.execute('SELECT * FROM cryptocurrencies')
+            cryptos = [dict(row) for row in cursor.fetchall()]
+            conn.close()
+            return cryptos
+
+    print("Fetching data from CoinGecko API.")
     url = "https://api.coingecko.com/api/v3/coins/markets"
     params = {
         'vs_currency': 'usd',
         'order': 'market_cap_desc',
-        'per_page': 250,  # Request 250 results per page
+        'per_page': 250,
         'sparkline': 'false',
         'price_change_percentage': '24h'
     }
 
     all_cryptos = []  # List to store all results
 
-    # Loop through pages 1 to 4 (to get up to 1000)
-    for page in range(1, 5):  # Pages 1 to 4
+    for page in range(1, 5):
         params['page'] = page
         response = requests.get(url, params=params)
-
         if response.status_code == 200:
             data = response.json()
-            if len(data) > 0:
-                for index, crypto in enumerate(data, start=1 + (page - 1) * 250):
-                    crypto['rank'] = index  # Add rank
-                all_cryptos.extend(data)
-            else:
-                print(f"No data on page {page}.")
-                break
+            all_cryptos.extend(data)
         else:
             print(f"Error fetching data from page {page}. Status Code: {response.status_code}")
             break
 
-    # Update cache if we retrieved all 1000 records successfully
-    if len(all_cryptos) >= 1000:
-        crypto_cache['data'] = all_cryptos
-        crypto_cache['timestamp'] = time.time()
-        print(f"Cached {len(all_cryptos)} records.")
+    # Cache data in SQLite
+    cursor.execute('DELETE FROM cryptocurrencies')  # Clear old data
+    for crypto in all_cryptos:
+        cursor.execute('''
+            INSERT INTO cryptocurrencies (name, symbol, current_price, market_cap_rank, timestamp)
+            VALUES (?, ?, ?, ?, ?)
+        ''', (
+            crypto['name'],
+            crypto['symbol'],
+            crypto['current_price'],
+            crypto['market_cap_rank'],
+            datetime.now().isoformat()
+        ))
+    conn.commit()
+    conn.close()
 
     return all_cryptos
+
 
 
 def calculate_portfolio_value(portfolio, top_1000):
@@ -248,7 +260,7 @@ def show_unowned_cryptos():
             missing_cryptos.append({
                 'name': crypto['name'],
                 'abbreviation': crypto['symbol'],
-                'rank': crypto['rank'],
+                'rank': crypto['market_cap_rank'],
                 'current_price': crypto['current_price']
             })
 
