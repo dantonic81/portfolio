@@ -105,6 +105,14 @@ def calculate_portfolio_value(portfolio, top_1000):
     return total_value
 
 
+@app.context_processor
+def inject_total_portfolio_value():
+    portfolio = read_portfolio('crypto_portfolio.csv')
+    top_1000_cryptos = get_top_1000_crypto()
+    total_portfolio_value = calculate_portfolio_value(portfolio, top_1000_cryptos)
+    return {'total_portfolio_value': total_portfolio_value}
+
+
 # Route to show portfolio in HTML format
 @app.route('/portfolio', methods=['GET'])
 def show_portfolio():
