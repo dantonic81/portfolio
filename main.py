@@ -1,8 +1,9 @@
 import csv
 import requests
 import sqlite3
+import logging
 from datetime import datetime
-from flask import Flask, jsonify, render_template
+from flask import Flask, request, jsonify, render_template
 
 app = Flask(__name__)
 
@@ -280,6 +281,44 @@ def show_outlier_cryptos():
     outlier_cryptos = []
     return render_template('outliers.html', outlier_cryptos=outlier_cryptos)
 
+
+# Setup logging to see what happens in the console
+logging.basicConfig(level=logging.DEBUG)
+
+@app.route('/add_asset', methods=['POST'])
+def add_asset():
+    # Log that the request has been received
+    app.logger.debug("Received POST request at '/add_asset'")
+
+    try:
+        # Get data from the request as JSON
+        data = request.get_json()
+        app.logger.debug("Received data: %s", data)  # Log the received data
+
+        name = data.get('name')
+        abbreviation = data.get('abbreviation')
+        amount = float(data.get('amount'))  # Ensure the amount is a float
+
+        # Connect to SQLite and insert data into the portfolio table
+        conn = sqlite3.connect('crypto_portfolio.db')
+        cursor = conn.cursor()
+
+        cursor.execute('''
+            INSERT INTO portfolio (name, abbreviation, amount)
+            VALUES (?, ?, ?)
+        ''', (name, abbreviation, amount))
+
+        conn.commit()
+        conn.close()
+
+        app.logger.debug("Asset added successfully.")  # Log success
+
+        return jsonify({"success": True})
+
+    except Exception as e:
+        # Log any error that occurs
+        app.logger.error("Error while adding asset: %s", e)
+        return jsonify({"success": False, "error": str(e)})
 
 # Run the Flask web server on port 8000
 if __name__ == '__main__':

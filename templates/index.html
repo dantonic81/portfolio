@@ -15,11 +15,44 @@
 
   <!-- Quick Action Buttons -->
   <div class="quick-actions">
-    <button onclick="addAsset()">Add Asset</button>
+    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addAssetModal">
+      Add Asset
+    </button>
     <button onclick="setAlerts()">Set Alerts</button>
     <button onclick="exploreMarket()">Explore Market</button>
   </div>
 </header>
+
+<!-- Add the modal HTML for adding a new asset -->
+<div class="modal fade" id="addAssetModal" tabindex="-1" role="dialog" aria-labelledby="addAssetModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="addAssetModalLabel">Add New Asset</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form id="addAssetForm">
+          <div class="form-group">
+            <label for="asset-name">Asset Name</label>
+            <input type="text" class="form-control" id="asset-name" required>
+          </div>
+          <div class="form-group">
+            <label for="asset-abbreviation">Abbreviation</label>
+            <input type="text" class="form-control" id="asset-abbreviation" required>
+          </div>
+          <div class="form-group">
+            <label for="asset-amount">Amount</label>
+            <input type="number" class="form-control" id="asset-amount" required>
+          </div>
+          <button type="submit" class="btn btn-primary">Save Asset</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
 
 <div class="jumbotron text-center">
     <h1 class="display-4">Welcome to Your Crypto Portfolio!</h1>
@@ -35,3 +68,4 @@
     </div>
 </div>
 {% endblock %}
+
