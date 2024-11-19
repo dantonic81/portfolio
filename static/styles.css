@@ -51,3 +51,11 @@
 .quick-actions button:hover {
   background-color: #56568f;
 }
+
+.btn-warning {
+  background-color: #C1080B;
+}
+
+.btn-warning:hover {
+  background-color: #C91C1C;
+}
