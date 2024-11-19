@@ -21,10 +21,34 @@ $(document).ready(function() {
             data: JSON.stringify(formData),
             success: function(response) {
                 console.log("Asset saved:", response);
+
+                // Close the modal after success
+                $('#addAssetModal').modal('hide');
+
+                // Show success message
+                showSuccessMessage("Asset successfully added!");
+
+                // Redirect to the previous page
+                setTimeout(function() {
+                    window.location.href = document.referrer;  // Redirects to the previous page
+                }, 3000);  // Wait for 3 seconds before redirecting
             },
             error: function(xhr, status, error) {
                 console.error("Error saving asset:", error);
             }
         });
     });
+
+    // Function to show the success message
+    function showSuccessMessage(message) {
+        var successMessage = $('<div>')
+            .addClass('alert alert-success')
+            .text(message)
+            .appendTo('body')
+            .fadeIn(500)
+            .delay(2000)  // Display for 2 seconds
+            .fadeOut(500, function() {
+                $(this).remove();  // Remove the success message after fading out
+            });
+    }
 });
