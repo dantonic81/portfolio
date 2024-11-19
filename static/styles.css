@@ -63,3 +63,15 @@
   background-color: #C91C1C;
   border-color: #DE4203;
 }
+
+@media (max-width: 768px) {
+  .quick-actions {
+    flex-direction: column; /* Stack buttons vertically */
+    align-items: stretch; /* Make buttons full width */
+  }
+
+  .quick-actions button {
+    width: 100%; /* Full width for buttons */
+    margin-bottom: 10px; /* Add spacing between buttons */
+  }
+}
