@@ -102,7 +102,7 @@ def calculate_portfolio_value(portfolio, top_1000):
 
         total_value += asset_value
 
-    return total_value
+    return round(total_value, 2)
 
 
 @app.context_processor
@@ -118,7 +118,7 @@ def inject_total_portfolio_value():
 def show_portfolio():
     portfolio = read_portfolio('crypto_portfolio.csv')
     top_1000_cryptos = get_top_1000_crypto()
-    total_portfolio_value = round(calculate_portfolio_value(portfolio, top_1000_cryptos), 2)
+    total_portfolio_value = calculate_portfolio_value(portfolio, top_1000_cryptos)
 
     # Portfolio allocation
     allocation_data = []
