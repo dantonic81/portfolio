@@ -4,6 +4,23 @@
 {% block title %}Crypto Portfolio - Home{% endblock %}
 
 {% block content %}
+<header class="top-header">
+  <!-- Real-time Portfolio Value Display -->
+  <div class="portfolio-value">
+    <h2>Portfolio Value:
+      <span id="portfolio-value" class="value">$0.00</span>
+      <span id="percentage-change" class="change positive">+0.00%</span>
+    </h2>
+  </div>
+
+  <!-- Quick Action Buttons -->
+  <div class="quick-actions">
+    <button onclick="addAsset()">Add Asset</button>
+    <button onclick="setAlerts()">Set Alerts</button>
+    <button onclick="exploreMarket()">Explore Market</button>
+  </div>
+</header>
+
 <div class="jumbotron text-center">
     <h1 class="display-4">Welcome to Your Crypto Portfolio!</h1>
     <p class="lead">Track your cryptocurrency assets, discover new opportunities, and analyze market trends.</p>
