@@ -23,12 +23,12 @@ $(document).ready(function() {
                 console.log("Asset saved:", response);
 
                 // Close the modal after success
-                $('#addAssetModal').modal('hide');
+                $('#addAssetModal').modal('hide');  // Make sure this targets the correct modal
 
                 // Show success message
                 showSuccessMessage("Asset successfully added!");
 
-                // Redirect to the previous page
+                // Redirect to the previous page after a short delay
                 setTimeout(function() {
                     window.location.href = document.referrer;  // Redirects to the previous page
                 }, 3000);  // Wait for 3 seconds before redirecting
