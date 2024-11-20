@@ -1,0 +1,63 @@
+# Portfolio Web Application
+
+## Introduction
+
+The idea for this application arose from the need to track all the cryptocurrencies 
+an individual may possess, usually spread across different hardware and software wallets and exchanges
+and organize them in a single portfolio accessible from anywhere at any time.
+
+The main requirement is not to spend any money on development, which means severely limited options in terms of deployment and tech stack
+which in turn forces me to be as creative as possible and do much with very little.
+
+## Evolution of an idea
+
+- I want to see what all my cryptocurrencies are worth right now. In order to do this I first need to make a list of 
+every cryptocurrency I have together with their amounts and query those against a free API e.g. CoinGecko (no API key hence process simplified) to arrive at
+my current portfolio value.
+
+
+- I also want this application to show me which cryptocurrencies (from the current top 100) **I don't own yet**. That should give me
+visibility into which potentially good performers I'm missing. In order for this to make sense, I would have to implement alerts when a newcomer hits this list and also to sort this list by how long something has been on it. The assumption here is that
+if something has been on this list for long, I'm not very interested in buying it so it can go further in the backlog.
+  
+
+- Other than these two insights, I also want to be aware of outliers as soon as they start exhibiting a certain behavior.
+These in my mind are cryptocurrencies that are gaining in value so much in a short amount of time when compared to all others, that they clearly
+stand out as a great investment opportunity. This is the most complex part of my application and it will utilize Machine Learning, more specifically Isolation Forest model trained on the current top 100 cryptocurrencies. 
+
+
+- Once I have this logic developed, I need to deploy this application somewhere so it's accessible to me regardless of where I am at that moment and whether I'm using a laptop or my mobile phone. 
+
+
+- I'm starting with a simple csv file that will hold all my crypto and will be compared against the CoinGecko API to get insights.
+Render doesn't offer multiple services as part of its free tier, so I can forget about using Docker Compose with multiple services. I'll make this a single service application and deploy it via Dockerfile.
+For now regular HTML and CSS is good enough together with some Bootstrap because we're serving only static pages. Python and requests library will work to get what I need from the API.
+
+
+- [Render](https://render.com/) looks like a platform that could serve my needs, its free tier is good enough for me to deploy a small Dockerized Python-based webapp.
+
+
+- Django feels like an overkill for this and I want to be as flexible as possible and hit the ground running in terms of quick prototyping, so I'll use Flask.
+
+
+- Now that I have these three static pages serving my main insights into what I own and don't own yet (outliers will have to wait, not in the mood to eat the frog just yet),
+let's build a dashboard that will serve as a landing page and will provide an immediate insight into the total portfolio value and percentage change from the day before.
+Also, I would love to be able to add new assets via UI instead of editing my csv file. This means csv won't cut it, I'll need a database. I'll go with SQLite (PostgreSQL is offered as a managed instance but only a 30-day trial as part of a free tier).
+This also means I need Javascript, Ajax, JQuery and some other goodies because something will have to listen to events when buttons are clicked in the UI and something will also need to sebd these requests produced by events
+to the backend where database will be queries and something will have to carry back responses from API endpoints so that they can be represented by the frontend.
+
+
+- I can add new assets through the UI, now I'd like to edit existing ones, every now and then I buy more of the crypto I already own and I earn some by staking so I'd like to change the owned amount through the UI as well.
+
+
+- Testing different functionality means ending up with test assets in the database which is something I want to have a way of maintaining. I need a delete asset functionality, but I want it to be a part of the edit asset flow instead of making it a separate functionality.
+
+
+- I can now add new crypto, edit the amount of any crypto I own or delete a particular crypto altogether.
+Now I want to get that percentage change to show something meaningful like how much did my portfolio lose or gain over the course of one day.
+
+    The thought process goes like this:
+  - every time this index.html is refreshed, the value of the current portfolio is written to the database together with the date, if today's date is the same as the last entry date, the portfolio value is overwritten and the date stays the same which is an update operation, if the date in the database is older than the current date, we're inserting a completely new record
+
+  - every time this index.html is refreshed, the value of the current portfolio is compared to the portfolio value in the database for yesterday's date, if there is no value for yesterday, percentage change is not calculated and its left as it is, if there is value for yesterday, then the current portfolio value is compared against yesterday's and a percentage change is shown in the dashboard
+
