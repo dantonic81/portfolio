@@ -320,6 +320,50 @@ def add_asset():
         app.logger.error("Error while adding asset: %s", e)
         return jsonify({"success": False, "error": str(e)})
 
+
+
+def get_assets_by_query(query):
+    with sqlite3.connect('crypto_portfolio.db') as conn:
+        cursor = conn.cursor()
+
+        # Use parameterized queries to prevent SQL injection
+        cursor.execute("SELECT id, name, amount FROM portfolio WHERE name LIKE ?", ('%' + query + '%',))
+        assets = cursor.fetchall()
+
+    # Return the results in a structured format (list of dictionaries)
+    return [{'id': asset[0], 'asset_name': asset[1], 'value': asset[2]} for asset in assets]
+
+
+
+@app.route('/search_assets', methods=['GET'])
+def search_assets():
+    query = request.args.get('query')  # Get the query parameter from the request
+    if query:
+        assets = get_assets_by_query(query)  # Function to fetch assets based on the query
+        return jsonify({'assets': assets})  # Send the result back as JSON
+    else:
+        return jsonify({'assets': []})  # Return empty if no query is provided
+
+
+@app.route('/portfolio/filter_by_letter', methods=['GET'])
+def filter_assets_by_letter():
+    letter = request.args.get('letter', '').upper()  # Defaults to empty string if not provided
+    app.logger.debug(f"Filtering assets by letter: {letter}")  # Add this log
+
+    if not letter or len(letter) != 1 or not letter.isalpha():
+        return jsonify({"error": "Invalid letter parameter. Please provide a single alphabet character."}), 400
+
+    # Query the portfolio for assets whose names start with the specified letter
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+    cursor.execute('''SELECT name, abbreviation, amount FROM portfolio WHERE name LIKE ?''', (f'{letter}%',))
+    filtered_assets = [dict(row) for row in cursor.fetchall()]
+    conn.close()
+
+    # Return filtered assets as JSON
+    return jsonify(filtered_assets)
+
 # Run the Flask web server on port 8000
 if __name__ == '__main__':
     init_db()

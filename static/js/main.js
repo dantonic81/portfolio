@@ -52,3 +52,116 @@ $(document).ready(function() {
             });
     }
 });
+
+
+
+$(document).ready(function() {
+    // Listen for changes in the search input
+    $('#searchAsset').on('input', function() {
+        var query = $(this).val();  // Get the search term
+
+        if (query.length >= 2) {  // Start searching after 2 characters
+            $.ajax({
+                url: '/search_assets',  // Adjust to your server route
+                type: 'GET',
+                data: { query: query },
+                success: function(response) {
+                    // Clear the previous results
+                    $('#assetResults').empty();
+
+                    // Check if results were found
+                    if (response.assets.length > 0) {
+                        response.assets.forEach(function(asset) {
+                            // Add a list item for each matching asset
+                            $('#assetResults').append(
+                                `<li class="list-group-item" data-asset-id="${asset.id}" data-asset-name="${asset.asset_name}">
+                                    ${asset.asset_name}
+                                </li>`
+                            );
+                        });
+                    } else {
+                        $('#assetResults').append('<li class="list-group-item">No assets found</li>');
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error("Error fetching assets:", error);
+                }
+            });
+        } else {
+            // Clear results if input is less than 2 characters
+            $('#assetResults').empty();
+        }
+    });
+
+    // Handle selecting an asset from the search results
+    $('#assetResults').on('click', 'li', function() {
+        var assetId = $(this).data('asset-id');
+        var assetName = $(this).data('asset-name');
+
+        // Populate the modal with the selected asset's data
+        $('#edit-asset-id').val(assetId);
+        $('#edit-asset-name').val(assetName);
+        $('#editAssetModal').modal('show');
+
+        // Clear the search input
+        $('#searchAsset').val('');  // This clears the search input
+
+        // Close the dropdown
+        $('#assetResults').empty();  // Optionally, you can clear results
+
+        // Add the selected class to show feedback
+        $(this).addClass('selected');
+    });
+
+    // Clear the "selected" class when hovering over different list items
+    $('#assetResults').on('mouseover', 'li', function() {
+        $(this).removeClass('selected');  // Remove 'selected' class from all items
+    });
+
+    // Handle deleting the asset
+    $('#deleteAssetButton').click(function() {
+        var assetId = $('#edit-asset-id').val();
+        if (confirm('Are you sure you want to delete this asset?')) {
+            $.ajax({
+                url: '/delete_asset',
+                type: 'POST',
+                data: JSON.stringify({ id: assetId }),
+                contentType: 'application/json',
+                success: function(response) {
+                    alert('Asset deleted successfully!');
+                    $('#editAssetModal').modal('hide');
+                    location.reload();  // Optionally reload to update the page
+                },
+                error: function(xhr, status, error) {
+                    alert('Error deleting asset.');
+                    console.error("Error deleting asset:", error);
+                }
+            });
+        }
+    });
+
+    // Handle saving changes to the asset
+    $('#saveChangesButton').click(function() {
+        var assetId = $('#edit-asset-id').val();
+        var name = $('#edit-asset-name').val();
+        var amount = $('#edit-asset-amount').val();
+
+        var formData = { id: assetId, name: name, amount: amount };
+
+        $.ajax({
+            url: '/edit_asset',
+            type: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify(formData),
+            success: function(response) {
+                alert('Asset updated successfully!');
+                $('#editAssetModal').modal('hide');
+                location.reload();  // Optionally reload to update the page
+            },
+            error: function(xhr, status, error) {
+                alert('Error updating asset.');
+                console.error("Error updating asset:", error);
+            }
+        });
+    });
+});

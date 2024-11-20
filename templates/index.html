@@ -21,6 +21,9 @@
     <button type="button" class="btn btn-primary rounded-button flex-fill mx-1 my-1" data-toggle="modal" data-target="#editAssetModal" title="Edit an existing asset">
       <i class="fas fa-edit"></i> Edit Asset
     </button>
+<!--    <button type="button" class="btn btn-danger" onclick="confirmDeleteAsset()">-->
+<!--        <i class="fas fa-trash-alt"></i> Delete Asset-->
+<!--    </button>-->
     <button class="btn btn-primary rounded-button flex-fill mx-1 my-1" onclick="setAlerts()">Set Alerts</button>
     <button class="btn btn-primary rounded-button flex-fill mx-1 my-1" onclick="exploreMarket()">Explore Market</button>
   </div>
@@ -56,6 +59,48 @@
     </div>
   </div>
 </div>
+
+<!-- Edit Asset Modal -->
+<div class="modal fade" id="editAssetModal" tabindex="-1" role="dialog" aria-labelledby="editAssetModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="editAssetModalLabel">Edit Asset</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <!-- Search bar to search for assets -->
+        <input type="text" id="searchAsset" class="form-control" placeholder="Search for an asset...">
+
+        <!-- List of search results -->
+        <ul id="assetResults" class="list-group mt-2" style="max-height: 200px; overflow-y: auto;">
+          <!-- Search results will be dynamically populated here -->
+        </ul>
+
+        <!-- Asset details to edit (hidden until asset is selected) -->
+        <input type="hidden" id="edit-asset-id">
+        <div class="form-group">
+          <label for="edit-asset-name">Asset Name</label>
+          <input type="text" class="form-control" id="edit-asset-name" disabled>
+        </div>
+        <div class="form-group">
+          <label for="edit-asset-amount">Enter New Amount</label>
+          <input type="number" class="form-control" id="edit-asset-amount">
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-danger" id="deleteAssetButton">Delete Asset</button>
+        <button type="button" class="btn btn-primary" id="saveChangesButton">Save Changes</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
 
 <div class="jumbotron text-center">
     <h1 class="display-4">Welcome to Your Crypto Portfolio!</h1>

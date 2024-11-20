@@ -80,3 +80,16 @@
 .rounded-button {
     border-radius: 0.5rem !important; /* Add border-radius for rounded corners */
 }
+
+
+/* Add hover effect to list items */
+#assetResults .list-group-item:hover {
+    background-color: #f0f0f0; /* Light gray background on hover */
+    cursor: pointer; /* Change the cursor to indicate it's clickable */
+}
+
+/* Optional: Add an active effect when an item is clicked or selected */
+#assetResults .list-group-item.selected {
+    background-color: #007bff; /* Blue background when selected */
+    color: white; /* Change text color to white for better contrast */
+}
