@@ -407,6 +407,46 @@ def update_asset():
         return jsonify({'success': False, 'message': 'An unexpected error occurred'}), 500
 
 
+@app.route('/delete_asset', methods=['POST'])
+def delete_asset():
+    try:
+        # Parse data from the request
+        data = request.get_json()
+        asset_id = data.get('id')  # Asset ID to identify which record to delete
+
+        if not asset_id:
+            return jsonify({'success': False, 'message': 'Invalid data provided'}), 400
+
+        # Connect to the database
+        conn = get_db_connection()
+        cursor = conn.cursor()
+
+        # Delete the asset from the database
+        cursor.execute('''
+            DELETE FROM portfolio
+            WHERE id = ?
+        ''', (int(asset_id),))
+
+        conn.commit()
+        conn.close()
+
+        # Check if the delete operation affected any rows
+        if cursor.rowcount == 0:
+            return jsonify({'success': False, 'message': 'Asset not found'}), 404
+
+        return jsonify({'success': True, 'message': 'Asset deleted successfully'}), 200
+
+    except sqlite3.Error as e:
+        # Handle database errors
+        app.logger.error(f"SQLite error: {e}")
+        return jsonify({'success': False, 'message': 'Database error occurred'}), 500
+
+    except Exception as e:
+        # Handle other unexpected errors
+        app.logger.error(f"Error in delete_asset: {e}")
+        return jsonify({'success': False, 'message': 'An unexpected error occurred'}), 500
+
+
 # Run the Flask web server on port 8000
 if __name__ == '__main__':
     init_db()

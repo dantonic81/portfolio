@@ -136,7 +136,7 @@ $(document).ready(function() {
         }
     });
 
-        // Handle saving changes to the asset
+    // Handle saving changes to the asset
     $('#saveChangesButton').click(function() {
         var assetId = $('#edit-asset-id').val();
         var name = $('#edit-asset-name').val();
@@ -160,28 +160,27 @@ $(document).ready(function() {
             }
         });
     });
+
+    // Handle deleting the asset
+    $('#deleteAssetButton').click(function() {
+        var assetId = $('#edit-asset-id').val();
+        if (confirm('Are you sure you want to delete this asset?')) {
+            $.ajax({
+                url: '/delete_asset',
+                type: 'POST',
+                data: JSON.stringify({ id: assetId }),
+                contentType: 'application/json',
+                success: function(response) {
+                    alert('Asset deleted successfully!');
+                    $('#editAssetModal').modal('hide');
+                    location.reload();  // Optionally reload to update the page
+                },
+                error: function(xhr, status, error) {
+                    alert('Error deleting asset.');
+                    console.error("Error deleting asset:", error);
+                }
+            });
+        }
+    });
 });
 
-//    // Handle deleting the asset
-//    $('#deleteAssetButton').click(function() {
-//        var assetId = $('#edit-asset-id').val();
-//        if (confirm('Are you sure you want to delete this asset?')) {
-//            $.ajax({
-//                url: '/delete_asset',
-//                type: 'POST',
-//                data: JSON.stringify({ id: assetId }),
-//                contentType: 'application/json',
-//                success: function(response) {
-//                    alert('Asset deleted successfully!');
-//                    $('#editAssetModal').modal('hide');
-//                    location.reload();  // Optionally reload to update the page
-//                },
-//                error: function(xhr, status, error) {
-//                    alert('Error deleting asset.');
-//                    console.error("Error deleting asset:", error);
-//                }
-//            });
-//        }
-//    });
-//
-//});
