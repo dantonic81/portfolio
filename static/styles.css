@@ -75,3 +75,8 @@
     margin-bottom: 10px; /* Add spacing between buttons */
   }
 }
+
+/* Apply rounded corners to each individual button */
+.rounded-button {
+    border-radius: 0.5rem !important; /* Add border-radius for rounded corners */
+}
