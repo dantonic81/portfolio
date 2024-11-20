@@ -43,11 +43,11 @@ For now regular HTML and CSS is good enough together with some Bootstrap because
 - Now that I have these three static pages serving my main insights into what I own and don't own yet (outliers will have to wait, not in the mood to eat the frog just yet),
 let's build a dashboard that will serve as a landing page and will provide an immediate insight into the total portfolio value and percentage change from the day before.
 Also, I would love to be able to add new assets via UI instead of editing my csv file. This means csv won't cut it, I'll need a database. I'll go with SQLite (PostgreSQL is offered as a managed instance but only a 30-day trial as part of a free tier).
-This also means I need Javascript, Ajax, JQuery and some other goodies because something will have to listen to events when buttons are clicked in the UI and something will also need to sebd these requests produced by events
+This also means I need Javascript, Ajax, JQuery and some other goodies because something will have to listen to events when buttons are clicked in the UI and something will also need to send these requests produced by events
 to the backend where database will be queries and something will have to carry back responses from API endpoints so that they can be represented by the frontend.
 
 
-- I can add new assets through the UI, now I'd like to edit existing ones, every now and then I buy more of the crypto I already own and I earn some by staking so I'd like to change the owned amount through the UI as well.
+- I can add new assets through the UI, now I'd like to edit existing ones, every now and then I buy more of the crypto I already own and I earn some by staking, so I'd like to change the owned amount through the UI as well.
 
 
 - Testing different functionality means ending up with test assets in the database which is something I want to have a way of maintaining. I need a delete asset functionality, but I want it to be a part of the edit asset flow instead of making it a separate functionality.
@@ -59,5 +59,5 @@ Now I want to get that percentage change to show something meaningful like how m
     The thought process goes like this:
   - every time this index.html is refreshed, the value of the current portfolio is written to the database together with the date, if today's date is the same as the last entry date, the portfolio value is overwritten and the date stays the same which is an update operation, if the date in the database is older than the current date, we're inserting a completely new record
 
-  - every time this index.html is refreshed, the value of the current portfolio is compared to the portfolio value in the database for yesterday's date, if there is no value for yesterday, percentage change is not calculated and its left as it is, if there is value for yesterday, then the current portfolio value is compared against yesterday's and a percentage change is shown in the dashboard
+  - every time this index.html is refreshed, the value of the current portfolio is compared to the portfolio value in the database for yesterday's date, if there is no value for yesterday, percentage change is not calculated and it's left as it is, if there is value for yesterday, then the current portfolio value is compared against yesterday's and a percentage change is shown in the dashboard
 
