@@ -74,7 +74,7 @@ $(document).ready(function() {
                         response.assets.forEach(function(asset) {
                             // Add a list item for each matching asset
                             $('#assetResults').append(
-                                `<li class="list-group-item" data-asset-id="${asset.id}" data-asset-name="${asset.asset_name}">
+                                `<li class="list-group-item" data-asset-id="${asset.id}" data-asset-name="${asset.asset_name}" data-asset-amount="${asset.amount}">
                                     ${asset.asset_name}
                                 </li>`
                             );
@@ -97,71 +97,90 @@ $(document).ready(function() {
     $('#assetResults').on('click', 'li', function() {
         var assetId = $(this).data('asset-id');
         var assetName = $(this).data('asset-name');
+        var assetAmount = $(this).data('asset-amount');
 
         // Populate the modal with the selected asset's data
         $('#edit-asset-id').val(assetId);
         $('#edit-asset-name').val(assetName);
+
+        // Store the current amount in a data attribute
+        $('#edit-asset-amount').data('current-amount', assetAmount);
+
+        // Set the amount field to show the old amount as a placeholder
+        $('#edit-asset-amount').attr('placeholder', 'Current Amount: ' + assetAmount);
+
+        // Show the modal
         $('#editAssetModal').modal('show');
 
-        // Clear the search input
-        $('#searchAsset').val('');  // This clears the search input
-
-        // Close the dropdown
-        $('#assetResults').empty();  // Optionally, you can clear results
-
-        // Add the selected class to show feedback
-        $(this).addClass('selected');
+        // Close the dropdown by removing the "show" class or hiding the dropdown
+        $('#assetResults').empty();  // Optionally clear the results after selection
     });
 
-    // Clear the "selected" class when hovering over different list items
-    $('#assetResults').on('mouseover', 'li', function() {
-        $(this).removeClass('selected');  // Remove 'selected' class from all items
-    });
-
-    // Handle deleting the asset
-    $('#deleteAssetButton').click(function() {
-        var assetId = $('#edit-asset-id').val();
-        if (confirm('Are you sure you want to delete this asset?')) {
-            $.ajax({
-                url: '/delete_asset',
-                type: 'POST',
-                data: JSON.stringify({ id: assetId }),
-                contentType: 'application/json',
-                success: function(response) {
-                    alert('Asset deleted successfully!');
-                    $('#editAssetModal').modal('hide');
-                    location.reload();  // Optionally reload to update the page
-                },
-                error: function(xhr, status, error) {
-                    alert('Error deleting asset.');
-                    console.error("Error deleting asset:", error);
-                }
-            });
+    // Handle when the user clicks into the amount field (to edit it)
+    $('#edit-asset-amount').on('focus', function() {
+        // If the field contains the "Current Amount" text in the placeholder, clear it
+        if ($(this).attr('placeholder') && $(this).attr('placeholder').startsWith('Current Amount: ')) {
+            $(this).val(''); // Clear the input value when the field is clicked into
+            $(this).removeAttr('placeholder'); // Remove the placeholder text as well
         }
     });
 
-    // Handle saving changes to the asset
-    $('#saveChangesButton').click(function() {
-        var assetId = $('#edit-asset-id').val();
-        var name = $('#edit-asset-name').val();
-        var amount = $('#edit-asset-amount').val();
+    // Handle when the user leaves the amount field (blur event)
+    $('#edit-asset-amount').on('blur', function() {
+        var currentValue = $(this).val();
 
-        var formData = { id: assetId, name: name, amount: amount };
-
-        $.ajax({
-            url: '/edit_asset',
-            type: 'POST',
-            contentType: 'application/json',
-            data: JSON.stringify(formData),
-            success: function(response) {
-                alert('Asset updated successfully!');
-                $('#editAssetModal').modal('hide');
-                location.reload();  // Optionally reload to update the page
-            },
-            error: function(xhr, status, error) {
-                alert('Error updating asset.');
-                console.error("Error updating asset:", error);
-            }
-        });
+        // If the field is empty, restore the current amount as a placeholder
+        if (currentValue === '') {
+            var currentAmount = $(this).data('current-amount');
+            $(this).attr('placeholder', 'Current Amount: ' + oldAmount);
+        }
     });
 });
+
+//    // Handle deleting the asset
+//    $('#deleteAssetButton').click(function() {
+//        var assetId = $('#edit-asset-id').val();
+//        if (confirm('Are you sure you want to delete this asset?')) {
+//            $.ajax({
+//                url: '/delete_asset',
+//                type: 'POST',
+//                data: JSON.stringify({ id: assetId }),
+//                contentType: 'application/json',
+//                success: function(response) {
+//                    alert('Asset deleted successfully!');
+//                    $('#editAssetModal').modal('hide');
+//                    location.reload();  // Optionally reload to update the page
+//                },
+//                error: function(xhr, status, error) {
+//                    alert('Error deleting asset.');
+//                    console.error("Error deleting asset:", error);
+//                }
+//            });
+//        }
+//    });
+//
+//    // Handle saving changes to the asset
+//    $('#saveChangesButton').click(function() {
+//        var assetId = $('#edit-asset-id').val();
+//        var name = $('#edit-asset-name').val();
+//        var amount = $('#edit-asset-amount').val();
+//
+//        var formData = { id: assetId, name: name, amount: amount };
+//
+//        $.ajax({
+//            url: '/edit_asset',
+//            type: 'POST',
+//            contentType: 'application/json',
+//            data: JSON.stringify(formData),
+//            success: function(response) {
+//                alert('Asset updated successfully!');
+//                $('#editAssetModal').modal('hide');
+//                location.reload();  // Optionally reload to update the page
+//            },
+//            error: function(xhr, status, error) {
+//                alert('Error updating asset.');
+//                console.error("Error updating asset:", error);
+//            }
+//        });
+//    });
+//});

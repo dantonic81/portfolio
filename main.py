@@ -331,7 +331,7 @@ def get_assets_by_query(query):
         assets = cursor.fetchall()
 
     # Return the results in a structured format (list of dictionaries)
-    return [{'id': asset[0], 'asset_name': asset[1], 'value': asset[2]} for asset in assets]
+    return [{'id': asset[0], 'asset_name': asset[1], 'amount': asset[2]} for asset in assets]
 
 
 
