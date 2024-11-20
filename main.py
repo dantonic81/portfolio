@@ -364,6 +364,49 @@ def filter_assets_by_letter():
     # Return filtered assets as JSON
     return jsonify(filtered_assets)
 
+
+@app.route('/update_asset', methods=['POST'])
+def update_asset():
+    try:
+        # Parse data from the request
+        data = request.get_json()
+        asset_id = data.get('id')  # Asset ID to identify which record to update
+        new_amount = data.get('amount')  # New amount to update
+
+        if not asset_id or new_amount is None:
+            return jsonify({'success': False, 'message': 'Invalid data provided'}), 400
+
+        # Connect to the database and update the specified asset
+        conn = get_db_connection()
+        cursor = conn.cursor()
+
+        # Update the asset in the database
+        cursor.execute('''
+            UPDATE portfolio
+            SET amount = ?
+            WHERE id = ?
+        ''', (float(new_amount), int(asset_id)))
+
+        conn.commit()
+        conn.close()
+
+        # Check if the update was successful
+        if cursor.rowcount == 0:
+            return jsonify({'success': False, 'message': 'Asset not found'}), 404
+
+        return jsonify({'success': True, 'message': 'Asset updated successfully'}), 200
+
+    except sqlite3.Error as e:
+        # Handle database errors
+        app.logger.error(f"SQLite error: {e}")
+        return jsonify({'success': False, 'message': 'Database error occurred'}), 500
+
+    except Exception as e:
+        # Handle other unexpected errors
+        app.logger.error(f"Error in update_asset: {e}")
+        return jsonify({'success': False, 'message': 'An unexpected error occurred'}), 500
+
+
 # Run the Flask web server on port 8000
 if __name__ == '__main__':
     init_db()

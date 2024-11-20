@@ -135,6 +135,31 @@ $(document).ready(function() {
             $(this).attr('placeholder', 'Current Amount: ' + oldAmount);
         }
     });
+
+        // Handle saving changes to the asset
+    $('#saveChangesButton').click(function() {
+        var assetId = $('#edit-asset-id').val();
+        var name = $('#edit-asset-name').val();
+        var amount = $('#edit-asset-amount').val();
+
+        var formData = { id: assetId, name: name, amount: amount };
+
+        $.ajax({
+            url: '/update_asset',
+            type: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify(formData),
+            success: function(response) {
+                alert('Asset updated successfully!');
+                $('#editAssetModal').modal('hide');
+                location.reload();  // Optionally reload to update the page
+            },
+            error: function(xhr, status, error) {
+                alert('Error updating asset.');
+                console.error("Error updating asset:", error);
+            }
+        });
+    });
 });
 
 //    // Handle deleting the asset
@@ -159,28 +184,4 @@ $(document).ready(function() {
 //        }
 //    });
 //
-//    // Handle saving changes to the asset
-//    $('#saveChangesButton').click(function() {
-//        var assetId = $('#edit-asset-id').val();
-//        var name = $('#edit-asset-name').val();
-//        var amount = $('#edit-asset-amount').val();
-//
-//        var formData = { id: assetId, name: name, amount: amount };
-//
-//        $.ajax({
-//            url: '/edit_asset',
-//            type: 'POST',
-//            contentType: 'application/json',
-//            data: JSON.stringify(formData),
-//            success: function(response) {
-//                alert('Asset updated successfully!');
-//                $('#editAssetModal').modal('hide');
-//                location.reload();  // Optionally reload to update the page
-//            },
-//            error: function(xhr, status, error) {
-//                alert('Error updating asset.');
-//                console.error("Error updating asset:", error);
-//            }
-//        });
-//    });
 //});
