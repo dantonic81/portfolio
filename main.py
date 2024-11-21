@@ -524,8 +524,8 @@ def delete_asset():
 @app.route('/save_portfolio_value', methods=['POST'])
 def save_portfolio_value():
     try:
-        portfolio = read_portfolio()
-        top_1000_cryptos = get_top_1000_crypto()
+        portfolio = read_portfolio()  # Assuming this reads your portfolio data
+        top_1000_cryptos = get_top_1000_crypto()  # Assuming this gets the top 1000 cryptos
 
         # Calculate the total portfolio value
         total_portfolio_value = calculate_portfolio_value(portfolio, top_1000_cryptos)
@@ -536,13 +536,31 @@ def save_portfolio_value():
         # Connect to the database and check for an existing record
         conn = get_db_connection()
         cursor = conn.cursor()
-        cursor.execute('SELECT 1 FROM portfolio_daily WHERE date = ?', (today_date,))
+        cursor.execute('SELECT portfolio_value FROM portfolio_daily WHERE date = ?', (today_date,))
         existing_record = cursor.fetchone()
 
         if existing_record:
-            return jsonify({"success": False, "message": "Portfolio value for today already saved."}), 400
+            # If the portfolio value for today already exists, check if it's different
+            existing_value = existing_record[0]
+            if existing_value != total_portfolio_value:
+                # Update the portfolio value if it's different
+                cursor.execute('''
+                    UPDATE portfolio_daily 
+                    SET portfolio_value = ? 
+                    WHERE date = ?
+                ''', (total_portfolio_value, today_date))
 
-        # Insert the new portfolio value into the database
+                conn.commit()
+                conn.close()
+
+                return jsonify({"success": True, "message": "Portfolio value updated successfully."})
+            else:
+                # If the value is the same, log a warning and return success
+                app.logger.warning(f"Portfolio value for today ({today_date}) is the same as the previous value.")
+                conn.close()
+                return jsonify({"success": True, "message": "Portfolio value is the same for today. No update required."})
+
+        # If no record exists for today, insert a new record
         cursor.execute('''
             INSERT INTO portfolio_daily (date, portfolio_value) 
             VALUES (?, ?)
@@ -556,6 +574,7 @@ def save_portfolio_value():
     except Exception as e:
         app.logger.error(f"Error while saving portfolio value: {e}")
         return jsonify({"success": False, "error": str(e)}), 500
+
 
 
 

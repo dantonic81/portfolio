@@ -62,7 +62,8 @@ Now I want to get that percentage change to show something meaningful like how m
   - every time this index.html is refreshed, the value of the current portfolio is compared to the portfolio value in the database for yesterday's date, if there is no value for yesterday, percentage change is not calculated and it's left as it is, if there is value for yesterday, then the current portfolio value is compared against yesterday's and a percentage change is shown in the dashboard
 
 
-
+- I've pretty much done what I wanted on the dashboard for now, later I'll add the best performers and the worst performers ticker or something, but now I'd like to add delete functionality for every asset on the owned page, I want to be able to do that by clicking on any asset card and then go through a confirmation dialog
+Also there's nothing there to indicate that cards are editable when I hover above them, a color transition like we did for items in edit asset functionality could fit well here.
 
 
 ## TODO:
