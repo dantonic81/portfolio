@@ -9,7 +9,10 @@
   <div class="portfolio-value">
     <h2>Portfolio Value:
       <span id="portfolio-value" class="value">${{ total_portfolio_value }}</span>
-      <span id="percentage-change" class="change positive">+0.00%</span>
+          <span id="percentage-change" class="change {{ 'positive' if percentage_change > 0 else 'negative' }}">
+        {{ formatted_percentage_change }}
+    </span>
+</span>
     </h2>
   </div>
 

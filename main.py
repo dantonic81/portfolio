@@ -42,6 +42,14 @@ def init_db():
             timestamp TEXT
         )
     ''')
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS portfolio_daily (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            date TEXT NOT NULL UNIQUE,
+            portfolio_value DECIMAL(20, 2) NOT NULL,
+            created_at TEXT DEFAULT CURRENT_TIMESTAMP
+        )
+    ''')
 
     conn.commit()
 
@@ -273,7 +281,73 @@ def show_unowned_cryptos():
 
 @app.route('/')
 def index():
-    return render_template('index.html')
+    try:
+        # Fetch the portfolio data that we need for calculation
+        portfolio = read_portfolio()  # Your function to read portfolio data
+        top_1000_cryptos = get_top_1000_crypto()  # Function to get the top 1000 cryptos
+
+        # Calculate the total portfolio value
+        total_portfolio_value = calculate_portfolio_value(portfolio, top_1000_cryptos)
+
+        # Get today's date for checking the database
+        today_date = datetime.now().strftime('%Y-%m-%d')
+
+        # Connect to the database and check if a record for today already exists
+        conn = get_db_connection()
+        cursor = conn.cursor()
+
+        cursor.execute('SELECT 1 FROM portfolio_daily WHERE date = ?', (today_date,))
+        existing_record = cursor.fetchone()
+
+        if existing_record:
+            # If the record exists, update the portfolio_value
+            cursor.execute('''
+                UPDATE portfolio_daily 
+                SET portfolio_value = ? 
+                WHERE date = ?
+            ''', (total_portfolio_value, today_date))
+        else:
+            # If no record for today, insert the new portfolio_value
+            cursor.execute('''
+                INSERT INTO portfolio_daily (date, portfolio_value) 
+                VALUES (?, ?)
+            ''', (today_date, total_portfolio_value))
+
+        conn.commit()
+
+        # Fetch the previous day's portfolio value from the database for percentage change calculation
+        cursor.execute('''
+            SELECT portfolio_value 
+            FROM portfolio_daily 
+            ORDER BY date DESC 
+            LIMIT 2
+        ''')
+        records = cursor.fetchall()
+        conn.close()
+
+        # Assign values for the current and previous portfolio values
+        current_value = total_portfolio_value  # Use the freshly calculated value
+        previous_value = records[1][0] if len(records) > 1 else current_value  # Last saved value
+
+        # Calculate percentage change dynamically
+        percentage_change = ((current_value - previous_value) / previous_value) * 100 if previous_value else 0
+
+        # Format the percentage change for display
+        formatted_percentage_change = f"{percentage_change:+.2f}%"
+
+        # Pass raw and formatted values to the template
+        return render_template(
+            'index.html',
+            total_portfolio_value=current_value,
+            percentage_change=percentage_change,  # Raw value
+            formatted_percentage_change=formatted_percentage_change  # Display string
+        )
+
+    except Exception as e:
+        app.logger.error(f"Error while fetching portfolio data: {e}")
+        return render_template('index.html', total_portfolio_value=0, percentage_change=0, formatted_percentage_change="0.00%")
+
+
 
 
 @app.route('/outliers', methods=['GET'])
@@ -445,6 +519,44 @@ def delete_asset():
         # Handle other unexpected errors
         app.logger.error(f"Error in delete_asset: {e}")
         return jsonify({'success': False, 'message': 'An unexpected error occurred'}), 500
+
+
+@app.route('/save_portfolio_value', methods=['POST'])
+def save_portfolio_value():
+    try:
+        portfolio = read_portfolio()
+        top_1000_cryptos = get_top_1000_crypto()
+
+        # Calculate the total portfolio value
+        total_portfolio_value = calculate_portfolio_value(portfolio, top_1000_cryptos)
+
+        # Get today's date
+        today_date = datetime.now().strftime('%Y-%m-%d')
+
+        # Connect to the database and check for an existing record
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute('SELECT 1 FROM portfolio_daily WHERE date = ?', (today_date,))
+        existing_record = cursor.fetchone()
+
+        if existing_record:
+            return jsonify({"success": False, "message": "Portfolio value for today already saved."}), 400
+
+        # Insert the new portfolio value into the database
+        cursor.execute('''
+            INSERT INTO portfolio_daily (date, portfolio_value) 
+            VALUES (?, ?)
+        ''', (today_date, total_portfolio_value))
+
+        conn.commit()
+        conn.close()
+
+        return jsonify({"success": True, "message": "Portfolio value saved successfully."})
+
+    except Exception as e:
+        app.logger.error(f"Error while saving portfolio value: {e}")
+        return jsonify({"success": False, "error": str(e)}), 500
+
 
 
 # Run the Flask web server on port 8000

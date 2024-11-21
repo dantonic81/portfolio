@@ -61,3 +61,20 @@ Now I want to get that percentage change to show something meaningful like how m
 
   - every time this index.html is refreshed, the value of the current portfolio is compared to the portfolio value in the database for yesterday's date, if there is no value for yesterday, percentage change is not calculated and it's left as it is, if there is value for yesterday, then the current portfolio value is compared against yesterday's and a percentage change is shown in the dashboard
 
+
+
+
+
+## TODO:
+
+- type hints
+- docstrings
+- error handling
+- logging
+- tests
+- linting
+- formatting
+- coverage
+- Flask blueprints
+- ORM?
+- 

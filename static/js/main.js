@@ -184,3 +184,34 @@ $(document).ready(function() {
     });
 });
 
+$(document).ready(function() {
+    function getCurrentPortfolioValue() {
+        // Retrieve the portfolio value from the data attribute
+        var totalPortfolioValue = $('#portfolio-value').data('total-portfolio-value');
+        return totalPortfolioValue;
+    }
+
+    function savePortfolioValue() {
+        var currentPortfolioValue = getCurrentPortfolioValue();
+
+        // Save the portfolio value
+        $.ajax({
+            url: '/save_portfolio_value',  // The route to save the portfolio value
+            type: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify({ "current_value": currentPortfolioValue }),
+            success: function(response) {
+                console.log(response.message);
+            },
+            error: function(xhr, status, error) {
+                console.error("Error saving portfolio value:", error);
+            }
+        });
+    }
+
+    // Save the portfolio value on page load
+    savePortfolioValue();
+});
+
+
+
