@@ -25,7 +25,8 @@
                         <strong>Amount:</strong> {{ asset.amount }}<br>
                         <strong>Current Price:</strong> ${{ asset.current_price }}<br>
                         <strong>Value:</strong> ${{ asset.value }}<br>
-                        <strong>Rank:</strong> {{ asset.rank }}
+                        <strong>Rank:</strong> {{ asset.rank }}<br>
+                        <strong>Allocation:</strong> {{ asset.allocation_percentage }}% of portfolio
                     </p>
                 </div>
                 <!-- Trash Icon for Deletion -->
@@ -36,18 +37,6 @@
         </div>
     {% endfor %}
 </div>
-
-    <!-- Portfolio Allocation -->
-    <h3 class="mt-4">Portfolio Allocation:</h3>
-    <ul class="list-group">
-        {% for allocation in allocation_data %}
-            <li class="list-group-item">
-                <strong>{{ allocation.name }} ({{ allocation.abbreviation }}):</strong>
-                {{ allocation.allocation_percentage }}% of portfolio
-            </li>
-        {% endfor %}
-    </ul>
-
 
 <!-- Modal for Deletion Confirmation -->
 <div class="modal fade" id="deleteAssetModal" tabindex="-1" aria-labelledby="deleteAssetModalLabel" aria-hidden="true">

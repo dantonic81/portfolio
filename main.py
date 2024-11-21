@@ -205,48 +205,13 @@ def show_portfolio():
     total_portfolio_value = calculate_portfolio_value(portfolio, top_1000_cryptos)
 
     # Portfolio allocation
-    allocation_data = []
     for asset in portfolio:
         allocation = (asset['value'] / total_portfolio_value) * 100 if total_portfolio_value > 0 else 0
-        allocation_data.append({
-            'name': asset['name'],
-            'abbreviation': asset['abbreviation'],
-            'allocation_percentage': round(allocation, 2),
-            'value': asset['value'],
-            'rank': asset['rank']
-        })
+        asset['allocation_percentage'] = round(allocation, 2)
 
-    allocation_data = sorted(allocation_data, key=lambda x: x['value'], reverse=True)
     portfolio = sorted(portfolio, key=lambda x: x['value'], reverse=True)
 
-    return render_template('portfolio.html', portfolio=portfolio, total_portfolio_value=total_portfolio_value,
-                           allocation_data=allocation_data)
-
-
-# Route to show portfolio value in JSON format
-@app.route('/portfolio/json', methods=['GET'])
-def get_portfolio_value():
-    portfolio = read_portfolio()
-    top_1000_cryptos = get_top_1000_crypto()
-    total_portfolio_value = calculate_portfolio_value(portfolio, top_1000_cryptos)
-
-    portfolio_data = []
-    for asset in portfolio:
-        portfolio_data.append({
-            'name': asset['name'],
-            'abbreviation': asset['abbreviation'],
-            'amount': asset['amount'],
-            'current_price': asset['current_price'],
-            'value': asset['value'],
-            'rank': asset['rank']
-        })
-
-    portfolio_data = sorted(portfolio_data, key=lambda x: x['value'], reverse=True)
-
-    return jsonify({
-        'portfolio': portfolio_data,
-        'total_portfolio_value': total_portfolio_value
-    })
+    return render_template('portfolio.html', portfolio=portfolio, total_portfolio_value=total_portfolio_value)
 
 
 @app.route('/unowned', methods=['GET'])

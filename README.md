@@ -66,6 +66,13 @@ Now I want to get that percentage change to show something meaningful like how m
 Also there's nothing there to indicate that cards are editable when I hover above them, a color transition like we did for items in edit asset functionality could fit well here.
 
 
+- It doesn't make any sense to have portfolio allocation entries below the cards themselves, information from the allocation could be integrated into their respective cards as just another new field
+
+
+
+
+
+
 ## TODO:
 
 - type hints
