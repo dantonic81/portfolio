@@ -13,29 +13,29 @@
         </div>
     </div>
 
-    <!-- Portfolio Breakdown -->
-    <h3 class="mt-4">Portfolio Breakdown:</h3>
-    <div class="row">
-        {% for asset in portfolio %}
-            <div class="col-md-4 mb-4">
-                <div class="card" data-id="{{ asset.id }}" onclick="openDeleteModal(this)">
-                    <div class="card-body">
-                        <h5 class="card-title">{{ asset.name }} ({{ asset.abbreviation }})</h5>
-                        <p class="card-text">
-                            <strong>Amount:</strong> {{ asset.amount }}<br>
-                            <strong>Current Price:</strong> ${{ asset.current_price }}<br>
-                            <strong>Value:</strong> ${{ asset.value }}<br>
-                            <strong>Rank:</strong> {{ asset.rank }}
-                        </p>
-                    </div>
-                    <!-- Trash Icon for Deletion -->
-                    <div class="delete-icon">
-                        <i class="fa fa-trash"></i> <!-- FontAwesome Trash Icon -->
-                    </div>
+<!-- Portfolio Breakdown -->
+<h3 class="mt-4">Portfolio Breakdown:</h3>
+<div class="row">
+    {% for asset in portfolio %}
+        <div class="col-md-4 mb-4">
+            <div class="card asset-card" data-id="{{ asset.id }}">
+                <div class="card-body">
+                    <h5 class="card-title">{{ asset.name }} ({{ asset.abbreviation }})</h5>
+                    <p class="card-text">
+                        <strong>Amount:</strong> {{ asset.amount }}<br>
+                        <strong>Current Price:</strong> ${{ asset.current_price }}<br>
+                        <strong>Value:</strong> ${{ asset.value }}<br>
+                        <strong>Rank:</strong> {{ asset.rank }}
+                    </p>
+                </div>
+                <!-- Trash Icon for Deletion -->
+                <div class="delete-icon">
+                    <i class="fa fa-trash"></i> <!-- FontAwesome Trash Icon -->
                 </div>
             </div>
-        {% endfor %}
-    </div>
+        </div>
+    {% endfor %}
+</div>
 
     <!-- Portfolio Allocation -->
     <h3 class="mt-4">Portfolio Allocation:</h3>

@@ -88,7 +88,7 @@ def load_portfolio_from_csv(csv_file_path):
 def read_portfolio():
     conn = get_db_connection()
     cursor = conn.cursor()
-    cursor.execute('SELECT name, abbreviation, amount FROM portfolio')
+    cursor.execute('SELECT id, name, abbreviation, amount FROM portfolio')
     portfolio = [dict(row) for row in cursor.fetchall()]
     conn.close()
     return portfolio
