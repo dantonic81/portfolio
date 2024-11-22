@@ -128,3 +128,14 @@
 .card:hover .delete-icon i {
     color: #e63946;  /* A brighter red on hover */
 }
+
+footer {
+    background-color: #f8f9fa;
+    padding: 20px;
+    text-align: center;
+    font-size: 0.9em;
+    color: #6c757d;
+    position: relative; /* Change to "fixed" if you want it sticky */
+    bottom: 0;
+    width: 100%;
+}

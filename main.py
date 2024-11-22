@@ -4,11 +4,24 @@ import sqlite3
 import logging
 from datetime import datetime
 from flask import Flask, request, jsonify, render_template
+from sklearn.ensemble import IsolationForest
+import pandas as pd
+import json
+import numpy as np
+import os
+from dotenv import load_dotenv
+
+
+load_dotenv()
 
 app = Flask(__name__)
 
 DATABASE = 'crypto_portfolio.db'
 CACHE_EXPIRY = 120  # Cache expiry time in seconds
+API_KEY = os.environ.get("API_KEY")
+# API_KEY = os.getenv("API_KEY")
+if not API_KEY:
+    raise EnvironmentError("API_KEY is not set in the environment variables.")
 
 
 # Helper function to connect to SQLite
@@ -48,6 +61,15 @@ def init_db():
             date TEXT NOT NULL UNIQUE,
             portfolio_value DECIMAL(20, 2) NOT NULL,
             created_at TEXT DEFAULT CURRENT_TIMESTAMP
+        )
+    ''')
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS gainers_losers_cache (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            owned_coins TEXT,
+            gainers TEXT,
+            losers TEXT,
+            timestamp TEXT
         )
     ''')
 
@@ -189,6 +211,190 @@ def calculate_portfolio_value(portfolio, top_1000):
     return round(total_value, 2)
 
 
+import os
+import sqlite3
+import requests
+
+
+def fetch_owned_coins_from_db(db_path="crypto_portfolio.db"):
+    """
+    Fetch the abbreviations of the coins in the portfolio from the database.
+
+    Args:
+        db_path (str): The path to the SQLite database.
+
+    Returns:
+        list: List of coin abbreviations owned (e.g., ["bitcoin", "ethereum"]).
+    """
+    connection = sqlite3.connect(db_path)
+    cursor = connection.cursor()
+
+    # Fetch all owned coin abbreviations
+    cursor.execute("SELECT abbreviation FROM portfolio")
+    owned_coins = [row[0].lower() for row in cursor.fetchall()]
+
+    connection.close()
+    return owned_coins
+
+
+def fetch_gainers_and_losers_owned(owned_coins):
+    """
+    Fetch the top gainers and losers for owned coins with caching.
+
+    Args:
+        owned_coins (list): List of coin IDs owned (e.g., ["bitcoin", "ethereum", "dogecoin"]).
+
+    Returns:
+        tuple: (list of gainers, list of losers)
+    """
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+    # Check if cached data exists and is still valid
+    cursor.execute('SELECT timestamp FROM gainers_losers_cache WHERE owned_coins = ?', (",".join(owned_coins),))
+    result = cursor.fetchone()
+
+    if result:
+        cached_timestamp = result[0]
+        last_cache_time = datetime.fromisoformat(cached_timestamp)
+
+        if (datetime.now() - last_cache_time).total_seconds() < CACHE_EXPIRY:
+            print("Using cached data.")
+            cursor.execute('SELECT gainers, losers FROM gainers_losers_cache WHERE owned_coins = ?',
+                           (",".join(owned_coins),))
+            cached_data = cursor.fetchone()
+            conn.close()
+            # Return the cached gainers and losers (they are stored as text, so need to be evaluated)
+            return eval(cached_data[0]), eval(cached_data[1])
+
+    print("Fetching data from CoinGecko API.")
+    url = "https://api.coingecko.com/api/v3/coins/markets"
+    params = {
+        "vs_currency": "usd",
+        "ids": ",".join(owned_coins),
+        "order": "market_cap_desc",
+        "per_page": len(owned_coins),
+        "price_change_percentage": "24h",
+    }
+
+    try:
+        response = requests.get(url, params=params)
+        response.raise_for_status()
+        data = response.json()
+
+        # Filter out coins where price_change_percentage_24h is None
+        filtered_data = [coin for coin in data if coin.get("price_change_percentage_24h") is not None]
+
+        # Sort by price change percentage (24h)
+        gainers = sorted(filtered_data, key=lambda x: x["price_change_percentage_24h"], reverse=True)
+        losers = sorted(filtered_data, key=lambda x: x["price_change_percentage_24h"])
+
+        # Cache the new data in SQLite
+        cursor.execute('''
+            DELETE FROM gainers_losers_cache WHERE owned_coins = ?
+        ''', (",".join(owned_coins),))
+
+        # Store the gainers and losers as text for later retrieval
+        cursor.execute('''
+            INSERT INTO gainers_losers_cache (owned_coins, gainers, losers, timestamp)
+            VALUES (?, ?, ?, ?)
+        ''', (
+            ",".join(owned_coins),
+            str(gainers),  # Store as text
+            str(losers),  # Store as text
+            datetime.now().isoformat()
+        ))
+        conn.commit()
+        conn.close()
+
+        return gainers, losers
+
+    except requests.exceptions.RequestException as e:
+        print(f"API Error: {e}")
+        conn.close()
+        return [], []
+
+def preprocess_data(gainers, losers):
+    features = []
+    coin_ids = []
+
+    for coin in gainers + losers:
+        # Access 'current_price' directly instead of 'usd'
+        price = coin.get('current_price', 0)  # Default to 0 if not available
+
+        features.append([
+            price,
+            coin.get("market_cap", 0),
+            coin.get("total_volume", 0)
+        ])
+
+        coin_ids.append(coin.get("id", "unknown"))
+
+    return features, coin_ids
+
+
+
+def detect_outliers(features, contamination=0.1):
+    """
+    Use Isolation Forest to detect outliers.
+
+    Args:
+        features (numpy.ndarray): Numerical features for the model.
+        contamination (float): The proportion of outliers in the data.
+
+    Returns:
+        numpy.ndarray: Array of anomaly labels (-1 for outliers, 1 for inliers).
+    """
+    model = IsolationForest(contamination=contamination, random_state=42)
+    model.fit(features)
+    labels = model.predict(features)
+    return labels
+
+
+def make_hashable(coin):
+    """Recursively convert dictionaries to hashable tuples."""
+    if isinstance(coin, dict):
+        return tuple((k, make_hashable(v)) for k, v in coin.items())  # Recursively convert dicts
+    elif isinstance(coin, list):
+        return tuple(make_hashable(v) for v in coin)  # Recursively convert lists
+    else:
+        return coin  # Return primitive values as they are (e.g., strings, numbers)
+
+
+def combine_results(labels, coin_ids, gainers, losers):
+    combined = gainers + losers
+
+    # Remove duplicates by converting dictionaries to hashable tuples
+    seen = set()
+    unique_combined = []
+    filtered_labels = []  # A list to store the filtered labels corresponding to unique_combined
+
+    for i, coin in enumerate(combined):
+        # Extracting and formatting key fields for caching
+        formatted_coin = {
+            'id': coin.get('id', 'N/A'),
+            'name': coin.get('name', 'N/A'),
+            'rank': coin.get('market_cap_rank', 'N/A'),
+            'current_price': coin.get('current_price', 'N/A'),
+            'percentage_gain': coin.get('price_change_percentage_24h', 'N/A'),
+            'market_cap': coin.get('market_cap', 'N/A'),
+            'volume': coin.get('total_volume', 'N/A')
+        }
+
+        coin_tuple = make_hashable(formatted_coin)  # Convert the formatted coin dictionary to a hashable tuple
+
+        if coin_tuple not in seen:
+            seen.add(coin_tuple)
+            unique_combined.append(formatted_coin)
+            filtered_labels.append(labels[i])  # Keep the corresponding label
+
+    # Now combine again with labels
+    outliers = [unique_combined[i] for i, label in enumerate(filtered_labels) if label == -1]
+    inliers = [unique_combined[i] for i, label in enumerate(filtered_labels) if label == 1]
+
+    return {"outliers": outliers, "inliers": inliers}
+
+
 @app.context_processor
 def inject_total_portfolio_value():
     portfolio = read_portfolio()
@@ -313,14 +519,32 @@ def index():
         return render_template('index.html', total_portfolio_value=0, percentage_change=0, formatted_percentage_change="0.00%")
 
 
-
-
 @app.route('/outliers', methods=['GET'])
-def show_outlier_cryptos():
-    outlier_cryptos = []
-    return render_template('outliers.html', outlier_cryptos=outlier_cryptos)
+def show_outliers():
+    # Fetch owned coins
+    owned_coins = fetch_owned_coins_from_db()
+    print("Owned Coins:", owned_coins)  # Debugging line
 
+    # Fetch gainers and losers
+    gainers, losers = fetch_gainers_and_losers_owned(owned_coins)
 
+    if not gainers and not losers:
+        return "Failed to fetch data from the API.", 500
+
+    # Preprocess data
+    features, coin_ids = preprocess_data(gainers, losers)
+
+    # Detect outliers using Isolation Forest
+    labels = detect_outliers(features, contamination=0.1)
+
+    # Combine API data with model results
+    results = combine_results(labels, coin_ids, gainers, losers)
+
+    return render_template(
+        'outliers.html',
+        outlier_cryptos=results["outliers"],
+        inlier_cryptos=results["inliers"]
+    )
 # Setup logging to see what happens in the console
 logging.basicConfig(level=logging.DEBUG)
 

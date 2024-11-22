@@ -13,7 +13,7 @@ which in turn forces me to be as creative as possible and do much with very litt
 
 - I want to see what all my cryptocurrencies are worth right now. In order to do this I first need to make a list of 
 every cryptocurrency I have together with their amounts and query those against a free API e.g. CoinGecko (no API key hence process simplified) to arrive at
-my current portfolio value.
+my current portfolio value. I also want to see information about how much each of my cryptocurrencies contributes to my overall portfolio in terms of value percentage.
 
 
 - I also want this application to show me which cryptocurrencies (from the current top 100) **I don't own yet**. That should give me
@@ -69,6 +69,7 @@ Also there's nothing there to indicate that cards are editable when I hover abov
 - It doesn't make any sense to have portfolio allocation entries below the cards themselves, information from the allocation could be integrated into their respective cards as just another new field
 
 
+- Now I'd like to explore what course outlier detection and representation will take
 
 
 
@@ -85,4 +86,4 @@ Also there's nothing there to indicate that cards are editable when I hover abov
 - coverage
 - Flask blueprints
 - ORM?
-- 
+- modern styling
