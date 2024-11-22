@@ -18,28 +18,27 @@
 </head>
 <body class="bg-light">
 
-    <!-- Navigation Bar -->
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-        <div class="container">
-            <a class="navbar-brand" href="/">Crypto Portfolio</a>
-            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ml-auto">
-                    <li class="nav-item active">
-                        <a class="nav-link" href="{{ url_for('show_portfolio') }}">Owned</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('show_unowned_cryptos') }}">Unowned (Top 100)</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('show_outliers') }}">Outliers (Top 100)</a>
-                    </li>
-                </ul>
-            </div>
+<nav class="navbar navbar-expand-lg navbar-dark bg-gradient shadow-lg">
+    <div class="container">
+        <a class="navbar-brand" href="/">Crypto Portfolio</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ml-auto">
+                <li class="nav-item {% if request.endpoint == 'show_portfolio' %}active{% endif %}">
+                    <a class="nav-link" href="{{ url_for('show_portfolio') }}"><i class="fas fa-wallet"></i> Owned</a>
+                </li>
+                <li class="nav-item {% if request.endpoint == 'show_unowned_cryptos' %}active{% endif %}">
+                    <a class="nav-link" href="{{ url_for('show_unowned_cryptos') }}"><i class="fas fa-search"></i> Unowned (Top 100)</a>
+                </li>
+                <li class="nav-item {% if request.endpoint == 'show_outliers' %}active{% endif %}">
+                    <a class="nav-link" href="{{ url_for('show_outliers') }}"><i class="fas fa-chart-line"></i> Outliers (Top 100)</a>
+                </li>
+            </ul>
         </div>
-    </nav>
+    </div>
+</nav>
 
     <div class="container mt-5">
         <!-- Content specific to each page will go here -->

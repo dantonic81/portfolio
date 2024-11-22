@@ -71,7 +71,7 @@ Also there's nothing there to indicate that cards are editable when I hover abov
 
 - Now I'd like to explore what course outlier detection and representation will take
 
-
+- I'd like to make this navbar conform to modern standards and fix some issues with how the template is selected when it's not currently viewed etc.
 
 
 ## TODO:
