@@ -94,3 +94,4 @@ Also there's nothing there to indicate that cards are editable when I hover abov
 - Flask blueprints
 - ORM?
 - modern styling
+- withdrawal fee calculation and transactions

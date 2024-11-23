@@ -72,6 +72,18 @@ def init_db():
             timestamp TEXT
         )
     ''')
+    cursor.execute('''
+        CREATE TABLE transactions (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            name TEXT NOT NULL,
+            abbreviation TEXT NOT NULL,
+            transaction_date TEXT,
+            amount REAL,
+            price REAL,
+            transaction_id TEXT UNIQUE,
+            rate REAL
+        )
+    ''')
 
     conn.commit()
 
