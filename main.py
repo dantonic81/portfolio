@@ -11,7 +11,6 @@ import numpy as np
 import os
 from dotenv import load_dotenv
 
-
 load_dotenv()
 
 app = Flask(__name__)
@@ -73,7 +72,7 @@ def init_db():
         )
     ''')
     cursor.execute('''
-        CREATE TABLE transactions (
+        CREATE TABLE IF NOT EXISTS transactions (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             name TEXT NOT NULL,
             abbreviation TEXT NOT NULL,
@@ -98,6 +97,18 @@ def init_db():
     else:
         print("Portfolio data already loaded.")
 
+    # Check if the transactions table is empty before loading CSV data
+    cursor.execute('SELECT COUNT(*) FROM transactions')
+    transactions_count = cursor.fetchone()[0]
+    print(transactions_count)
+
+    if transactions_count == 0:
+        print("Loading transactions data from CSV...")
+        load_transactions_from_csv('crypto_transactions.csv')
+    else:
+        print("Portfolio data already loaded.")
+
+
     conn.close()
 
 
@@ -116,6 +127,24 @@ def load_portfolio_from_csv(csv_file_path):
 
     conn.commit()
     conn.close()
+
+
+# Load transactions data from CSV into SQLite (One-time operation)
+def load_transactions_from_csv(csv_file_path):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+    with open(csv_file_path, mode='r') as file:
+        reader = csv.DictReader(file)
+        for row in reader:
+            cursor.execute('''
+                INSERT INTO transactions (name, abbreviation, transaction_date, amount, price, transaction_id, rate)
+                VALUES (?, ?, ?, ?, ?, ?, ?)
+            ''', (row['name'], row['abbreviation'].upper(), row['transaction_date'], float(row['amount'], float(row['price']), row['transaction_id'], row['rate'])))
+
+    conn.commit()
+    conn.close()
+
 
 
 # Fetch portfolio from SQLite
@@ -223,9 +252,7 @@ def calculate_portfolio_value(portfolio, top_1000):
     return round(total_value, 2)
 
 
-import os
-import sqlite3
-import requests
+
 
 
 def fetch_owned_coins_from_db(db_path="crypto_portfolio.db"):
