@@ -140,7 +140,14 @@ def load_transactions_from_csv(csv_file_path):
             cursor.execute('''
                 INSERT INTO transactions (name, abbreviation, transaction_date, amount, price, transaction_id, rate)
                 VALUES (?, ?, ?, ?, ?, ?, ?)
-            ''', (row['name'], row['abbreviation'].upper(), row['transaction_date'], float(row['amount'], float(row['price']), row['transaction_id'], row['rate'])))
+            ''', (row['name'],
+                row['abbreviation'].upper(),
+                row.get('transaction_date') or None,
+                float(row['amount']) if row.get('amount') else None,
+                float(row['price']) if row.get('price') else None,
+                row.get('transaction_id') or None,
+                float(row['rate']) if row.get('rate') else None
+            ))
 
     conn.commit()
     conn.close()
