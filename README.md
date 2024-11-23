@@ -75,10 +75,10 @@ Also there's nothing there to indicate that cards are editable when I hover abov
 - I'd like to make this navbar conform to modern standards and fix some issues with how the template is selected when it's not currently viewed etc.
 
 
-- I want to log every transaction I ever made, this will be a new table with id, crypto name, abbreviation, date of purchase, crypto amount, price paid in EUR, transaction_id and rate, this will be used primarily in a calculation to show earnings or losses adjusted for inflation.
+- I want to log every transaction I ever made, this will be a new table with id, crypto name, abbreviation, date of purchase, crypto amount, price paid in EUR, transaction_id and rate in EUR, this will be used primarily in a calculation to show earnings or losses adjusted for inflation.
 
 
-
+- App in free tier spins down after 15 mins of inactivity, to keep it alive I've registered with this [free service](https://dashdashhard.com/), thanks Matt!
 
 
 ## TODO:
