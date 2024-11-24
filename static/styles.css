@@ -1,28 +1,8 @@
-/* General Button Styles */
-.rounded-button {
-    border-radius: 0.5rem !important; /* Add border-radius for rounded corners */
-}
-
 .btn-warning {
     color: #fff;
     background-color: #C1080B;
     border-color: #DE4203;
 }
-
-.btn-warning:hover {
-    color: #fff;
-    background-color: #C91C1C;
-    border-color: #DE4203;
-}
-
-/* General Header Styles */
-.top-header {
-  background-color: #1e1e2f;
-  color: #ffffff;
-  padding: 20px 0;
-  border-bottom: 2px solid #323244;
-}
-
 
 .portfolio-value {
   font-size: 2rem;
@@ -60,7 +40,6 @@
   border: none;
   padding: 10px 20px;
   margin: 5px;
-  border-radius: 5px;
   font-size: 1rem;
   cursor: pointer;
   transition: background-color 0.3s ease;
@@ -97,10 +76,7 @@
   }
 }
 
-/* Optional: Add rounded corners to buttons for more modern look */
-.rounded-button {
-  border-radius: 0.5rem;
-}
+
 
 /* Modal Section */
 .modal-dialog-centered {
@@ -155,15 +131,19 @@
 }
 /* Card Hover Effects */
 .card {
-    position: relative;  /* Ensure absolute positioning of the icon */
-    transition: all 0.3s ease-in-out;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  border-radius: 0 !important;
 }
 
+
 .card:hover {
-    background-color: #f8f9fa;  /* Light grey background */
-    border-color: #007bff;  /* Blue border */
-    cursor: pointer;  /* Pointer cursor to indicate interactivity */
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);  /* Subtle shadow effect */
+  transform: translateY(-5px);  /* Moves the card up to simulate lifting */
+  box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);  /* Deeper shadow on hover */
+}
+
+.card:active {
+  transform: translateY(2px);  /* Moves the card down to simulate a press */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);  /* Lighter shadow on press */
 }
 
 .delete-icon {
@@ -263,7 +243,6 @@ hr.my-4 {
 .cta-buttons .btn {
   padding: 12px 25px;
   font-size: 1.2rem;
-  border-radius: 8px;
   text-transform: uppercase;
   font-weight: bold;
   color: white;

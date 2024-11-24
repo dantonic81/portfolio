@@ -4,9 +4,16 @@
 {% block title %}Crypto Portfolio - Home{% endblock %}
 
 {% block content %}
-<!-- Top Header Section -->
-<header class="top-header">
+
+
+<!-- Jumbotron Section -->
+<div class="jumbotron text-center mb-4">
   <div class="container">
+    <h1 class="display-4">Welcome to Your Crypto Portfolio!</h1>
+    <p>Get insights on your owned assets, explore top cryptocurrencies, and find outliers in the market.</p>
+    <hr class="my-4">
+
+
     <!-- Portfolio Value Display -->
     <section class="portfolio-value-section mb-4">
       <h2 class="header-title">Portfolio Value</h2>
@@ -27,39 +34,27 @@
     <!-- Return on Investment Section -->
     <section class="roi-section">
       <h3>Your Return on Investment</h3>
-      <p class="roi-value {{ 'positive' if nominal_roi > 0 else 'negative' }}">Nominal ROI: {{ nominal_roi }}%</p>
+      <p class="roi-value {{ 'positive' if nominal_roi > 0 else 'negative' }}">Nominal ROI: {{ formatted_nominal_roi }}</p>
     </section>
 
-    <!-- Quick Action Buttons -->
-    <section class="quick-actions">
-      <div class="btn-group d-flex flex-wrap flex-md-row justify-content-center" role="group">
-        <button type="button" class="btn btn-primary rounded-button" data-toggle="modal" data-target="#addAssetModal" title="Add a new asset">
-          <i class="fas fa-plus-square"></i> Add Asset
-        </button>
-        <button type="button" class="btn btn-primary rounded-button" data-toggle="modal" data-target="#editAssetModal" title="Edit an existing asset">
-          <i class="fas fa-edit"></i> Edit Asset
-        </button>
-        <button class="btn btn-primary rounded-button" onclick="setAlerts()" title="Set price alerts">Set Alerts</button>
-        <button class="btn btn-primary rounded-button" onclick="exploreMarket()" title="Explore the crypto market">Explore Market</button>
+
+    <!-- Quick Action Buttons - Repositioned for Visibility -->
+    <section class="cta-buttons d-flex justify-content-center flex-wrap">
+      <div class="d-flex justify-content-center">
+          <button type="button" class="btn btn-success w-100" data-toggle="modal" data-target="#addAssetModal" title="Add a new asset">
+            <i class="fas fa-plus-square"></i> Add Asset
+          </button>
+          <button type="button" class="btn btn-warning rounded w-100" data-toggle="modal" data-target="#editAssetModal" title="Edit an existing asset">
+            <i class="fas fa-edit"></i> Edit Asset
+          </button>
+          <button class="btn btn-info rounded w-100" onclick="setAlerts()" title="Set price alerts">
+            <i class="fas fa-bell"></i> Set Alerts
+          </button>
+          <button class="btn btn-secondary rounded w-100" onclick="exploreMarket()" title="Explore the crypto market">
+            <i class="fas fa-search"></i> Explore Market
+          </button>
       </div>
     </section>
-  </div>
-</header>
-
-<!-- Jumbotron Section -->
-<div class="jumbotron text-center mb-4">
-  <div class="container">
-    <h1 class="display-4">Welcome to Your Crypto Portfolio!</h1>
-    <p class="lead">Track your cryptocurrency assets, discover new opportunities, and analyze market trends.</p>
-    <hr class="my-4">
-    <p>Get insights on your owned assets, explore top cryptocurrencies, and find outliers in the market.</p>
-
-    <!-- Call to Action Buttons -->
-    <div class="cta-buttons d-flex justify-content-center flex-wrap">
-      <a class="btn btn-primary btn-lg mx-2 mb-2 mb-md-0" href="{{ url_for('show_portfolio') }}">Owned</a>
-      <a class="btn btn-secondary btn-lg mx-2 mb-2 mb-md-0" href="{{ url_for('show_unowned_cryptos') }}">Unowned (Top 100)</a>
-      <a class="btn btn-warning btn-lg mx-2 mb-2 mb-md-0" href="{{ url_for('show_outliers') }}">Outliers (Top 100)</a>
-    </div>
   </div>
 </div>
 
