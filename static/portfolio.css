@@ -1,30 +1,10 @@
 /* General Typography */
 .dashboard-title {
     font-family: 'Poppins', sans-serif;
-    font-size: 2.5rem;
-    font-weight: 600;
-    color: #343a40; /* Use white or navbar color */
-}
-
-.section-title {
-    font-family: 'Roboto', sans-serif;
-    font-size: 1.7rem;
-    font-weight: 500;
-    margin-bottom: 1rem;
-    color: #343a40; /* Lighter color for contrast */
-}
-
-/* Total Value Card */
-.total-value-card {
-    background: #ffffff;
-    border-radius: 10px;
-    padding: 20px;
-}
-
-.value-highlight {
-    font-size: 2rem;
-    font-weight: bold;
-    color: #e63946; /* Accent color */
+    font-size: 2.25rem;  /* Slightly reduced to maintain balance */
+    font-weight: 700;    /* Increased weight for a stronger title */
+    color: #343a40;     /* Consistent with the overall theme */
+    margin-bottom: 20px; /* Spacing for clarity */
 }
 
 /* Asset Cards */
@@ -68,7 +48,6 @@
 /* Card Footer */
 .card-footer {
     background-color: #212529;
-    border-top: 1px solid #dee2e6;
     padding: 10px;
     border-radius: 0 0 10px 10px;
     display: flex;
