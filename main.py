@@ -51,7 +51,8 @@ def init_db():
             symbol TEXT,
             current_price REAL,
             market_cap_rank INTEGER,
-            timestamp TEXT
+            timestamp TEXT,
+            image TEXT
         )
     ''')
     cursor.execute('''
@@ -209,14 +210,15 @@ def get_top_1000_crypto():
     cursor.execute('DELETE FROM cryptocurrencies')  # Clear old data
     for crypto in all_cryptos:
         cursor.execute('''
-            INSERT INTO cryptocurrencies (name, symbol, current_price, market_cap_rank, timestamp)
-            VALUES (?, ?, ?, ?, ?)
+            INSERT INTO cryptocurrencies (name, symbol, current_price, market_cap_rank, timestamp, image)
+            VALUES (?, ?, ?, ?, ?, ?)
         ''', (
             crypto['name'],
             crypto['symbol'],
             crypto['current_price'],
             crypto['market_cap_rank'],
-            datetime.now().isoformat()
+            datetime.now().isoformat(),
+            crypto['image']
         ))
     conn.commit()
     conn.close()
@@ -228,13 +230,13 @@ def get_top_1000_crypto():
 def calculate_portfolio_value(portfolio, top_1000):
     # Build a lookup dictionary for fast access by both name and symbol
     price_lookup = {
-        crypto['name'].lower(): {'price': crypto['current_price'], 'rank': crypto['market_cap_rank']}
+        crypto['name'].lower(): {'price': crypto['current_price'], 'rank': crypto['market_cap_rank'], 'image': crypto['image']}
         for crypto in top_1000
     }
 
     # Add symbol-based lookup as a fallback
     price_lookup.update({
-        crypto['symbol'].upper(): {'price': crypto['current_price'], 'rank': crypto['market_cap_rank']}
+        crypto['symbol'].upper(): {'price': crypto['current_price'], 'rank': crypto['market_cap_rank'], 'image': crypto['image']}
         for crypto in top_1000
     })
 
@@ -245,7 +247,7 @@ def calculate_portfolio_value(portfolio, top_1000):
         amount = asset['amount']
 
         # Try to look up by name first, then fallback to symbol
-        crypto_data = price_lookup.get(name) or price_lookup.get(symbol, {'price': 0, 'rank': None})
+        crypto_data = price_lookup.get(name) or price_lookup.get(symbol, {'price': 0, 'rank': None, 'image': None})
 
         current_price = crypto_data['price']
         asset_value = amount * current_price
@@ -253,6 +255,7 @@ def calculate_portfolio_value(portfolio, top_1000):
         asset['current_price'] = current_price
         asset['value'] = round(asset_value, 8)
         asset['rank'] = crypto_data['rank']
+        asset['image'] = crypto_data['image']
 
         total_value += asset_value
 
@@ -487,7 +490,8 @@ def show_unowned_cryptos():
                 'name': crypto['name'],
                 'abbreviation': crypto['symbol'],
                 'rank': crypto['market_cap_rank'],
-                'current_price': crypto['current_price']
+                'current_price': crypto['current_price'],
+                'image': crypto['image']
             })
 
     # Sort the missing cryptos by rank for easier viewing

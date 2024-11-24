@@ -81,6 +81,9 @@ Also there's nothing there to indicate that cards are editable when I hover abov
 - App in free tier spins down after 15 mins of inactivity, to keep it alive I've registered with this [free service](https://dashdashhard.com/), thanks Matt!
 
 
+- I want to show logo for every cryptocurrency I own in its own card in owned page
+
+
 ## TODO:
 
 - type hints

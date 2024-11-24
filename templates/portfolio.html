@@ -29,7 +29,9 @@
             <div class="col-md-6 col-lg-4 mb-4">
                 <div class="card asset-card shadow-sm"  data-id="{{ asset.id }}">
                     <div class="card-header">
-                        <h5 class="card-title text-primary">{{ asset.name }}
+                        <h5 class="card-title text-primary">
+                            <img src="{{ asset.image }}" class="crypto-logo" width="30" height="30" style="margin-right: 10px;">
+                            {{ asset.name }}
                             <small class="text-muted">({{ asset.abbreviation }})</small>
                         </h5>
                     </div>

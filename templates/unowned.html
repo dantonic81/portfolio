@@ -15,6 +15,8 @@
                     <div class="card shadow-lg">
                         <div class="card-body">
                             <h5 class="card-title">{{ crypto.name }} ({{ crypto.abbreviation }})</h5>
+                                                        <img src="{{ crypto.image }}" class="crypto-logo" width="30" height="30" style="margin-right: 10px;">
+                            {{ crypto.name }}
                             <p class="card-text">
                                 <strong>Rank:</strong> {{ crypto.rank }}<br>
                                 <strong>Current Price:</strong> ${{ crypto.current_price }}
