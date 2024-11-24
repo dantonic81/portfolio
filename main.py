@@ -89,7 +89,7 @@ def init_db():
     # Check if the portfolio table is empty before loading CSV data
     cursor.execute('SELECT COUNT(*) FROM portfolio')
     portfolio_count = cursor.fetchone()[0]
-    print(portfolio_count)
+    # print(portfolio_count)
 
     if portfolio_count == 0:
         print("Loading portfolio data from CSV...")
@@ -100,7 +100,7 @@ def init_db():
     # Check if the transactions table is empty before loading CSV data
     cursor.execute('SELECT COUNT(*) FROM transactions')
     transactions_count = cursor.fetchone()[0]
-    print(transactions_count)
+    # print(transactions_count)
 
     if transactions_count == 0:
         print("Loading transactions data from CSV...")
@@ -569,7 +569,7 @@ def index():
 def show_outliers():
     # Fetch owned coins
     owned_coins = fetch_owned_coins_from_db()
-    print("Owned Coins:", owned_coins)  # Debugging line
+    # print("Owned Coins:", owned_coins)  # Debugging line
 
     # Fetch gainers and losers
     gainers, losers = fetch_gainers_and_losers_owned(owned_coins)
