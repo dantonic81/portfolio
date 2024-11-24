@@ -2,92 +2,57 @@
 
 {% block title %}Outlier Cryptocurrencies (Top 100){% endblock %}
 
+{% block styles %}
+    <!-- Link to specific CSS for this page -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='portfolio.css') }}">
+{% endblock %}
+
 {% block content %}
-<!-- Page Header -->
 <div class="container my-5">
-    <h1 class="text-center mb-4">Outlier Cryptocurrencies - Machine Learning Analysis</h1>
+    <!-- Page Header -->
+    <h1 class="dashboard-title text-center mb-4 text-dark">Outlier Cryptocurrencies - Machine Learning Analysis</h1>
 
     <!-- Outliers Section -->
     <div class="mb-5">
-        <h2 class="text-center mb-4">Outliers (Detected by Model)</h2>
+        <h2 class="text-center mb-4 text-primary">Outliers (Detected by Isolation Forest Model)</h2>
         {% if outlier_cryptos %}
-        <div class="row">
-            {% for coin in outlier_cryptos %}
-            <div class="col-md-4 mb-4">
-                <div class="card shadow-lg">
-                    <img src="{{ coin.image }}" class="card-img-top" alt="{{ coin.name }} logo">
-                    <div class="card-body">
-                        <h5 class="card-title">{{ coin.name }} ({{ coin.symbol | upper }})</h5>
-                        <p class="card-text">
-                            <strong>Rank:</strong> {{ coin.market_cap_rank }}<br>
-                            <strong>Current Price:</strong> ${{ coin.current_price | round(2) }}<br>
-                            <strong>Percentage Gain:</strong> {{ coin.price_change_percentage_24h | default(0) | round(2) }}%<br>
-
-                            <strong>Market Cap:</strong> ${{ "{:,}".format(coin.market_cap) }}<br>
-
-                            <strong>Volume:</strong> ${{ "{:,}".format(coin.total_volume | default(0)) }}<br>
-
-
-                        </p>
+            <div class="row">
+                {% for coin in outlier_cryptos %}
+                    <div class="col-md-6 col-lg-4 mb-4">
+                        <div class="card shadow-sm bg-light">
+                            <img src="{{ coin.image }}" class="card-img-top" alt="{{ coin.name }} logo">
+                            <div class="card-body">
+                                <h5 class="card-title text-primary">
+                                    {{ coin.name }} ({{ coin.symbol | upper }})
+                                </h5>
+                                <p class="card-text text-dark">
+                                    <strong>Rank:</strong> {{ coin.market_cap_rank }}<br>
+                                    <strong>Current Price:</strong> ${{ coin.current_price | round(2) }}<br>
+                                    <strong>Percentage Gain:</strong> {{ coin.price_change_percentage_24h | default(0) | round(2) }}%<br>
+                                    <strong>Market Cap:</strong> ${{ "{:,}".format(coin.market_cap) }}<br>
+                                    <strong>Volume:</strong> ${{ "{:,}".format(coin.total_volume | default(0)) }}<br>
+                                </p>
+                            </div>
+                        </div>
                     </div>
-                </div>
+                {% endfor %}
             </div>
-            {% endfor %}
-        </div>
         {% else %}
-        <p class="text-center">No outlier cryptocurrencies found in the top 100!</p>
+            <p class="text-center text-dark">No outlier cryptocurrencies found in the top 100!</p>
         {% endif %}
     </div>
 
-
     <!-- Explanation Section -->
     <div class="alert alert-info mt-4" role="alert">
-        <strong>What is this?</strong> These are the top cryptocurrencies identified as outliers based on rapid price increases
-        and market behavior using an <em>Isolation Forest Machine Learning Model</em> applied to the current top 100 cryptos.
+        <strong>What is this?</strong> These are the top cryptocurrencies identified as outliers based on rapid price increases and market behavior using an <em>Isolation Forest Machine Learning Model</em> applied to the current top 100 cryptos.
     </div>
 
     <!-- Chart Section -->
     <div class="row mb-4">
         <div class="col-md-12">
-            <h3 class="text-center">Outlier Visualization</h3>
+            <h3 class="text-center text-primary">Outlier Visualization</h3>
             <canvas id="outlierChart" width="400" height="200"></canvas>
         </div>
     </div>
 </div>
-
-<!-- Chart Script -->
-<!--<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>-->
-<!--<script>-->
-<!--    const ctx = document.getElementById('outlierChart').getContext('2d');-->
-<!--    const outlierChart = new Chart(ctx, {-->
-<!--        type: 'scatter',-->
-<!--        data: {-->
-<!--            datasets: [-->
-<!--                {-->
-<!--                    label: 'Cryptocurrencies',-->
-<!--                    data: {{ scatter_plot_data | safe }},-->
-<!--                    backgroundColor: function(context) {-->
-<!--                        return context.raw.isOutlier ? 'rgba(255, 99, 132, 0.7)' : 'rgba(54, 162, 235, 0.7)';-->
-<!--                    },-->
-<!--                }-->
-<!--            ]-->
-<!--        },-->
-<!--        options: {-->
-<!--            scales: {-->
-<!--                x: {-->
-<!--                    title: {-->
-<!--                        display: true,-->
-<!--                        text: 'Market Cap'-->
-<!--                    }-->
-<!--                },-->
-<!--                y: {-->
-<!--                    title: {-->
-<!--                        display: true,-->
-<!--                        text: 'Percentage Gain'-->
-<!--                    }-->
-<!--                }-->
-<!--            }-->
-<!--        }-->
-<!--    });-->
-<!--</script>-->
 {% endblock %}

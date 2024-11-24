@@ -1,32 +1,47 @@
-<!-- templates/unowned.html -->
 {% extends "base.html" %}
 
 {% block title %}Unowned Crypto (Top 100){% endblock %}
 
+{% block styles %}
+    <!-- Link to the specific CSS for this page -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='portfolio.css') }}">
+{% endblock %}
+
 {% block content %}
-    <h1 class="text-center">Unowned Crypto (Top 100)</h1>
+<div class="container">
+    <h1 class="dashboard-title text-center mb-5 text-dark">Unowned Crypto (Top 100)</h1>
 
     <!-- Missing Cryptos List -->
-    <h3 class="mt-4">Missing Crypto:</h3>
     <div class="row">
         {% if missing_cryptos %}
             {% for crypto in missing_cryptos %}
-                <div class="col-md-4 mb-4">
-                    <div class="card shadow-lg">
+                <div class="col-md-6 col-lg-4 mb-4">
+                    <div class="card shadow-sm bg-light">
+                        <div class="card-header bg-white">
+                            <h5 class="card-title text-primary">
+                                <img src="{{ crypto.image }}" class="crypto-logo" width="30" height="30" style="margin-right: 10px;">
+                                {{ crypto.name }}
+                                <small class="text-muted">({{ crypto.abbreviation }})</small>
+                            </h5>
+                        </div>
                         <div class="card-body">
-                            <h5 class="card-title">{{ crypto.name }} ({{ crypto.abbreviation }})</h5>
-                                                        <img src="{{ crypto.image }}" class="crypto-logo" width="30" height="30" style="margin-right: 10px;">
-                            {{ crypto.name }}
-                            <p class="card-text">
+                            <p class="card-text text-dark">
                                 <strong>Rank:</strong> {{ crypto.rank }}<br>
-                                <strong>Current Price:</strong> ${{ crypto.current_price }}
+                                <strong>Current Price:</strong> ${{ crypto.current_price }}<br>
                             </p>
+                        </div>
+                        <div class="card-footer bg-white text-right">
+                            <!-- Placeholder for future action, like adding to portfolio -->
+                            <button class="btn btn-sm btn-outline-primary add-to-portfolio" data-id="{{ crypto.id }}">
+                                <i class="fa fa-plus"></i> Add to Portfolio
+                            </button>
                         </div>
                     </div>
                 </div>
             {% endfor %}
         {% else %}
-            <p>No missing cryptocurrencies from the top 100!</p>
+            <p class="text-dark">No missing cryptocurrencies from the top 100!</p>
         {% endif %}
     </div>
+</div>
 {% endblock %}

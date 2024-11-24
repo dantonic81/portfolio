@@ -42,6 +42,7 @@ $('#confirmDeleteButton').on('click', function() {
                     $(assetToDelete).remove();  // Remove the card from the DOM
                 });
                 alert('Asset deleted successfully!');
+                 window.location.reload();
             } else {
                 alert(response.message || 'Failed to delete the asset.');
             }
