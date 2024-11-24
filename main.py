@@ -427,7 +427,8 @@ def combine_results(labels, coin_ids, gainers, losers):
             'current_price': coin.get('current_price', 'N/A'),
             'percentage_gain': coin.get('price_change_percentage_24h', 'N/A'),
             'market_cap': coin.get('market_cap', 'N/A'),
-            'volume': coin.get('total_volume', 'N/A')
+            'volume': coin.get('total_volume', 'N/A'),
+            'image': coin.get('image', 'N/A')
         }
 
         coin_tuple = make_hashable(formatted_coin)  # Convert the formatted coin dictionary to a hashable tuple
