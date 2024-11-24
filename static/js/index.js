@@ -1,4 +1,5 @@
 $(document).ready(function() {
+    // Add Asset Modal Form Submission
     $('#addAssetForm').submit(function(event) {
         event.preventDefault();  // Prevent the form from submitting normally
 
@@ -22,16 +23,12 @@ $(document).ready(function() {
             success: function(response) {
                 console.log("Asset saved:", response);
 
-                // Close the modal after success
+                // Close the Add Asset modal after success
                 $('#addAssetModal').modal('hide');  // Make sure this targets the correct modal
 
                 // Show success message
                 showSuccessMessage("Asset successfully added!");
 
-                // Redirect to the previous page after a short delay
-                setTimeout(function() {
-                    window.location.href = document.referrer;  // Redirects to the previous page
-                }, 3000);  // Wait for 3 seconds before redirecting
             },
             error: function(xhr, status, error) {
                 console.error("Error saving asset:", error);
@@ -51,12 +48,8 @@ $(document).ready(function() {
                 $(this).remove();  // Remove the success message after fading out
             });
     }
-});
 
-
-
-$(document).ready(function() {
-    // Listen for changes in the search input
+    // Handle the search functionality for existing assets
     $('#searchAsset').on('input', function() {
         var query = $(this).val();  // Get the search term
 
@@ -93,7 +86,7 @@ $(document).ready(function() {
         }
     });
 
-    // Handle selecting an asset from the search results
+    // Handle selecting an asset from the search results to edit or delete it
     $('#assetResults').on('click', 'li', function() {
         var assetId = $(this).data('asset-id');
         var assetName = $(this).data('asset-name');
@@ -109,31 +102,11 @@ $(document).ready(function() {
         // Set the amount field to show the old amount as a placeholder
         $('#edit-asset-amount').attr('placeholder', 'Current Amount: ' + assetAmount);
 
-        // Show the modal
+        // Show the Edit Asset modal
         $('#editAssetModal').modal('show');
 
         // Close the dropdown by removing the "show" class or hiding the dropdown
         $('#assetResults').empty();  // Optionally clear the results after selection
-    });
-
-    // Handle when the user clicks into the amount field (to edit it)
-    $('#edit-asset-amount').on('focus', function() {
-        // If the field contains the "Current Amount" text in the placeholder, clear it
-        if ($(this).attr('placeholder') && $(this).attr('placeholder').startsWith('Current Amount: ')) {
-            $(this).val(''); // Clear the input value when the field is clicked into
-            $(this).removeAttr('placeholder'); // Remove the placeholder text as well
-        }
-    });
-
-    // Handle when the user leaves the amount field (blur event)
-    $('#edit-asset-amount').on('blur', function() {
-        var currentValue = $(this).val();
-
-        // If the field is empty, restore the current amount as a placeholder
-        if (currentValue === '') {
-            var currentAmount = $(this).data('current-amount');
-            $(this).attr('placeholder', 'Current Amount: ' + oldAmount);
-        }
     });
 
     // Handle saving changes to the asset
@@ -182,24 +155,16 @@ $(document).ready(function() {
             });
         }
     });
-});
 
-$(document).ready(function() {
-    function getCurrentPortfolioValue() {
-        // Retrieve the portfolio value from the data attribute
-        var totalPortfolioValue = $('#portfolio-value').data('total-portfolio-value');
-        return totalPortfolioValue;
-    }
-
+    // Saving portfolio value
     function savePortfolioValue() {
-        var currentPortfolioValue = getCurrentPortfolioValue();
+        var totalPortfolioValue = $('#portfolio-value').data('total-portfolio-value');
 
-        // Save the portfolio value
         $.ajax({
             url: '/save_portfolio_value',  // The route to save the portfolio value
             type: 'POST',
             contentType: 'application/json',
-            data: JSON.stringify({ "current_value": currentPortfolioValue }),
+            data: JSON.stringify({ "current_value": totalPortfolioValue }),
             success: function(response) {
                 console.log(response.message);
             },
@@ -209,9 +174,6 @@ $(document).ready(function() {
         });
     }
 
-    // Save the portfolio value on page load
+    // Save portfolio value on page load
     savePortfolioValue();
 });
-
-
-

@@ -11,6 +11,18 @@
 <div class="container">
     <h1 class="dashboard-title text-center mb-5">Owned Crypto</h1>
 
+    <!-- Placeholder for adding new card -->
+    <div class="col-md-6 col-lg-4 mb-4">
+        <div class="card asset-card shadow-sm add-new-card" data-id="new">
+            <div class="card-body text-center">
+                <h5 class="card-title text-muted">Add New Asset</h5>
+                <p class="card-text">Click here to add a new cryptocurrency to your portfolio.</p>
+                <!-- Add New button triggers the Add Asset Modal -->
+                <button class="btn btn-primary" data-toggle="modal" data-target="#addAssetModal">Add New</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Portfolio Breakdown -->
     <div class="row">
         {% for asset in portfolio %}
@@ -33,7 +45,7 @@
                     <!-- Delete button -->
                     <div class="card-footer text-right">
                         <button class="btn btn-sm btn-danger delete-asset" data-id="{{ asset.id }}"
-                                data-bs-toggle="modal" data-bs-target="#deleteAssetModal">
+                                data-toggle="modal" data-target="#deleteAssetModal">
                             <i class="fa fa-trash"></i> Delete
                         </button>
                     </div>

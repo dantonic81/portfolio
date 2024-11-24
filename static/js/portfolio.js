@@ -1,7 +1,7 @@
 let assetToDelete = null;
 
 // Open the delete confirmation modal when an asset card is clicked
-$('.asset-card').on('click', function() {
+$('.asset-card').not('.add-new-card').on('click', function() {
     // Store the clicked card element
     assetToDelete = $(this);
 
