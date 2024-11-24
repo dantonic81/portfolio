@@ -1,0 +1,101 @@
+/* General Typography */
+.dashboard-title {
+    font-family: 'Poppins', sans-serif;
+    font-size: 2.5rem;
+    font-weight: 600;
+    color: #1d3557;
+}
+
+.section-title {
+    font-family: 'Roboto', sans-serif;
+    font-size: 1.75rem;
+    font-weight: 500;
+    margin-bottom: 1rem;
+    color: #457b9d;
+}
+
+/* Total Value Card */
+.total-value-card {
+    background-color: #f1faee;
+    border: 2px solid #457b9d;
+    border-radius: 10px;
+}
+
+.value-highlight {
+    font-size: 2rem;
+    font-weight: bold;
+    color: #2a9d8f;
+}
+
+/* Asset Cards */
+.asset-card {
+    border: 1px solid #dee2e6;
+    border-radius: 10px;
+    background-color: #ffffff;
+    transition: transform 0.2s ease-in-out;
+}
+
+.asset-card:hover {
+    transform: scale(1.02);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
+
+.card-header {
+    background-color: #f8f9fa;
+    border-bottom: 1px solid #dee2e6;
+    border-radius: 10px 10px 0 0;
+}
+
+.card-title {
+    font-family: 'Poppins', sans-serif;
+    font-size: 1.25rem;
+    font-weight: bold;
+    margin: 0;
+}
+
+.card-body {
+    font-family: 'Roboto', sans-serif;
+    font-size: 0.9rem;
+    line-height: 1.5;
+    color: #495057;
+}
+
+/* Delete Button */
+.card-footer {
+    background-color: #f8f9fa;
+    border-top: 1px solid #dee2e6;
+    border-radius: 0 0 10px 10px;
+}
+
+.delete-asset {
+    font-size: 0.85rem;
+    font-weight: 500;
+    transition: background-color 0.3s ease;
+}
+
+.delete-asset:hover {
+    background-color: #e63946;
+    border-color: #e63946;
+}
+
+/* Modal Styling */
+.modal-title {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 600;
+    color: #e63946;
+}
+
+.modal-body {
+    font-size: 1rem;
+    color: #495057;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+    .dashboard-title {
+        font-size: 2rem;
+    }
+    .value-highlight {
+        font-size: 1.75rem;
+    }
+}

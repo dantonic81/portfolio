@@ -515,7 +515,7 @@ def index():
 
         # Calculate the sum of all investments in the transactions table
         cursor.execute('SELECT SUM(price) FROM transactions')
-        total_investment = cursor.fetchone()[0]  # Fetch the sum of prices
+        total_investment = round(cursor.fetchone()[0], 2)  # Fetch the sum of prices
 
         # If there's no sum (i.e., no records), set total_investment to 0
         if total_investment is None:
