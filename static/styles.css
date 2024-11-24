@@ -1,3 +1,20 @@
+/* General Button Styles */
+.rounded-button {
+    border-radius: 0.5rem !important; /* Add border-radius for rounded corners */
+}
+
+.btn-warning {
+    color: #fff;
+    background-color: #C1080B;
+    border-color: #DE4203;
+}
+
+.btn-warning:hover {
+    color: #fff;
+    background-color: #C91C1C;
+    border-color: #DE4203;
+}
+
 /* Top Header Styles */
 .top-header {
   display: flex;
@@ -9,10 +26,7 @@
   border-bottom: 2px solid #323244;
 }
 
-.portfolio-value {
-  flex-grow: 1;
-  text-align: center;
-}
+
 
 .portfolio-value h2 {
   margin: 0;
@@ -20,12 +34,10 @@
 }
 
 .value {
-  font-size: 1.6em;
-  font-weight: bold;
+  font-size: 1.1em;
 }
 
 .change {
-  font-weight: bold;
   margin-left: 10px;
 }
 
@@ -35,6 +47,14 @@
 
 .change.negative {
   color: #dc3545; /* Red for negative change */
+}
+
+/* Quick Action Button Group */
+.btn-group {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+  margin-top: 20px;
 }
 
 .quick-actions button {
@@ -52,18 +72,6 @@
   background-color: #56568f;
 }
 
-.btn-warning {
-  color: #fff;
-  background-color: #C1080B;
-  border-color: #DE4203;
-}
-
-.btn-warning:hover {
-  color: #fff;
-  background-color: #C91C1C;
-  border-color: #DE4203;
-}
-
 @media (max-width: 768px) {
   .quick-actions {
     flex-direction: column; /* Stack buttons vertically */
@@ -76,26 +84,51 @@
   }
 }
 
-/* Apply rounded corners to each individual button */
-.rounded-button {
-    border-radius: 0.5rem !important; /* Add border-radius for rounded corners */
+/* Modal Styles */
+.modal-content {
+    border-radius: 10px;
 }
 
+.modal-body {
+    padding: 20px;
+}
 
-/* Add hover effect to list items */
+.modal-header .close {
+    font-size: 24px;
+}
+
 #assetResults .list-group-item:hover {
     background-color: #f0f0f0; /* Light gray background on hover */
     cursor: pointer; /* Change the cursor to indicate it's clickable */
 }
 
-/* Optional: Add an active effect when an item is clicked or selected */
 #assetResults .list-group-item.selected {
     background-color: #007bff; /* Blue background when selected */
     color: white; /* Change text color to white for better contrast */
 }
 
+/* Jumbotron Section */
+.jumbotron {
+    text-align: center;
+    padding: 30px 15px;
+    margin-bottom: 0;
+    background-color: #f4f4f9;
+}
 
-/* Basic transition for card hover */
+.jumbotron .display-4 {
+    font-size: 3rem;
+}
+
+.jumbotron .lead {
+    font-size: 1.5rem;
+    margin-bottom: 20px;
+}
+
+.jumbotron .btn {
+    margin: 0 10px;
+}
+
+/* Card Hover Effects */
 .card {
     position: relative;  /* Ensure absolute positioning of the icon */
     transition: all 0.3s ease-in-out;
@@ -108,7 +141,6 @@
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);  /* Subtle shadow effect */
 }
 
-/* Hide delete icon by default */
 .delete-icon {
     position: absolute;
     top: 10px;
@@ -119,16 +151,15 @@
     transition: opacity 0.3s ease-in-out;  /* Smooth transition for visibility */
 }
 
-/* Show delete icon on hover */
 .card:hover .delete-icon {
     opacity: 1;
 }
 
-/* Optional: Change the delete icon color when hovering */
 .card:hover .delete-icon i {
     color: #e63946;  /* A brighter red on hover */
 }
 
+/* Footer Styles */
 footer {
     background-color: #f8f9fa;
     padding: 20px;
@@ -140,6 +171,7 @@ footer {
     width: 100%;
 }
 
+/* Navbar Styles */
 .navbar {
     background: linear-gradient(45deg, #0d1b2a, #1b3a4b); /* Dark gradient for modern look */
 }
