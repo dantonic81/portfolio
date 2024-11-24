@@ -15,6 +15,8 @@
 
     <!-- Optional: Link to your custom CSS file if needed -->
     <link href="{{ url_for('static', filename='styles.css') }}" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&family=Roboto:wght@400;500&display=swap" rel="stylesheet">
+
 </head>
 <body class="bg-light">
 
@@ -27,18 +29,25 @@
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav ml-auto">
                 <li class="nav-item {% if request.endpoint == 'show_portfolio' %}active{% endif %}">
-                    <a class="nav-link" href="{{ url_for('show_portfolio') }}"><i class="fas fa-wallet"></i> Owned</a>
+                    <a class="nav-link custom-link" href="{{ url_for('show_portfolio') }}">
+                        <i class="fas fa-wallet"></i> Owned
+                    </a>
                 </li>
                 <li class="nav-item {% if request.endpoint == 'show_unowned_cryptos' %}active{% endif %}">
-                    <a class="nav-link" href="{{ url_for('show_unowned_cryptos') }}"><i class="fas fa-search"></i> Unowned (Top 100)</a>
+                    <a class="nav-link custom-link" href="{{ url_for('show_unowned_cryptos') }}">
+                        <i class="fas fa-search"></i> Unowned
+                    </a>
                 </li>
                 <li class="nav-item {% if request.endpoint == 'show_outliers' %}active{% endif %}">
-                    <a class="nav-link" href="{{ url_for('show_outliers') }}"><i class="fas fa-chart-line"></i> Outliers (Top 100)</a>
+                    <a class="nav-link custom-link" href="{{ url_for('show_outliers') }}">
+                        <i class="fas fa-chart-line"></i> Outliers
+                    </a>
                 </li>
             </ul>
         </div>
     </div>
 </nav>
+
 
     <div class="container mt-5">
         <!-- Content specific to each page will go here -->
