@@ -76,11 +76,11 @@ def init_db():
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             name TEXT NOT NULL,
             abbreviation TEXT NOT NULL,
-            transaction_date TEXT,
-            amount REAL,
-            price REAL,
-            transaction_id TEXT UNIQUE,
-            rate REAL
+            transaction_date TEXT NOT NULL,
+            amount REAL NOT NULL,
+            price REAL NOT NULL,
+            transaction_id TEXT UNIQUE NOT NULL,
+            rate REAL NOT NULL
         )
     ''')
 
@@ -142,11 +142,11 @@ def load_transactions_from_csv(csv_file_path):
                 VALUES (?, ?, ?, ?, ?, ?, ?)
             ''', (row['name'],
                 row['abbreviation'].upper(),
-                row.get('transaction_date') or None,
-                float(row['amount']) if row.get('amount') else None,
-                float(row['price']) if row.get('price') else None,
-                row.get('transaction_id') or None,
-                float(row['rate']) if row.get('rate') else None
+                row['transaction_date'],
+                float(row['amount']),
+                float(row['price']),
+                row['transaction_id'],
+                float(row['rate'])
             ))
 
     conn.commit()
