@@ -811,9 +811,9 @@ def save_portfolio_value():
         return jsonify({"success": False, "error": str(e)}), 500
 
 
-
+init_db()
 
 # Run the Flask web server on port 8000
 if __name__ == '__main__':
-    init_db()
+    # init_db()
     app.run(host='0.0.0.0', port=8000)
