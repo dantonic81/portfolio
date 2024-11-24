@@ -816,4 +816,4 @@ def save_portfolio_value():
 # Run the Flask web server on port 8000
 if __name__ == '__main__':
     init_db()
-    app.run(host='0.0.0.0', port=8000, debug=True)
+    app.run(host='0.0.0.0', port=8000)

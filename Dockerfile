@@ -23,5 +23,5 @@ COPY --from=build /app/ ./
 # Expose the port for Flask
 EXPOSE 8000
 
-# Run the application
-CMD [ "python", "main.py" ]
+# Run the application with Gunicorn
+CMD ["gunicorn", "--bind", "0.0.0.0:8000", "main:app"]
