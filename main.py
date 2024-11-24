@@ -513,6 +513,14 @@ def index():
         conn = get_db_connection()
         cursor = conn.cursor()
 
+        # Calculate the sum of all investments in the transactions table
+        cursor.execute('SELECT SUM(price) FROM transactions')
+        total_investment = cursor.fetchone()[0]  # Fetch the sum of prices
+
+        # If there's no sum (i.e., no records), set total_investment to 0
+        if total_investment is None:
+            total_investment = 0
+
         cursor.execute('SELECT 1 FROM portfolio_daily WHERE date = ?', (today_date,))
         existing_record = cursor.fetchone()
 
@@ -557,12 +565,13 @@ def index():
             'index.html',
             total_portfolio_value=current_value,
             percentage_change=percentage_change,  # Raw value
-            formatted_percentage_change=formatted_percentage_change  # Display string
+            formatted_percentage_change=formatted_percentage_change,  # Display string
+            total_investment = total_investment
         )
 
     except Exception as e:
         app.logger.error(f"Error while fetching portfolio data: {e}")
-        return render_template('index.html', total_portfolio_value=0, percentage_change=0, formatted_percentage_change="0.00%")
+        return render_template('index.html', total_portfolio_value=0, percentage_change=0, formatted_percentage_change="0.00%", total_investment=0)
 
 
 @app.route('/outliers', methods=['GET'])
@@ -816,4 +825,4 @@ init_db()
 # Run the Flask web server on port 8000
 if __name__ == '__main__':
     # init_db()
-    app.run(host='0.0.0.0', port=8000)
+    app.run(host='0.0.0.0', port=8000, debug=True)

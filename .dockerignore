@@ -3,5 +3,4 @@ tests/
 .gitignore
 conftest.py
 README.md
-sql-scripts/
 .coverage

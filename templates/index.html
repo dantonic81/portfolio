@@ -12,8 +12,14 @@
           <span id="percentage-change" class="change {{ 'positive' if percentage_change > 0 else 'negative' }}">
         {{ formatted_percentage_change }}
     </span>
-</span>
+
     </h2>
+  </div>
+
+    <!-- Show the total investment sum -->
+  <div class="total-investment">
+      <h3>Your Total Investment</h3>
+      <p>{{ total_investment }} EUR</p>
   </div>
 
   <!-- Quick Action Buttons -->
