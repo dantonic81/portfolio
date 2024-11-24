@@ -3,86 +3,101 @@
     font-family: 'Poppins', sans-serif;
     font-size: 2.5rem;
     font-weight: 600;
-    color: #1d3557;
+    color: #343a40; /* Use white or navbar color */
 }
 
 .section-title {
     font-family: 'Roboto', sans-serif;
-    font-size: 1.75rem;
+    font-size: 1.7rem;
     font-weight: 500;
     margin-bottom: 1rem;
-    color: #457b9d;
+    color: #343a40; /* Lighter color for contrast */
 }
 
 /* Total Value Card */
 .total-value-card {
-    background-color: #f1faee;
-    border: 2px solid #457b9d;
+    background: #ffffff;
     border-radius: 10px;
+    padding: 20px;
 }
 
 .value-highlight {
     font-size: 2rem;
     font-weight: bold;
-    color: #2a9d8f;
+    color: #e63946; /* Accent color */
 }
 
 /* Asset Cards */
 .asset-card {
-    border: 1px solid #dee2e6;
+    border: 1px solid #f1faee;
     border-radius: 10px;
-    background-color: #ffffff;
-    transition: transform 0.2s ease-in-out;
+    background: linear-gradient(45deg, #0d1b2a, #1b3a4b);
+    transition: transform 0.2s ease-in-out, box-shadow 0.3s ease-in-out;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05); /* Light shadow for depth */
 }
 
+/* Hover effect for Asset Cards */
 .asset-card:hover {
-    transform: scale(1.02);
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    transform: translateY(-10px); /* Slight lift effect */
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.1); /* Stronger shadow */
 }
 
+/* Card Header */
 .card-header {
-    background-color: #f8f9fa;
-    border-bottom: 1px solid #dee2e6;
+    background-color: #212529; /* Match navbar color */
+    color: #ffffff;
+    padding: 15px;
     border-radius: 10px 10px 0 0;
-}
-
-.card-title {
-    font-family: 'Poppins', sans-serif;
-    font-size: 1.25rem;
     font-weight: bold;
-    margin: 0;
+    font-size: 1.25rem;
 }
 
+/* Card Body */
 .card-body {
     font-family: 'Roboto', sans-serif;
-    font-size: 0.9rem;
-    line-height: 1.5;
-    color: #495057;
+    font-size: 1rem;
+    line-height: 1.6;
+    color: #d3d3d3; /* Dark grey for text */
+    padding: 15px;
+}
+
+.card-body strong {
+    color: #457b9d; /* Highlight the labels */
+}
+
+/* Card Footer */
+.card-footer {
+    background-color: #212529;
+    border-top: 1px solid #dee2e6;
+    padding: 10px;
+    border-radius: 0 0 10px 10px;
+    display: flex;
+    justify-content: flex-end;
 }
 
 /* Delete Button */
-.card-footer {
-    background-color: #f8f9fa;
-    border-top: 1px solid #dee2e6;
-    border-radius: 0 0 10px 10px;
-}
-
 .delete-asset {
-    font-size: 0.85rem;
+    font-size: 1rem;
     font-weight: 500;
+    background-color: #e63946;
+    color: #ffffff;
+    border: none;
+    padding: 8px 15px;
+    border-radius: 5px;
+    cursor: pointer;
     transition: background-color 0.3s ease;
 }
 
+/* Hover effect for delete button */
 .delete-asset:hover {
-    background-color: #e63946;
-    border-color: #e63946;
+    background-color: #d62828;
 }
 
 /* Modal Styling */
 .modal-title {
     font-family: 'Poppins', sans-serif;
     font-weight: 600;
-    color: #e63946;
+    color: #e63946; /* Matching with delete button */
 }
 
 .modal-body {
@@ -95,7 +110,62 @@
     .dashboard-title {
         font-size: 2rem;
     }
+
     .value-highlight {
         font-size: 1.75rem;
     }
+
+    /* Responsive Card Styles */
+    .asset-card {
+        margin-bottom: 20px;
+    }
+
+    .card-header {
+        font-size: 1.1rem;
+    }
+
+    .card-body {
+        font-size: 0.95rem;
+    }
+}
+
+/* Define the pulse animation */
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+        opacity: 1;
+    }
+    50% {
+        transform: scale(1.1);
+        opacity: 0.8;
+    }
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+/* Apply the pulse effect on hover */
+.delete-asset {
+    font-size: 1rem;
+    font-weight: 500;
+    background-color: #e63946;
+    color: #ffffff;
+    border: none;
+    padding: 8px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    animation: none; /* Default no animation */
+}
+
+/* On hover, add pulse animation */
+.delete-asset:hover {
+    background-color: #d62828;
+    animation: pulse 1s ease-in-out infinite; /* Apply the pulse animation */
+}
+
+/* Optional: Add a slight pulse effect when focused */
+.delete-asset:focus {
+    animation: pulse 1s ease-in-out infinite; /* Apply pulse effect on focus */
 }
