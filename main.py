@@ -521,6 +521,9 @@ def index():
         if total_investment is None:
             total_investment = 0
 
+        # Calculate Nominal ROI
+        nominal_roi = ((total_portfolio_value - total_investment) / total_investment) * 100
+
         cursor.execute('SELECT 1 FROM portfolio_daily WHERE date = ?', (today_date,))
         existing_record = cursor.fetchone()
 
@@ -566,7 +569,8 @@ def index():
             total_portfolio_value=current_value,
             percentage_change=percentage_change,  # Raw value
             formatted_percentage_change=formatted_percentage_change,  # Display string
-            total_investment = total_investment
+            total_investment = total_investment,
+            nominal_roi=round(nominal_roi, 2)
         )
 
     except Exception as e:

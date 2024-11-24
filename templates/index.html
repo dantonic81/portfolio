@@ -8,7 +8,7 @@
 <header class="top-header">
   <div class="container">
     <!-- Portfolio Value Display -->
-    <section class="portfolio-value-section">
+    <section class="portfolio-value-section mb-4">
       <h2 class="header-title">Portfolio Value</h2>
       <div class="portfolio-value">
         <span id="portfolio-value" class="value">${{ total_portfolio_value }}</span>
@@ -19,31 +19,35 @@
     </section>
 
     <!-- Total Investment Section -->
-    <section class="total-investment-section">
+    <section class="total-investment-section mb-4">
       <h3>Your Total Investment</h3>
       <p class="investment-amount">{{ total_investment }} EUR</p>
     </section>
 
+    <!-- Return on Investment Section -->
+    <section class="roi-section">
+      <h3>Your Return on Investment</h3>
+      <p class="roi-value {{ 'positive' if nominal_roi > 0 else 'negative' }}">Nominal ROI: {{ nominal_roi }}%</p>
+    </section>
+
     <!-- Quick Action Buttons -->
     <section class="quick-actions">
-      <div class="btn-group d-flex flex-wrap flex-md-row" role="group">
+      <div class="btn-group d-flex flex-wrap flex-md-row justify-content-center" role="group">
         <button type="button" class="btn btn-primary rounded-button" data-toggle="modal" data-target="#addAssetModal" title="Add a new asset">
           <i class="fas fa-plus-square"></i> Add Asset
         </button>
         <button type="button" class="btn btn-primary rounded-button" data-toggle="modal" data-target="#editAssetModal" title="Edit an existing asset">
           <i class="fas fa-edit"></i> Edit Asset
         </button>
-        <button class="btn btn-primary rounded-button" onclick="setAlerts()">Set Alerts</button>
-        <button class="btn btn-primary rounded-button" onclick="exploreMarket()">Explore Market</button>
+        <button class="btn btn-primary rounded-button" onclick="setAlerts()" title="Set price alerts">Set Alerts</button>
+        <button class="btn btn-primary rounded-button" onclick="exploreMarket()" title="Explore the crypto market">Explore Market</button>
       </div>
     </section>
   </div>
 </header>
 
-
-
 <!-- Jumbotron Section -->
-<div class="jumbotron text-center">
+<div class="jumbotron text-center mb-4">
   <div class="container">
     <h1 class="display-4">Welcome to Your Crypto Portfolio!</h1>
     <p class="lead">Track your cryptocurrency assets, discover new opportunities, and analyze market trends.</p>
@@ -73,15 +77,15 @@
         <form id="addAssetForm">
           <div class="form-group">
             <label for="asset-name">Asset Name</label>
-            <input type="text" class="form-control" id="asset-name" required>
+            <input type="text" class="form-control" id="asset-name" required placeholder="Enter asset name">
           </div>
           <div class="form-group">
             <label for="asset-abbreviation">Abbreviation</label>
-            <input type="text" class="form-control" id="asset-abbreviation" required>
+            <input type="text" class="form-control" id="asset-abbreviation" required placeholder="Enter abbreviation">
           </div>
           <div class="form-group">
             <label for="asset-amount">Amount</label>
-            <input type="number" class="form-control" id="asset-amount" required step="0.00000001">
+            <input type="number" class="form-control" id="asset-amount" required step="0.00000001" placeholder="Enter amount">
           </div>
           <button type="submit" class="btn btn-primary">Save Asset</button>
         </form>
@@ -121,12 +125,11 @@
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-        <button type="button" class="btn btn-danger" id="deleteAssetButton">Delete Asset</button>
-        <button type="button" class="btn btn-primary" id="saveChangesButton">Save Changes</button>
+        <button type="button" class="btn btn-danger" id="deleteAssetButton" title="Delete this asset">Delete Asset</button>
+        <button type="button" class="btn btn-primary" id="saveChangesButton" title="Save changes to the asset">Save Changes</button>
       </div>
     </div>
   </div>
 </div>
-
 
 {% endblock %}
