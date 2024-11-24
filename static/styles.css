@@ -15,29 +15,26 @@
     border-color: #DE4203;
 }
 
-/* Top Header Styles */
+/* General Header Styles */
 .top-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
   background-color: #1e1e2f;
   color: #ffffff;
-  padding: 20px;
+  padding: 20px 0;
   border-bottom: 2px solid #323244;
 }
 
 
-
-.portfolio-value h2 {
-  margin: 0;
-  font-size: 1.5em;
+.portfolio-value {
+  font-size: 2rem;
+  font-weight: bold;
 }
 
 .value {
-  font-size: 1.1em;
+  font-size: 2.2rem; /* Larger size for portfolio value */
 }
 
 .change {
+  font-weight: bold;
   margin-left: 10px;
 }
 
@@ -49,52 +46,89 @@
   color: #dc3545; /* Red for negative change */
 }
 
-/* Quick Action Button Group */
-.btn-group {
+/* Quick Action Buttons */
+.quick-actions {
   display: flex;
+  justify-content: center;
   flex-wrap: wrap;
-  justify-content: flex-start;
   margin-top: 20px;
 }
 
 .quick-actions button {
   background-color: #3b3b5b;
-  color: #ffffff;
+  color: #fff;
   border: none;
-  padding: 10px 15px;
-  margin: 0 5px;
-  cursor: pointer;
+  padding: 10px 20px;
+  margin: 5px;
   border-radius: 5px;
-  transition: background-color 0.3s;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
 }
 
 .quick-actions button:hover {
   background-color: #56568f;
 }
 
+/* Button adjustments for small screens */
 @media (max-width: 768px) {
-  .quick-actions {
-    flex-direction: column; /* Stack buttons vertically */
-    align-items: stretch; /* Make buttons full width */
+  .jumbotron {
+    padding: 30px 10px;
   }
 
-  .quick-actions button {
-    width: 100%; /* Full width for buttons */
-    margin-bottom: 10px; /* Add spacing between buttons */
+  .display-4 {
+    font-size: 2rem;
+  }
+
+  .lead {
+    font-size: 1.1rem;
+  }
+
+  .cta-buttons {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 20px;
+  }
+
+  .cta-buttons a {
+    margin: 10px 0;
+    width: 100%;
   }
 }
 
-/* Modal Styles */
-.modal-content {
-    border-radius: 10px;
+/* Optional: Add rounded corners to buttons for more modern look */
+.rounded-button {
+  border-radius: 0.5rem;
 }
 
-.modal-body {
-    padding: 20px;
+/* Modal Section */
+.modal-dialog-centered {
+  max-width: 600px;
+  margin: 0 auto;
 }
 
 .modal-header .close {
-    font-size: 24px;
+  font-size: 1.5rem;
+  color: #333;
+}
+
+/* Make sure forms and buttons inside modals are responsive */
+.modal-body .form-group input {
+  font-size: 1rem;
+  padding: 10px;
+}
+
+.modal-footer .btn {
+  font-size: 1rem;
+  padding: 10px 15px;
+}
+
+@media (max-width: 768px) {
+  .modal-body .form-group input {
+    font-size: 0.9rem;
+    padding: 8px;
+  }
 }
 
 #assetResults .list-group-item:hover {
@@ -109,25 +143,16 @@
 
 /* Jumbotron Section */
 .jumbotron {
-    text-align: center;
-    padding: 30px 15px;
-    margin-bottom: 0;
-    background-color: #f4f4f9;
+  background-color: #2d3e50;
+  color: white;
+  padding: 40px 20px;
+  margin-bottom: 20px;
 }
 
-.jumbotron .display-4 {
-    font-size: 3rem;
+.jumbotron .container {
+  max-width: 90%; /* Ensure there's some margin on the sides */
+  margin: 0 auto;
 }
-
-.jumbotron .lead {
-    font-size: 1.5rem;
-    margin-bottom: 20px;
-}
-
-.jumbotron .btn {
-    margin: 0 10px;
-}
-
 /* Card Hover Effects */
 .card {
     position: relative;  /* Ensure absolute positioning of the icon */
@@ -184,4 +209,64 @@ footer {
 
 .navbar-nav .nav-link:hover {
     color: #ff8c00; /* Highlight color on hover */
+}
+
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.header-title {
+  margin-bottom: 10px;
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+
+.portfolio-value-section {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+/* Total Investment Section */
+.total-investment-section {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.total-investment-section h3 {
+  font-size: 1.2rem;
+  font-weight: normal;
+}
+
+.investment-amount {
+  font-size: 1.6rem;
+  font-weight: bold;
+}
+
+.display-4 {
+  font-size: 2.8rem;
+  font-weight: bold;
+}
+
+.lead {
+  font-size: 1.4rem;
+  margin-bottom: 15px;
+}
+
+hr.my-4 {
+  border-top: 1px solid #ffffff;
+}
+
+.cta-buttons .btn {
+  padding: 12px 25px;
+  font-size: 1.2rem;
+  border-radius: 8px;
+}
+
+/* Ensure that buttons adjust for mobile */
+.cta-buttons a {
+  margin-right: 10px;
+  margin-left: 10px;
 }

@@ -9,55 +9,59 @@
   <div class="container">
     <!-- Portfolio Value Display -->
     <section class="portfolio-value-section">
-      <h2>Portfolio Value
+      <h2 class="header-title">Portfolio Value</h2>
+      <div class="portfolio-value">
         <span id="portfolio-value" class="value">${{ total_portfolio_value }}</span>
         <span id="percentage-change" class="change {{ 'positive' if percentage_change > 0 else 'negative' }}">
           {{ formatted_percentage_change }}
         </span>
-      </h2>
+      </div>
     </section>
 
     <!-- Total Investment Section -->
     <section class="total-investment-section">
       <h3>Your Total Investment</h3>
-      <p>{{ total_investment }} EUR</p>
+      <p class="investment-amount">{{ total_investment }} EUR</p>
     </section>
 
     <!-- Quick Action Buttons -->
     <section class="quick-actions">
       <div class="btn-group d-flex flex-wrap flex-md-row" role="group">
-        <button type="button" class="btn btn-primary rounded-button flex-fill mx-1 my-1" data-toggle="modal" data-target="#addAssetModal" title="Add a new asset">
+        <button type="button" class="btn btn-primary rounded-button" data-toggle="modal" data-target="#addAssetModal" title="Add a new asset">
           <i class="fas fa-plus-square"></i> Add Asset
         </button>
-        <button type="button" class="btn btn-primary rounded-button flex-fill mx-1 my-1" data-toggle="modal" data-target="#editAssetModal" title="Edit an existing asset">
+        <button type="button" class="btn btn-primary rounded-button" data-toggle="modal" data-target="#editAssetModal" title="Edit an existing asset">
           <i class="fas fa-edit"></i> Edit Asset
         </button>
-        <button class="btn btn-primary rounded-button flex-fill mx-1 my-1" onclick="setAlerts()">Set Alerts</button>
-        <button class="btn btn-primary rounded-button flex-fill mx-1 my-1" onclick="exploreMarket()">Explore Market</button>
+        <button class="btn btn-primary rounded-button" onclick="setAlerts()">Set Alerts</button>
+        <button class="btn btn-primary rounded-button" onclick="exploreMarket()">Explore Market</button>
       </div>
     </section>
   </div>
 </header>
 
+
+
 <!-- Jumbotron Section -->
 <div class="jumbotron text-center">
-  <h1 class="display-4">Welcome to Your Crypto Portfolio!</h1>
-  <p class="lead">Track your cryptocurrency assets, discover new opportunities, and analyze market trends.</p>
-  <hr class="my-4">
-  <p>Get insights on your owned assets, explore top cryptocurrencies, and find outliers in the market.</p>
+  <div class="container">
+    <h1 class="display-4">Welcome to Your Crypto Portfolio!</h1>
+    <p class="lead">Track your cryptocurrency assets, discover new opportunities, and analyze market trends.</p>
+    <hr class="my-4">
+    <p>Get insights on your owned assets, explore top cryptocurrencies, and find outliers in the market.</p>
 
-  <!-- Call to Action Buttons -->
-  <div class="d-flex justify-content-center">
-    <a class="btn btn-primary btn-lg mx-2" href="{{ url_for('show_portfolio') }}">View Owned Portfolio</a>
-    <a class="btn btn-secondary btn-lg mx-2" href="{{ url_for('show_unowned_cryptos') }}">Unowned (Top 100)</a>
-    <a class="btn btn-warning btn-lg mx-2" href="{{ url_for('show_outliers') }}">Outliers (Top 100)</a>
+    <!-- Call to Action Buttons -->
+    <div class="cta-buttons d-flex justify-content-center flex-wrap">
+      <a class="btn btn-primary btn-lg mx-2 mb-2 mb-md-0" href="{{ url_for('show_portfolio') }}">View Owned Portfolio</a>
+      <a class="btn btn-secondary btn-lg mx-2 mb-2 mb-md-0" href="{{ url_for('show_unowned_cryptos') }}">Unowned (Top 100)</a>
+      <a class="btn btn-warning btn-lg mx-2 mb-2 mb-md-0" href="{{ url_for('show_outliers') }}">Outliers (Top 100)</a>
+    </div>
   </div>
 </div>
 
-<!-- Modal Sections (Place these at the bottom or separate section) -->
 <!-- Add Asset Modal -->
 <div class="modal fade" id="addAssetModal" tabindex="-1" role="dialog" aria-labelledby="addAssetModalLabel" aria-hidden="true">
-  <div class="modal-dialog" role="document">
+  <div class="modal-dialog modal-dialog-centered" role="document">
     <div class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title" id="addAssetModalLabel">Add New Asset</h5>
@@ -88,7 +92,7 @@
 
 <!-- Edit Asset Modal -->
 <div class="modal fade" id="editAssetModal" tabindex="-1" role="dialog" aria-labelledby="editAssetModalLabel" aria-hidden="true">
-  <div class="modal-dialog" role="document">
+  <div class="modal-dialog modal-dialog-centered" role="document">
     <div class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title" id="editAssetModalLabel">Edit Asset</h5>
@@ -98,7 +102,7 @@
       </div>
       <div class="modal-body">
         <!-- Search bar to search for assets -->
-        <input type="text" id="searchAsset" class="form-control" placeholder="Search for an asset...">
+        <input type="text" id="searchAsset" class="form-control mb-3" placeholder="Search for an asset...">
         <!-- List of search results -->
         <ul id="assetResults" class="list-group mt-2" style="max-height: 200px; overflow-y: auto;">
           <!-- Search results will be dynamically populated here -->
@@ -123,5 +127,6 @@
     </div>
   </div>
 </div>
+
 
 {% endblock %}
