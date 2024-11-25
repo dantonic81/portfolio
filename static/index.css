@@ -303,6 +303,14 @@ hr.my-4 {
   border-color: #3a535e;
 }
 
+.btn-primary:focus {
+  box-shadow: none;
+}
+
+.btn:focus {
+  box-shadow: none;
+}
+
 .btn-primary:hover {
   background-color: #3a535e;
   border-color: #2f454e;
