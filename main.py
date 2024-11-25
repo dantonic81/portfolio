@@ -253,7 +253,7 @@ def calculate_portfolio_value(portfolio, top_1000):
         asset_value = amount * current_price
 
         asset['current_price'] = current_price
-        asset['value'] = round(asset_value, 8)
+        asset['value'] = round(asset_value, 2)
         asset['rank'] = crypto_data['rank']
         asset['image'] = crypto_data['image']
 
@@ -464,7 +464,6 @@ def show_portfolio():
     for asset in portfolio:
         allocation = (asset['value'] / total_portfolio_value) * 100 if total_portfolio_value > 0 else 0
         asset['allocation_percentage'] = round(allocation, 2)
-        asset['value'] = round(float(asset['value']), 2)
 
     portfolio = sorted(portfolio, key=lambda x: x['value'], reverse=True)
 
