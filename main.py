@@ -464,6 +464,7 @@ def show_portfolio():
     for asset in portfolio:
         allocation = (asset['value'] / total_portfolio_value) * 100 if total_portfolio_value > 0 else 0
         asset['allocation_percentage'] = round(allocation, 2)
+        asset['value'] = round(float(asset['value']), 2)
 
     portfolio = sorted(portfolio, key=lambda x: x['value'], reverse=True)
 
