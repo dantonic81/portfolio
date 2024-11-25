@@ -211,3 +211,14 @@
     text-decoration: none;
     animation: pulse 1s ease-in-out infinite;
 }
+
+/* Add Button */
+.add-to-portfolio {
+    transition: background-color 0.3s ease, color 0.3s ease;
+    animation: none;
+}
+
+/* Add Button Hover */
+.add-to-portfolio:hover {
+    animation: pulse 1s ease-in-out infinite;
+}
