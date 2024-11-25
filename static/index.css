@@ -308,22 +308,4 @@ hr.my-4 {
   border-color: #2f454e;
 }
 
-.btn-secondary {
-  background-color: #3b4f56; /* Darker greenish-gray */
-  border-color: #2d4348;
-}
 
-.btn-secondary:hover {
-  background-color: #2d4348;
-  border-color: #253739;
-}
-
-.btn-warning {
-  background-color: #e67e22; /* Gold color for a bit of contrast */
-  border-color: #d35400;
-}
-
-.btn-warning:hover {
-  background-color: #d35400;
-  border-color: #c0392b;
-}

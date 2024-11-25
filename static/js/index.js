@@ -27,7 +27,8 @@ $(document).ready(function() {
                 $('#addAssetModal').modal('hide');  // Make sure this targets the correct modal
 
                 // Show success message
-                showSuccessMessage("Asset successfully added!");
+                alert('Asset added successfully!');
+                location.reload();
 
             },
             error: function(xhr, status, error) {
