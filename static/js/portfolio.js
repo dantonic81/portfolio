@@ -1,11 +1,11 @@
 let assetToDelete = null;
 
-// Open the delete confirmation modal when an asset card is clicked
-$('.asset-card').not('.add-new-card').on('click', function() {
-    // Store the clicked card element
-    assetToDelete = $(this);
+// Open the delete confirmation modal when the delete button is clicked
+$('.delete-asset').on('click', function(event) {
+    // Store the clicked button's parent card element
+    assetToDelete = $(this).closest('.asset-card');
 
-    const assetId = $(this).data('id');  // Get the ID from the clicked card
+    const assetId = $(this).data('id');  // Get the ID from the clicked button's data attribute
     console.log('Asset ID:', assetId);  // Check if the ID is correct
 
     if (!assetId) {
@@ -42,7 +42,7 @@ $('#confirmDeleteButton').on('click', function() {
                     $(assetToDelete).remove();  // Remove the card from the DOM
                 });
                 alert('Asset deleted successfully!');
-                 window.location.reload();
+                window.location.reload();
             } else {
                 alert(response.message || 'Failed to delete the asset.');
             }
