@@ -191,7 +191,6 @@ footer {
 /* Active link */
 .nav-item.active .nav-link.custom-link {
     color: #f4a261 !important; /* Distinctive highlight color for active links */
-    background-color: rgba(0, 0, 0, 0.1);
     font-weight: bold;
 }
 
