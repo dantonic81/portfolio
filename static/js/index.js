@@ -36,6 +36,16 @@ $(document).ready(function() {
         });
     });
 
+    // Clear the Add Asset form fields when the modal is closed
+    $('#addAssetModal').on('hidden.bs.modal', function () {
+        // Clear all input fields
+        $('#addAssetForm')[0].reset();
+
+        // Optionally clear custom validation messages or feedback
+        $('#addAssetForm .is-invalid').removeClass('is-invalid');
+        $('#addAssetForm .is-valid').removeClass('is-valid');
+    });
+
     // Function to show the success message
     function showSuccessMessage(message) {
         var successMessage = $('<div>')
