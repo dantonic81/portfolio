@@ -9,6 +9,10 @@
 
 /* Asset Cards */
 .asset-card {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: 100%;
     border: 1px solid #f1faee;
     border-radius: 10px;
     background: linear-gradient(45deg, #0d1b2a, #1b3a4b);
@@ -147,4 +151,63 @@
 /* Optional: Add a slight pulse effect when focused */
 .delete-asset:focus {
     animation: pulse 1s ease-in-out infinite; /* Apply pulse effect on focus */
+}
+
+
+/* Main Card Styling */
+.add-new-card {
+    border: 1px solid #e1e4e8; /* Subtle border */
+    border-radius: 10px;
+    background-color: #ffffff; /* White background for the card */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05); /* Minimal shadow for depth */
+}
+
+/* Title (mimicking standalone card appearance) */
+.add-new-title {
+    font-family: 'Poppins', sans-serif;
+    font-size: 1.5rem; /* Slightly smaller than headers in other cards */
+    font-weight: bold;
+    color: #6c757d; /* Neutral dark color */
+    margin: 15px 0; /* Space above and below */
+}
+
+/* Card Body */
+.add-new-text {
+    font-family: 'Roboto', sans-serif;
+    font-size: 1rem; /* Standard body text size */
+    line-height: 1.5;
+    color: #6c757d; /* Muted dark grey */
+    margin: 15px;
+}
+
+/* Footer */
+.add-new-footer {
+    padding: 10px;
+    border-radius: 0 0 10px 10px; /* Matches other cards */
+    background-color: transparent; /* Invisible to mimic original look */
+    display: flex;
+    justify-content: center; /* Center-align the button */
+    border: none;
+}
+
+/* Add Button */
+.add-new-button {
+    font-size: 1rem;
+    font-weight: 500;
+    background-color: transparent; /* Restore original transparent or default style */
+    color: #6c757d; /* Subtle muted dark grey for the text */
+    border: 1px solid #6c757d; /* Match text color for border */
+    padding: 8px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, color 0.3s ease;
+    animation: none;
+}
+
+/* Add Button Hover */
+.add-new-button:hover {
+    color: #a8dadc; /* Soft pastel hover color */
+    background-color: rgba(255, 255, 255, 0.2);
+    text-decoration: none;
+    animation: pulse 1s ease-in-out infinite;
 }

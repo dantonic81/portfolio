@@ -10,21 +10,29 @@
 {% block content %}
 <div class="container">
     <h1 class="dashboard-title text-center mb-5">Owned Crypto</h1>
-
-    <!-- Placeholder for adding new card -->
-    <div class="col-md-6 col-lg-4 mb-4">
-        <div class="card asset-card shadow-sm add-new-card" data-id="new">
-            <div class="card-body text-center">
-                <h5 class="card-title text-muted">Add New Asset</h5>
-                <p class="card-text">Click here to add a new cryptocurrency to your portfolio.</p>
-                <!-- Add New button triggers the Add Asset Modal -->
-                <button class="btn btn-primary" data-toggle="modal" data-target="#addAssetModal">Add New</button>
-            </div>
-        </div>
-    </div>
-
     <!-- Portfolio Breakdown -->
     <div class="row">
+
+        <div class="col-md-6 col-lg-4 mb-4">
+            <div class="card asset-card shadow-sm add-new-card">
+                <!-- Add New Title aligned with other card headers -->
+                <h5 class="text-center add-new-title">Add New Asset</h5>
+
+                <!-- Body aligned with other card bodies -->
+                <div class="card-body text-center">
+                    <p class="card-text add-new-text">
+                        Click here to add a new cryptocurrency to your portfolio.
+                    </p>
+                </div>
+
+                <!-- Invisible Footer to align Add button with other cards -->
+                <div class="card-footer text-center add-new-footer">
+                    <button class="btn btn-sm btn-primary add-new-button" data-toggle="modal" data-target="#addAssetModal">
+                        <i class="fa fa-plus"></i> Add New
+                    </button>
+                </div>
+            </div>
+        </div>
         {% for asset in portfolio %}
             <div class="col-md-6 col-lg-4 mb-4">
                 <div class="card asset-card shadow-sm"  data-id="{{ asset.id }}">
