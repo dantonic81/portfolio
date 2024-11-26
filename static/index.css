@@ -257,7 +257,7 @@ hr.my-4 {
   font-size: 0.9rem;
   text-transform: uppercase;
   font-weight: bold;
-  color: white;
+  color: transparent;
   background-color: #4e6a76; /* Soft blue-gray that complements the jumbotron */
   border-color: #3a535e; /* Slightly darker border */
   background-clip: text;
