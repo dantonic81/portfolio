@@ -265,10 +265,10 @@ hr.my-4 {
 }
 
 .cta-buttons .btn:hover {
-  background-color: #5d767a; /* Darker blue-gray on hover */
-  box-shadow: 0 0 50px rgba(77, 103, 113, 0.8);  /* Glowing effect around the button */
-
+  background-color: white; /* Darker blue-gray on hover */
+  box-shadow: 0 0 20px rgba(77, 103, 113, 0.8);  /* Glowing effect around the button */
   border-color: #5d767a; /* Darker border on hover */
+
 }
 
 /* Ensure that buttons adjust for mobile */
