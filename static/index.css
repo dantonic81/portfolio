@@ -261,7 +261,6 @@ hr.my-4 {
   background-color: #4e6a76; /* Soft blue-gray that complements the jumbotron */
   border-color: #3a535e; /* Slightly darker border */
   background-clip: text;
-  -webkit-background-clip: text;  /* Necessary for WebKit-based browsers */
 }
 
 .cta-buttons .btn:hover {
@@ -400,6 +399,7 @@ h3 {
 label {
   font-size: 1.2rem;
   color: #333;
+  margin-left: 5px; /* Adds a small space between radio and label */
 }
 
 /* Styling for radio buttons */
@@ -407,6 +407,7 @@ label {
   width: 1.4rem;
   height: 1.4rem;
   margin-right: 10px;
+  vertical-align: middle; /* Aligns radio button better with the label */
 }
 
 /* Styling for the number input */
@@ -418,4 +419,16 @@ label {
 /* Optional: Adding some spacing between each input section */
 .d-flex {
   margin-bottom: 10px;
+}
+
+/* Optional: Adding space between radio button and label */
+.form-check {
+  margin-right: 20px; /* Adds space between the radio button and the label */
+  display: flex;
+  align-items: center;  /* Ensures the radio button and label are aligned */
+}
+
+/* Optional: Add some space between multiple form-check groups */
+.form-check + .form-check {
+  margin-top: 10px;
 }
