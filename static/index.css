@@ -261,11 +261,14 @@ hr.my-4 {
   background-color: #4e6a76; /* Soft blue-gray that complements the jumbotron */
   border-color: #3a535e; /* Slightly darker border */
   background-clip: text;
+  -webkit-background-clip: text;  /* Necessary for WebKit-based browsers */
 }
 
 .cta-buttons .btn:hover {
-  background-color: #3a535e; /* Darker blue-gray on hover */
-  border-color: #2f454e; /* Darker border on hover */
+  background-color: #5d767a; /* Darker blue-gray on hover */
+  box-shadow: 0 0 50px rgba(77, 103, 113, 0.8);  /* Glowing effect around the button */
+
+  border-color: #5d767a; /* Darker border on hover */
 }
 
 /* Ensure that buttons adjust for mobile */
