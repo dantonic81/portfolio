@@ -157,7 +157,6 @@ def load_transactions_from_csv(csv_file_path):
     conn.close()
 
 
-
 # Fetch portfolio from SQLite
 def read_portfolio():
     conn = get_db_connection()
@@ -229,7 +228,6 @@ def get_top_1000_crypto():
     return all_cryptos
 
 
-
 def calculate_portfolio_value(portfolio, top_1000):
     # Build a lookup dictionary for fast access by both name and symbol
     price_lookup = {
@@ -263,9 +261,6 @@ def calculate_portfolio_value(portfolio, top_1000):
         total_value += asset_value
 
     return round(total_value, 2)
-
-
-
 
 
 def fetch_owned_coins_from_db(db_path="crypto_portfolio.db"):
@@ -335,7 +330,7 @@ def fetch_gainers_and_losers_owned(owned_coins):
         data = response.json()
 
         # Filter out coins where price_change_percentage_24h is None
-        filtered_data = [{**coin, 'symbol': coin['symbol'].lstrip('@')}
+        filtered_data = [{**coin, 'name': coin['name'].lstrip('@')}
                          for coin in data if coin.get("price_change_percentage_24h") is not None]
 
         # Sort by price change percentage (24h)
@@ -367,6 +362,7 @@ def fetch_gainers_and_losers_owned(owned_coins):
         conn.close()
         return [], []
 
+
 def preprocess_data(gainers, losers):
     features = []
     coin_ids = []
@@ -384,7 +380,6 @@ def preprocess_data(gainers, losers):
         coin_ids.append(coin.get("id", "unknown"))
 
     return features, coin_ids
-
 
 
 def detect_outliers(features, contamination=0.1):
@@ -683,7 +678,6 @@ def get_assets_by_query(query):
 
     # Return the results in a structured format (list of dictionaries)
     return [{'id': asset[0], 'asset_name': asset[1], 'amount': asset[2]} for asset in assets]
-
 
 
 @app.route('/search_assets', methods=['GET'])
