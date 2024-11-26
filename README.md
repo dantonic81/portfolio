@@ -87,6 +87,12 @@ Also there's nothing there to indicate that cards are editable when I hover abov
 - I shouldn't be able to add a new asset if it already exists in the database
 
 
+- We should add top three gainers and losers to dashboard
+
+
+- Develop set alerts functionality
+
+
 ## TODO:
 
 - type hints

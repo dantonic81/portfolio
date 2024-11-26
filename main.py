@@ -330,7 +330,7 @@ def fetch_gainers_and_losers_owned(owned_coins):
         data = response.json()
 
         # Filter out coins where price_change_percentage_24h is None
-        filtered_data = [{**coin, 'name': coin['name'].lstrip('@')}
+        filtered_data = [{**coin, 'name': coin['name'].lstrip('@'), 'symbol': coin['symbol'].replace('@', '')}
                          for coin in data if coin.get("price_change_percentage_24h") is not None]
 
         # Sort by price change percentage (24h)
@@ -846,6 +846,16 @@ def save_portfolio_value():
         app.logger.error(f"Error while saving portfolio value: {e}")
         return jsonify({"success": False, "error": str(e)}), 500
 
+
+@app.route('/get-owned-coins', methods=['GET'])
+def get_owned_coins():
+    try:
+        # Fetch owned coins from your database
+        portfolio = read_portfolio()
+        return jsonify(portfolio)
+    except Exception as e:
+        app.logger.error(f"Error fetching owned coins: {e}")  # More detailed logging
+        return jsonify({"error": "Failed to fetch owned coins"}), 500
 
 init_db()
 
