@@ -15,6 +15,9 @@ load_dotenv()
 
 app = Flask(__name__)
 
+
+# Setup logging to see what happens in the console
+logging.basicConfig(level=logging.DEBUG)
 DATABASE = 'crypto_portfolio.db'
 CACHE_EXPIRY = 120  # Cache expiry time in seconds
 API_KEY = os.environ.get("API_KEY")
@@ -332,7 +335,8 @@ def fetch_gainers_and_losers_owned(owned_coins):
         data = response.json()
 
         # Filter out coins where price_change_percentage_24h is None
-        filtered_data = [coin for coin in data if coin.get("price_change_percentage_24h") is not None]
+        filtered_data = [{**coin, 'symbol': coin['symbol'].lstrip('@')}
+                         for coin in data if coin.get("price_change_percentage_24h") is not None]
 
         # Sort by price change percentage (24h)
         gainers = sorted(filtered_data, key=lambda x: x["price_change_percentage_24h"], reverse=True)
@@ -504,6 +508,12 @@ def show_unowned_cryptos():
 @app.route('/')
 def index():
     try:
+        # Fetch owned coins
+        owned_coins = fetch_owned_coins_from_db()
+
+        # Fetch gainers and losers
+        gainers, losers = fetch_gainers_and_losers_owned(owned_coins)
+
         # Fetch the portfolio data that we need for calculation
         portfolio = read_portfolio()  # Your function to read portfolio data
         top_1000_cryptos = get_top_1000_crypto()  # Function to get the top 1000 cryptos
@@ -577,7 +587,9 @@ def index():
             formatted_percentage_change=formatted_percentage_change,  # Display string
             total_investment = total_investment,
             nominal_roi=nominal_roi,
-            formatted_nominal_roi=formatted_nominal_roi
+            formatted_nominal_roi=formatted_nominal_roi,
+            gainers=gainers,
+            losers=losers
         )
 
     except Exception as e:
@@ -611,8 +623,7 @@ def show_outliers():
         outlier_cryptos=results["outliers"],
         inlier_cryptos=results["inliers"]
     )
-# Setup logging to see what happens in the console
-logging.basicConfig(level=logging.DEBUG)
+
 
 @app.route('/add_asset', methods=['POST'])
 def add_asset():

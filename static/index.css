@@ -238,7 +238,7 @@ footer {
 }
 
 .display-4 {
-  font-size: 2.8rem;
+  font-size: 2.05rem;
   font-weight: bold;
 }
 
@@ -260,6 +260,7 @@ hr.my-4 {
   color: white;
   background-color: #4e6a76; /* Soft blue-gray that complements the jumbotron */
   border-color: #3a535e; /* Slightly darker border */
+  background-clip: text;
 }
 
 .cta-buttons .btn:hover {
@@ -275,7 +276,7 @@ hr.my-4 {
 
 .roi-section {
   text-align: center;
-  margin-bottom: 20px;
+  margin-bottom: 50px;
 }
 
 .roi-section h3 {
@@ -316,3 +317,67 @@ hr.my-4 {
 }
 
 
+.gainers-losers-section {
+    background-color: transparent;  /* Make the background of the section transparent */
+}
+
+.list-group-item {
+    background: transparent;  /* Make each list item transparent */
+    border: none;  /* Remove borders to make it cleaner */
+    color: inherit;  /* Inherit the text color from the parent */
+    transition: background-color 0.3s ease; /* Smooth transition effect */
+    width: 100%;
+    display: flex;
+    padding: 0;
+    margin-bottom: 20px;
+}
+
+.list-group-item:hover {
+    background-color: rgba(0, 0, 0, 0.1);  /* Light background when hovering to indicate interactivity */
+}
+
+.list-group-item .badge {
+    border-radius: 50px;  /* Optional: Make badges more rounded */
+}
+
+h3 {
+    color: inherit;  /* Ensure the headings blend with the page's text color */
+    font-weight: bold;  /* Make the text stand out a little more */
+    white-space: nowrap;
+}
+
+/* Container holding text and badge */
+.coin-info {
+  display: flex;
+  justify-content: space-between; /* Ensures space between text and badge */
+  align-items: center; /* Vertically center items */
+  width: 100%; /* Make sure the container takes full width */
+}
+
+/* Text container: stacks text vertically */
+.text-info {
+  display: flex;
+  flex-direction: column; /* Stack name and symbol vertically */
+  justify-content: flex-start; /* Align text at the top */
+}
+
+/* Coin name styling */
+.coin-name {
+  font-size: 0.8em; /* Adjust size as needed */
+  font-weight: bold;
+}
+
+/* Secondary text (symbol) styling */
+.secondary-text {
+  font-size: 0.6em;
+  color: grey;
+}
+
+.badge {
+  display: inline-flex; /* Use inline-flex to shrink to fit content */
+  align-items: center;  /* Vertically center the badge content */
+  justify-content: center; /* Center the content horizontally */
+  font-size: 0.6rem; /* Adjust font size if needed */
+  line-height: 1; /* Ensure the line height doesn't stretch the badge vertically */
+  margin-left: auto; /* Push the badge to the far right */
+}
