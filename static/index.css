@@ -384,3 +384,38 @@ h3 {
   line-height: 1; /* Ensure the line height doesn't stretch the badge vertically */
   margin-left: auto; /* Push the badge to the far right */
 }
+
+
+/* Custom styling for form groups */
+.form-group {
+  background-color: #f9f9f9;
+  transition: background-color 0.3s ease;
+}
+
+.form-group:hover {
+  background-color: #e0e0e0;  /* Slight change on hover */
+}
+
+/* Styling for labels */
+label {
+  font-size: 1.2rem;
+  color: #333;
+}
+
+/* Styling for radio buttons */
+.form-check-input {
+  width: 1.4rem;
+  height: 1.4rem;
+  margin-right: 10px;
+}
+
+/* Styling for the number input */
+.form-control {
+  width: 150px;
+  margin-right: 10px;
+}
+
+/* Optional: Adding some spacing between each input section */
+.d-flex {
+  margin-bottom: 10px;
+}
