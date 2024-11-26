@@ -84,6 +84,9 @@ Also there's nothing there to indicate that cards are editable when I hover abov
 - I want to show logo for every cryptocurrency I own in its own card in owned page
 
 
+- I shouldn't be able to add a new asset if it already exists in the database
+
+
 ## TODO:
 
 - type hints

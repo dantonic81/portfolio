@@ -8,12 +8,12 @@ $(document).ready(function() {
 
         // Send the form data via AJAX or handle it as needed
         var formData = {
-            name: $('#asset-name').val(),
-            abbreviation: $('#asset-abbreviation').val(),
-            amount: $('#asset-amount').val()
+            name: $('#asset-name').val().trim().toLowerCase(),
+            abbreviation: $('#asset-abbreviation').val().trim().toLowerCase(),
+            amount: parseFloat($('#asset-amount').val())
         };
 
-        console.log(formData);
+        console.log("Form data:", formData);
 
         $.ajax({
             url: '/add_asset',  // Adjust to your correct route
@@ -31,8 +31,17 @@ $(document).ready(function() {
                 location.reload();
 
             },
-            error: function(xhr, status, error) {
-                console.error("Error saving asset:", error);
+            error: function(xhr) {
+                console.error("Error saving asset:", xhr);
+
+                // Check for specific error messages
+                if (xhr.status === 400 && xhr.responseJSON && xhr.responseJSON.error) {
+                    // Display specific error message to the user
+                    alert(xhr.responseJSON.error); // e.g., "Asset already exists!"
+                } else {
+                    // Fallback for other errors
+                    alert('An unexpected error occurred. Please try again later.');
+                }
             }
         });
     });

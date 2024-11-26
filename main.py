@@ -40,7 +40,7 @@ def init_db():
         CREATE TABLE IF NOT EXISTS portfolio (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             name TEXT,
-            abbreviation TEXT,
+            abbreviation TEXT UNIQUE COLLATE NOCASE,
             amount REAL
         )
     ''')
@@ -624,31 +624,42 @@ def add_asset():
         data = request.get_json()
         app.logger.debug("Received data: %s", data)  # Log the received data
 
-        name = data.get('name')
-        abbreviation = data.get('abbreviation')
+        name = data.get('name').strip().lower()
+        abbreviation = data.get('abbreviation').strip().lower()
         amount = float(data.get('amount'))  # Ensure the amount is a float
 
-        # Connect to SQLite and insert data into the portfolio table
+        # Connect to SQLite and check if the asset already exists
         conn = sqlite3.connect('crypto_portfolio.db')
         cursor = conn.cursor()
 
+        # Query to check for existing asset by name or abbreviation
         cursor.execute('''
-            INSERT INTO portfolio (name, abbreviation, amount)
-            VALUES (?, ?, ?)
-        ''', (name, abbreviation, amount))
+                SELECT * FROM portfolio
+                WHERE name = ? OR abbreviation = ?
+            ''', (name, abbreviation))
+        existing_asset = cursor.fetchone()
+
+        if existing_asset:
+            app.logger.warning("Asset already exists: %s", existing_asset)
+            conn.close()
+            return jsonify({"success": False, "error": "Asset already exists!"}), 400
+
+        # Insert the new asset if it doesn't exist
+        cursor.execute('''
+                INSERT INTO portfolio (name, abbreviation, amount)
+                VALUES (?, ?, ?)
+            ''', (name, abbreviation, amount))
 
         conn.commit()
         conn.close()
 
         app.logger.debug("Asset added successfully.")  # Log success
-
         return jsonify({"success": True})
 
     except Exception as e:
         # Log any error that occurs
         app.logger.error("Error while adding asset: %s", e)
         return jsonify({"success": False, "error": str(e)})
-
 
 
 def get_assets_by_query(query):
