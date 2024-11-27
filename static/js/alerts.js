@@ -4,6 +4,8 @@ document.addEventListener("DOMContentLoaded", () => {
   const saveAlertsButton = document.getElementById('saveAlertsButton'); // Reference the Save Alerts button
   const searchInput = document.createElement('input'); // Create the search bar dynamically
 
+  let ownedCoins = [];
+
   // Style the search input
   searchInput.id = 'searchCoin';
   searchInput.name = 'searchCoin';
@@ -17,7 +19,7 @@ document.addEventListener("DOMContentLoaded", () => {
   setAlertsButton.addEventListener('click', async () => {
     try {
       // Fetch the owned coins when the modal button is clicked
-      const ownedCoins = await fetchOwnedCoins();
+      ownedCoins = await fetchOwnedCoins();
 
       // Populate the modal with data
       populateAlertForm(ownedCoins);
@@ -102,11 +104,14 @@ document.addEventListener("DOMContentLoaded", () => {
       if (name.startsWith('alert-') && value) {
         const coinAbbreviation = name.split('-')[1];
         const alertValue = formData.get(`alert-value-${coinAbbreviation}`);
-        if (alertValue) {
+        const coin = ownedCoins.find(c => c.abbreviation === coinAbbreviation); // Find the coin by abbreviation
+
+        if (coin && alertValue) {
           alerts.push({
+            name: coin.name, // Include the full coin name
             cryptocurrency: coinAbbreviation,
             alert_type: value, // 'more' or 'less'
-            threshold: parseFloat(alertValue),
+            threshold: parseFloat(alertValue), // The value in USD
           });
         }
       }

@@ -53,12 +53,12 @@ def get_active_alerts():
 
 
 # Function to get current price from CoinGecko API
-def get_current_price(cryptocurrency, target_currency='usd'):
+def get_current_price(name, target_currency='usd'):
     url = "https://api.coingecko.com/api/v3/simple/price"
 
     # Create the query parameters based on the input
     params = {
-        'ids': cryptocurrency,  # The cryptocurrency ID (e.g., 'bitcoin', 'ethereum')
+        'ids': name,  # The cryptocurrency ID (e.g., 'bitcoin', 'ethereum')
         'vs_currencies': target_currency  # The target currency (e.g., 'usd')
     }
 
@@ -69,10 +69,10 @@ def get_current_price(cryptocurrency, target_currency='usd'):
         data = response.json()  # Parse the JSON response
 
         # Ensure the data is structured as expected and return the price
-        if cryptocurrency in data:
-            return data[cryptocurrency].get(target_currency)  # Get the price in the specified currency
+        if name in data:
+            return data[name].get(target_currency)  # Get the price in the specified currency
         else:
-            print(f"Error: No data found for {cryptocurrency} in {target_currency}")
+            print(f"Error: No data found for {name} in {target_currency}")
             return None
     except requests.exceptions.RequestException as e:
         # Handle exceptions for network issues, invalid responses, etc.
@@ -91,21 +91,18 @@ def check_alerts():
 
     for alert in active_alerts:
         # Get the current price data from the CoinGecko API
-        price_data = get_current_price(alert['cryptocurrency'], target_currency='usd')
+        price_data = get_current_price(alert['name'].lower(), target_currency='usd')
 
-        if price_data:
-            # Get the current price for the specified cryptocurrency (e.g., Bitcoin)
-            current_price = price_data.get(alert['cryptocurrency'], {}).get('usd')
-
-            if current_price is None:
-                print(f"Error: No price data available for {alert['cryptocurrency']}")
-                continue
+        if price_data is not None:
+            current_price = price_data
 
             # Check the condition (based on the alert type)
             if (alert['alert_type'] == 'more' and current_price > alert['threshold']) or \
                (alert['alert_type'] == 'less' and current_price < alert['threshold']):
                 # Trigger a notification
                 send_notification(alert, current_price)
+        else:
+            print(f"Error: No price data available for {alert['name']}")
 
 
 # Add the scheduled job
@@ -173,6 +170,7 @@ def init_db():
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS alerts (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
+            name TEXT NOT NULL,
             cryptocurrency TEXT NOT NULL,
             alert_type TEXT NOT NULL,
             threshold REAL NOT NULL,
@@ -953,9 +951,10 @@ def get_owned_coins():
 @app.route('/api/set_alert', methods=['POST'])
 def set_alert():
     data = request.json
+    print("Received data:", data)
 
     # Validate the incoming data
-    required_fields = ["cryptocurrency", "alert_type", "threshold"]
+    required_fields = ["name", "cryptocurrency", "alert_type", "threshold"]
     for field in required_fields:
         if field not in data:
             return jsonify({"error": f"Missing field: {field}"}), 400
@@ -966,10 +965,10 @@ def set_alert():
         cursor = conn.cursor()
 
         query = '''
-        INSERT INTO alerts (cryptocurrency, alert_type, threshold)
-        VALUES (?, ?, ?)
+        INSERT INTO alerts (name, cryptocurrency, alert_type, threshold)
+        VALUES (?, ?, ?, ?)
         '''
-        cursor.execute(query, (data["cryptocurrency"], data["alert_type"], data["threshold"]))
+        cursor.execute(query, (data['name'], data["cryptocurrency"], data["alert_type"], data["threshold"]))
         conn.commit()
         alert_id = cursor.lastrowid  # Get the ID of the newly created alert
         conn.close()
