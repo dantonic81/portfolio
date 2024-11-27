@@ -2,11 +2,11 @@ import csv
 import requests
 import sqlite3
 import logging
+from flask_apscheduler import APScheduler
 from datetime import datetime
 from flask import Flask, request, jsonify, render_template
 from sklearn.ensemble import IsolationForest
 import pandas as pd
-import json
 import numpy as np
 import os
 from dotenv import load_dotenv
@@ -15,6 +15,11 @@ load_dotenv()
 
 app = Flask(__name__)
 
+# Configuring Flask-APScheduler
+app.config['SCHEDULER_API_ENABLED'] = True  # This enables the API for job management, if needed
+
+# Initialize scheduler
+scheduler = APScheduler()
 
 # Setup logging to see what happens in the console
 logging.basicConfig(level=logging.DEBUG)
@@ -24,6 +29,22 @@ API_KEY = os.environ.get("API_KEY")
 # API_KEY = os.getenv("API_KEY")
 if not API_KEY:
     raise EnvironmentError("API_KEY is not set in the environment variables.")
+
+
+# Define the job that checks alerts
+def check_alerts():
+    # Your alert-checking logic here
+    print("Checking alerts at", datetime.now())
+    # Add your alert checking and notifications logic (e.g., comparing prices and sending notifications)
+    pass
+
+# Add the scheduled job
+scheduler.add_job(id='check_alerts', func=check_alerts, trigger='interval', minutes=5)
+
+# Start the scheduler
+scheduler.init_app(app)
+scheduler.start()
+
 
 
 # Helper function to connect to SQLite
