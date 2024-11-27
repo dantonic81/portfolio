@@ -4,6 +4,8 @@ document.addEventListener("DOMContentLoaded", () => {
   const searchInput = document.createElement('input');  // Create the search bar dynamically
 
   // Style the search input
+  searchInput.id= 'searchCoin';
+  searchInput.name = 'searchCoin';
   searchInput.type = 'text';
   searchInput.placeholder = 'Search for a coin...';
   searchInput.classList.add('form-control', 'mb-4');  // Add Bootstrap classes for styling
