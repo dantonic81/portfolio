@@ -432,3 +432,17 @@ label {
 .form-check + .form-check {
   margin-top: 10px;
 }
+
+.sticky-save-button {
+    position: sticky;
+    bottom: 0;
+    background-color: white; /* Ensure visibility */
+    z-index: 1000;
+    padding: 10px;
+    text-align: center;
+}
+
+.modal-body {
+    max-height: 500px;  /* Adjust height as needed */
+    overflow-y: auto;  /* Make the modal content scrollable */
+}
