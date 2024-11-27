@@ -31,27 +31,89 @@ if not API_KEY:
     raise EnvironmentError("API_KEY is not set in the environment variables.")
 
 
-# Define the job that checks alerts
-def check_alerts():
-    # Your alert-checking logic here
-    print("Checking alerts at", datetime.now())
-    # Add your alert checking and notifications logic (e.g., comparing prices and sending notifications)
-    pass
-
-# Add the scheduled job
-scheduler.add_job(id='check_alerts', func=check_alerts, trigger='interval', minutes=5)
-
-# Start the scheduler
-scheduler.init_app(app)
-scheduler.start()
-
-
-
 # Helper function to connect to SQLite
 def get_db_connection():
     conn = sqlite3.connect(DATABASE)
     conn.row_factory = sqlite3.Row
     return conn
+
+
+# Function to fetch active alerts from the database
+def get_active_alerts():
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+    query = "SELECT * FROM alerts WHERE status = 'active'"  # Only fetch active alerts
+    cursor.execute(query)
+
+    alerts = cursor.fetchall()
+    conn.close()
+
+    return alerts
+
+
+# Function to get current price from CoinGecko API
+def get_current_price(cryptocurrency, target_currency='usd'):
+    url = "https://api.coingecko.com/api/v3/simple/price"
+
+    # Create the query parameters based on the input
+    params = {
+        'ids': cryptocurrency,  # The cryptocurrency ID (e.g., 'bitcoin', 'ethereum')
+        'vs_currencies': target_currency  # The target currency (e.g., 'usd')
+    }
+
+    try:
+        # Send GET request to the CoinGecko API
+        response = requests.get(url, params=params)
+        response.raise_for_status()  # Raise an exception for 4xx/5xx HTTP errors
+        data = response.json()  # Parse the JSON response
+
+        # Ensure the data is structured as expected and return the price
+        if cryptocurrency in data:
+            return data[cryptocurrency].get(target_currency)  # Get the price in the specified currency
+        else:
+            print(f"Error: No data found for {cryptocurrency} in {target_currency}")
+            return None
+    except requests.exceptions.RequestException as e:
+        # Handle exceptions for network issues, invalid responses, etc.
+        print(f"Error fetching price data: {e}")
+        return None
+
+# Function to send notifications
+def send_notification(alert, current_price):
+    print(f"Alert: {alert['cryptocurrency']} price is {current_price}. Threshold: {alert['threshold']}")
+
+
+# Define the job that checks alerts
+def check_alerts():
+    print("Checking alerts at", datetime.now())
+    active_alerts = get_active_alerts()
+
+    for alert in active_alerts:
+        # Get the current price data from the CoinGecko API
+        price_data = get_current_price(alert['cryptocurrency'], target_currency='usd')
+
+        if price_data:
+            # Get the current price for the specified cryptocurrency (e.g., Bitcoin)
+            current_price = price_data.get(alert['cryptocurrency'], {}).get('usd')
+
+            if current_price is None:
+                print(f"Error: No price data available for {alert['cryptocurrency']}")
+                continue
+
+            # Check the condition (based on the alert type)
+            if (alert['alert_type'] == 'more' and current_price > alert['threshold']) or \
+               (alert['alert_type'] == 'less' and current_price < alert['threshold']):
+                # Trigger a notification
+                send_notification(alert, current_price)
+
+
+# Add the scheduled job
+scheduler.add_job(id='check_alerts', func=check_alerts, trigger='interval', minutes=1)
+
+# Start the scheduler
+scheduler.init_app(app)
+scheduler.start()
 
 
 # Initialize the SQLite database
