@@ -87,7 +87,16 @@ def init_db():
             rate REAL NOT NULL
         )
     ''')
-
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS alerts (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            cryptocurrency TEXT NOT NULL,
+            alert_type TEXT NOT NULL,
+            threshold REAL NOT NULL,
+            created_at TEXT DEFAULT (DATETIME('now')), -- Stores ISO 8601 format timestamp
+            status TEXT DEFAULT 'active'
+        )
+    ''')
     conn.commit()
 
     # Check if the portfolio table is empty before loading CSV data
@@ -856,6 +865,36 @@ def get_owned_coins():
     except Exception as e:
         app.logger.error(f"Error fetching owned coins: {e}")  # More detailed logging
         return jsonify({"error": "Failed to fetch owned coins"}), 500
+
+
+@app.route('/api/set_alert', methods=['POST'])
+def set_alert():
+    data = request.json
+
+    # Validate the incoming data
+    required_fields = ["cryptocurrency", "alert_type", "threshold"]
+    for field in required_fields:
+        if field not in data:
+            return jsonify({"error": f"Missing field: {field}"}), 400
+
+    # Insert the alert into the database
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+
+        query = '''
+        INSERT INTO alerts (cryptocurrency, alert_type, threshold)
+        VALUES (?, ?, ?)
+        '''
+        cursor.execute(query, (data["cryptocurrency"], data["alert_type"], data["threshold"]))
+        conn.commit()
+        alert_id = cursor.lastrowid  # Get the ID of the newly created alert
+        conn.close()
+
+        return jsonify({"message": "Alert set successfully!", "alert_id": alert_id}), 201
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 init_db()
 

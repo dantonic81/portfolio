@@ -93,6 +93,8 @@ Also there's nothing there to indicate that cards are editable when I hover abov
 - Develop set alerts functionality
 
 
+
+
 ## TODO:
 
 - type hints
@@ -108,3 +110,4 @@ Also there's nothing there to indicate that cards are editable when I hover abov
 - modern styling
 - withdrawal fee calculation and transactions
 - logos for all tokens
+- create users, notifications, security, authentication
