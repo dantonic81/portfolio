@@ -1060,10 +1060,10 @@ def get_notifications():
         {
             "id": row[0],
             "alert_id": row[1],
-            "notification_text": row[2],
-            "current_price": row[3],
-            "is_read": bool(row[4]),
-            "created_at": row[5],
+            "notification_text": row[3],  # This should be the actual notification message
+            "current_price": row[4],       # This should be the price value
+            "is_read": bool(row[5]),       # Ensure this is a boolean
+            "created_at": row[2]          # Timestamp field
         }
         for row in notifications
     ]
@@ -1084,6 +1084,17 @@ def mark_notification_as_read(notification_id):
         return jsonify({"error": str(e)}), 500
     finally:
         conn.close()
+
+
+@app.route('/notifications/unread-count', methods=['GET'])
+def get_unread_count():
+    query = "SELECT COUNT(*) FROM notifications WHERE is_read = 0;"
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute(query)
+    count = cursor.fetchone()[0]
+    conn.close()
+    return jsonify({"unread_count": count})
 
 
 init_db()
