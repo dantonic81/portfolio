@@ -1045,6 +1045,47 @@ def set_alert():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
+
+@app.route('/notifications', methods=['GET'])
+def get_notifications():
+    query = "SELECT * FROM notifications ORDER BY created_at DESC;"
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute(query)
+    notifications = cursor.fetchall()
+    conn.close()
+
+    # Format notifications into a list of dictionaries for JSON response
+    notifications_dict = [
+        {
+            "id": row[0],
+            "alert_id": row[1],
+            "notification_text": row[2],
+            "current_price": row[3],
+            "is_read": bool(row[4]),
+            "created_at": row[5],
+        }
+        for row in notifications
+    ]
+
+    return jsonify(notifications_dict)
+
+
+@app.route('/notifications/<int:notification_id>/mark-read', methods=['POST'])
+def mark_notification_as_read(notification_id):
+    query = "UPDATE notifications SET is_read = 1 WHERE id = ?;"  # SQLite uses ? as a placeholder
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    try:
+        cursor.execute(query, (notification_id,))
+        conn.commit()
+        return jsonify({"message": "Notification marked as read."})
+    except sqlite3.Error as e:
+        return jsonify({"error": str(e)}), 500
+    finally:
+        conn.close()
+
+
 init_db()
 
 # Run the Flask web server on port 8000
