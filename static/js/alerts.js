@@ -23,6 +23,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
       // Populate the modal with data
       populateAlertForm(ownedCoins);
+
+      // Add event listener to search input to filter coins dynamically
+      searchInput.addEventListener('input', () => filterCoins(searchInput.value, ownedCoins));
     } catch (error) {
       console.error("Error fetching owned coins:", error);
     }
@@ -39,11 +42,11 @@ document.addEventListener("DOMContentLoaded", () => {
     return ownedCoins; // Ensure this is the correct structure
   }
 
-  function populateAlertForm(ownedCoins) {
+  function populateAlertForm(coins) {
     // Clear any existing content in the form
     alertForm.innerHTML = '';
 
-    ownedCoins.forEach(coin => {
+    coins.forEach(coin => {
       const coinElement = document.createElement('div');
       coinElement.classList.add('form-group', 'mb-4', 'p-3', 'border', 'rounded', 'shadow-sm'); // Added styling classes
 
@@ -54,21 +57,18 @@ document.addEventListener("DOMContentLoaded", () => {
         </div>
         <div class="d-flex flex-column">
           <div class="form-check mb-2">
-            <!-- Ensure unique id and name for each radio button -->
             <input class="form-check-input" type="radio" name="alert-${coin.abbreviation}" id="alert-${coin.abbreviation}-more" value="more">
             <label class="form-check-label" for="alert-${coin.abbreviation}-more">
               More than
             </label>
           </div>
           <div class="form-check mb-3">
-            <!-- Ensure unique id and name for each radio button -->
             <input class="form-check-input" type="radio" name="alert-${coin.abbreviation}" id="alert-${coin.abbreviation}-less" value="less">
             <label class="form-check-label" for="alert-${coin.abbreviation}-less">
               Less than
             </label>
           </div>
           <div class="d-flex align-items-center">
-            <!-- Ensure a unique id and name for the number input -->
             <input type="number" class="form-control" id="alert-value-${coin.abbreviation}" name="alert-value-${coin.abbreviation}" placeholder="Value in USD" aria-label="Value in USD">
             <span class="ml-2 text-muted">USD</span>
           </div>
@@ -77,20 +77,16 @@ document.addEventListener("DOMContentLoaded", () => {
 
       alertForm.appendChild(coinElement); // Add each coin's alert options to the form
     });
-
-    // Add event listener to search input to filter coins dynamically
-    searchInput.addEventListener('input', () => filterCoins(searchInput.value, ownedCoins));
   }
 
   function filterCoins(query, coins) {
-    // Filter the coins based on the search query
+    console.log("Filtering coins with query:", query); // Debug log
     const filteredCoins = coins.filter(coin =>
       coin.name.toLowerCase().includes(query.toLowerCase()) ||
       coin.abbreviation.toLowerCase().includes(query.toLowerCase())
     );
 
-    // Repopulate the form with the filtered list
-    alertForm.innerHTML = ''; // Clear the existing content
+    console.log("Filtered coins:", filteredCoins); // Debug log
     populateAlertForm(filteredCoins); // Rebuild the form with the filtered coins
   }
 
@@ -99,26 +95,24 @@ document.addEventListener("DOMContentLoaded", () => {
     const formData = new FormData(alertForm);
     const alerts = [];
 
-    // Gather data from the form
     for (let [name, value] of formData.entries()) {
       if (name.startsWith('alert-') && value) {
         const coinAbbreviation = name.split('-')[1];
         const alertValue = formData.get(`alert-value-${coinAbbreviation}`);
-        const coin = ownedCoins.find(c => c.abbreviation === coinAbbreviation); // Find the coin by abbreviation
+        const coin = ownedCoins.find(c => c.abbreviation === coinAbbreviation);
 
         if (coin && alertValue) {
           alerts.push({
-            name: coin.name, // Include the full coin name
+            name: coin.name,
             cryptocurrency: coinAbbreviation,
-            alert_type: value, // 'more' or 'less'
-            threshold: parseFloat(alertValue), // The value in USD
+            alert_type: value,
+            threshold: parseFloat(alertValue),
           });
         }
       }
     }
 
     try {
-      // Save each alert to the server
       for (const alert of alerts) {
         const response = await fetch('/api/set_alert', {
           method: 'POST',
