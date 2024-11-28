@@ -21,7 +21,6 @@ function updateUnreadCount() {
 // Call the function to update the count when the page loads
 window.addEventListener('load', updateUnreadCount);
 
-// Fetch notifications and display them in the modal
 document.getElementById('notification-bell').addEventListener('click', function(event) {
   event.preventDefault();  // Prevent default behavior, like page navigation
 
@@ -32,10 +31,30 @@ document.getElementById('notification-bell').addEventListener('click', function(
       const notificationList = document.getElementById('notification-list');
       notificationList.innerHTML = '';  // Clear existing list
 
+      // Loop through notifications and create a list item for each
       notifications.forEach(notification => {
         const listItem = document.createElement('li');
-        // Use the notification_text for the list item
-        listItem.textContent = notification.notification_text;  // Display the notification message
+
+        // Add class for unread notifications
+        if (!notification.is_read) {
+          listItem.classList.add('unread');
+        }
+
+        // Set the text content of the list item
+        listItem.textContent = notification.notification_text;
+
+        // Add event listener to mark notification as read when clicked
+        listItem.addEventListener('click', function() {
+          fetch(`/notifications/${notification.id}/mark-read`, { method: 'POST' })
+            .then(response => response.json())
+            .then(data => {
+              // Update the modal or UI to reflect the read status
+              listItem.classList.remove('unread');
+            })
+            .catch(error => console.error('Error marking as read:', error));
+        });
+
+        // Append the list item to the notification list
         notificationList.appendChild(listItem);
       });
 

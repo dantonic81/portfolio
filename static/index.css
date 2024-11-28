@@ -499,3 +499,9 @@ label {
   padding: 10px;
   border-bottom: 1px solid #ddd;
 }
+
+
+.unread {
+  font-weight: bold;
+  background-color: #f0f0f0;
+}
