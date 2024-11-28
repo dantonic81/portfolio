@@ -91,25 +91,47 @@ def save_notification(alert, current_price):
         f"{alert['threshold']} USD (current price: {current_price} USD)."
     )
 
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+    # Get the last active notification's price for this alert
+    cursor.execute('''
+        SELECT current_price FROM notifications 
+        WHERE alert_id = ? AND is_read = 0 
+        ORDER BY created_at DESC LIMIT 1
+    ''', (alert['id'],))
+    last_notification = cursor.fetchone()
+
+    # If there is a previous notification and the price hasn't changed as required, do not insert a new notification
+    if last_notification:
+        last_price = last_notification[0]
+
+        if alert['alert_type'] == 'more' and current_price <= last_price:
+            # If the alert type is 'more' and the current price is not higher than the last price, don't insert
+            conn.close()
+            return
+
+        if alert['alert_type'] == 'below' and current_price >= last_price:
+            # If the alert type is 'below' and the current price is not lower than the last price, don't insert
+            conn.close()
+            return
+
+    # If conditions are met, insert a new notification
     query = """
     INSERT INTO notifications (alert_id, notification_text, current_price)
     VALUES (?, ?, ?);
     """
-
     values = (alert['id'], notification_text, current_price)
 
     try:
-        conn = get_db_connection()
-        cursor = conn.cursor()
         cursor.execute(query, values)
-        notification_id = cursor.lastrowid  # Get the ID of the last inserted row
+        notification_id = cursor.lastrowid
         conn.commit()
         print(f"Notification saved with ID {notification_id}")
     except sqlite3.Error as e:
         print(f"Error saving notification: {e}")
     finally:
         conn.close()
-
 
 # Define the job that checks alerts
 def check_alerts():
@@ -134,8 +156,14 @@ def check_alerts():
 
 
 # Add the scheduled job
-scheduler.add_job(id='check_alerts', func=check_alerts, trigger='interval', minutes=1)
-
+scheduler.add_job(
+    id='check_alerts',
+    func=check_alerts,
+    trigger='interval',
+    minutes=1,
+    replace_existing=True,
+    max_instances=1  # Prevent overlapping runs
+)
 # Start the scheduler
 scheduler.init_app(app)
 scheduler.start()
@@ -1022,4 +1050,4 @@ init_db()
 # Run the Flask web server on port 8000
 if __name__ == '__main__':
     # init_db()
-    app.run(host='0.0.0.0', port=8000, debug=True)
+    app.run(host='0.0.0.0', port=8000)
