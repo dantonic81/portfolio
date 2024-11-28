@@ -40,8 +40,28 @@ document.getElementById('notification-bell').addEventListener('click', function(
           listItem.classList.add('unread');
         }
 
-        // Set the text content of the list item
-        listItem.textContent = notification.notification_text;
+
+        // Add notification text
+        const textElement = document.createElement('p');
+        textElement.textContent = notification.notification_text;
+
+        // Add timestamp (formatting the timestamp as needed)
+        const timestampElement = document.createElement('small');
+        const timestamp = new Date(notification.created_at);  // Assuming timestamp is in UTC
+        timestampElement.textContent = `Received on: ${timestamp.toLocaleString()}`;
+
+        // Add alert ID (optional, if relevant for your use case)
+        const alertIdElement = document.createElement('small');
+        alertIdElement.textContent = `Alert ID: ${notification.alert_id}`;
+
+        // Append the elements to the list item
+        listItem.appendChild(textElement);
+        listItem.appendChild(timestampElement);
+        listItem.appendChild(alertIdElement);
+
+
+//        // Set the text content of the list item
+//        listItem.textContent = notification.notification_text;
 
         // Add event listener to mark notification as read when clicked
         listItem.addEventListener('click', function() {

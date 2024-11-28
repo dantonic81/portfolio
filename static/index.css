@@ -535,17 +535,23 @@ label {
   margin: 0;
 }
 
-/* Individual notification item styling */
 #notification-list li {
-  padding: 15px;
+  padding: 10px;
   border-bottom: 1px solid #ddd;
-  background-color: #f9f9f9;
-  font-size: 16px;
-  color: #555;
-  border-radius: 5px;
-  margin-bottom: 5px;
-  cursor: pointer;
-  transition: background-color 0.3s ease, transform 0.2s ease;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+#notification-list li small {
+  color: #888; /* Lighter text for timestamp and alert ID */
+  font-size: 0.85em;
+}
+
+
+#notification-list li p {
+  margin: 0;
+  font-size: 1.1em;
 }
 
 /* Hover effect for each notification */
