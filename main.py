@@ -34,6 +34,7 @@ if not API_KEY:
 # Helper function to connect to SQLite
 def get_db_connection():
     conn = sqlite3.connect(DATABASE)
+    conn.execute("PRAGMA foreign_keys = ON;")
     conn.row_factory = sqlite3.Row
     return conn
 
@@ -84,6 +85,32 @@ def send_notification(alert, current_price):
     print(f"Alert: {alert['cryptocurrency']} price is {current_price}. Threshold: {alert['threshold']}")
 
 
+def save_notification(alert, current_price):
+    notification_text = (
+        f"{alert['name']} is now {'above' if alert['alert_type'] == 'more' else 'below'} "
+        f"{alert['threshold']} USD (current price: {current_price} USD)."
+    )
+
+    query = """
+    INSERT INTO notifications (alert_id, notification_text, current_price)
+    VALUES (?, ?, ?);
+    """
+
+    values = (alert['id'], notification_text, current_price)
+
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute(query, values)
+        notification_id = cursor.lastrowid  # Get the ID of the last inserted row
+        conn.commit()
+        print(f"Notification saved with ID {notification_id}")
+    except sqlite3.Error as e:
+        print(f"Error saving notification: {e}")
+    finally:
+        conn.close()
+
+
 # Define the job that checks alerts
 def check_alerts():
     print("Checking alerts at", datetime.now())
@@ -99,6 +126,7 @@ def check_alerts():
             # Check the condition (based on the alert type)
             if (alert['alert_type'] == 'more' and current_price > alert['threshold']) or \
                (alert['alert_type'] == 'less' and current_price < alert['threshold']):
+                save_notification(alert, current_price)
                 # Trigger a notification
                 send_notification(alert, current_price)
         else:
@@ -176,6 +204,17 @@ def init_db():
             threshold REAL NOT NULL,
             created_at TEXT DEFAULT (DATETIME('now')), -- Stores ISO 8601 format timestamp
             status TEXT DEFAULT 'active'
+        )
+    ''')
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS notifications (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            alert_id INTEGER NOT NULL,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            notification_text TEXT NOT NULL,
+            current_price REAL NOT NULL,
+            is_read BOOLEAN DEFAULT 0,
+            FOREIGN KEY (alert_id) REFERENCES alerts(id) ON DELETE CASCADE
         )
     ''')
     conn.commit()
