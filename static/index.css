@@ -556,3 +556,14 @@ label {
   display: block;
   opacity: 1;
 }
+
+
+.table-container {
+  width: 100%;       /* or a fixed width */
+  overflow-x: auto;  /* Enable horizontal scrolling */
+  position: relative; /* Ensure positioning for hover effect */
+}
+table {
+  width: 100%;  /* Or any width you need */
+}
+

@@ -12,7 +12,7 @@
   </div>
 
   <!-- Table Section -->
-  <div class="table-responsive">
+  <div class="table-container">
     <table class="table table-striped table-hover">
       <thead>
         <tr>
@@ -85,6 +85,32 @@
 </div>
 
 <script>
+  const tableContainer = document.querySelector('.table-container');
+  const totalParts = 10; // Split the container into 10 parts (left and right zones)
+  const scrollSpeed = 10;  // Speed of scrolling (adjust as needed)
+
+  tableContainer.addEventListener('mousemove', (e) => {
+    const containerWidth = tableContainer.offsetWidth; // Container width
+    const tableWidth = tableContainer.scrollWidth; // Total table width (for scrolling)
+    const hoverPosition = e.clientX - tableContainer.getBoundingClientRect().left; // Mouse position relative to the container
+
+    // Calculate relative width for each section (each section is 1/10 of visible width)
+    const partWidth = containerWidth / totalParts;
+
+    // Define the left and right threshold within the container's visible area
+    const leftThreshold = partWidth;
+    const rightThreshold = containerWidth - partWidth;
+
+    // Check if we're in the left zone (relative to visible area) and scroll left
+    if (hoverPosition < leftThreshold && tableContainer.scrollLeft > 0) {
+      tableContainer.scrollLeft -= scrollSpeed; // Scroll left
+    }
+    // Check if we're in the right zone (relative to visible area) and scroll right
+    else if (hoverPosition > rightThreshold && tableContainer.scrollLeft < tableWidth - containerWidth) {
+      tableContainer.scrollLeft += scrollSpeed; // Scroll right
+    }
+  });
+
   // Debounce function to limit the rate of filtering
   function debounce(func, wait) {
     let timeout;
