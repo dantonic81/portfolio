@@ -188,10 +188,29 @@ def init_db():
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             name TEXT,
             symbol TEXT,
+            image TEXT,
             current_price REAL,
+            market_cap REAL,
             market_cap_rank INTEGER,
-            timestamp TEXT,
-            image TEXT
+            fully_diluted_valuation REAL,
+            total_volume REAL,
+            high_24h REAL,
+            low_24h REAL,
+            price_change_24h REAL,
+            price_change_percentage_24h REAL,
+            market_cap_change_24h REAL,
+            market_cap_change_percentage_24h REAL,
+            circulating_supply REAL,
+            total_supply REAL,
+            max_supply REAL,
+            ath REAL,
+            ath_change_percentage REAL,
+            ath_date TEXT,
+            atl REAL,
+            atl_change_percentage REAL,
+            atl_date TEXT,
+            last_updated TEXT,
+            timestamp TEXT
         )
     ''')
     cursor.execute('''
@@ -353,7 +372,7 @@ def get_top_1000_crypto():
         'price_change_percentage': '24h'
     }
 
-    all_cryptos = []  # List to store all results
+    all_cryptos = []
 
     for page in range(1, 5):
         params['page'] = page
@@ -369,15 +388,41 @@ def get_top_1000_crypto():
     cursor.execute('DELETE FROM cryptocurrencies')  # Clear old data
     for crypto in all_cryptos:
         cursor.execute('''
-            INSERT INTO cryptocurrencies (name, symbol, current_price, market_cap_rank, timestamp, image)
-            VALUES (?, ?, ?, ?, ?, ?)
+            INSERT INTO cryptocurrencies (
+                name, symbol, image, current_price, market_cap, market_cap_rank,
+                fully_diluted_valuation, total_volume, high_24h, low_24h,
+                price_change_24h, price_change_percentage_24h, market_cap_change_24h,
+                market_cap_change_percentage_24h, circulating_supply, total_supply,
+                max_supply, ath, ath_change_percentage, ath_date, atl,
+                atl_change_percentage, atl_date, last_updated, timestamp
+            )
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         ''', (
-            crypto['name'],
-            crypto['symbol'],
-            crypto['current_price'],
-            crypto['market_cap_rank'],
-            datetime.now().isoformat(),
-            crypto['image']
+            crypto.get('name'),
+            crypto.get('symbol'),
+            crypto.get('image'),
+            crypto.get('current_price'),
+            crypto.get('market_cap'),
+            crypto.get('market_cap_rank'),
+            crypto.get('fully_diluted_valuation'),
+            crypto.get('total_volume'),
+            crypto.get('high_24h'),
+            crypto.get('low_24h'),
+            crypto.get('price_change_24h'),
+            crypto.get('price_change_percentage_24h'),
+            crypto.get('market_cap_change_24h'),
+            crypto.get('market_cap_change_percentage_24h'),
+            crypto.get('circulating_supply'),
+            crypto.get('total_supply'),
+            crypto.get('max_supply'),
+            crypto.get('ath'),
+            crypto.get('ath_change_percentage'),
+            crypto.get('ath_date'),
+            crypto.get('atl'),
+            crypto.get('atl_change_percentage'),
+            crypto.get('atl_date'),
+            crypto.get('last_updated'),
+            datetime.now().isoformat()
         ))
     conn.commit()
     conn.close()
@@ -1095,6 +1140,17 @@ def get_unread_count():
     count = cursor.fetchone()[0]
     conn.close()
     return jsonify({"unread_count": count})
+
+
+@app.route('/market', methods=['GET'])
+def market_data():
+    cryptos = get_top_1000_crypto()
+    # Convert `last_updated` to `datetime` for each crypto
+    for coin in cryptos:
+        coin['last_updated'] = datetime.strptime(coin['last_updated'], '%Y-%m-%dT%H:%M:%S.%fZ')
+        coin['price_change_percentage_24h'] = coin['price_change_percentage_24h'] or 0
+
+    return render_template('market.html', coins=cryptos)
 
 
 init_db()

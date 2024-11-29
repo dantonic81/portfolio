@@ -93,6 +93,9 @@ Also there's nothing there to indicate that cards are editable when I hover abov
 - Develop set alerts functionality
 
 
+- develop market template
+
+
 
 
 ## TODO:
@@ -113,4 +116,11 @@ Also there's nothing there to indicate that cards are editable when I hover abov
 - create users, notifications, security, authentication
 - I need a notification center accessible as an icon on every page, user preference control (opt-in/opt-out)
 - polling for alerts? definitely push notifications through web push as well as email notifications (sendgrid?), in-app notifications (websockets, long polling), this will have to be a scheduled job behind all of this (flask-apscheduler?)
+- circulating supply vs total max supply
+- tokenomics
+- fully diluted valuation (current price * max supply)
+- inflation rate
+- staking and rewards
+- market depth and liquidity
+- price volatility
 - 

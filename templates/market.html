@@ -1,0 +1,71 @@
+{% extends 'base.html' %}
+
+{% block title %}Crypto Market Overview{% endblock %}
+
+{% block content %}
+
+<div class="container mt-4">
+  <!-- Page Header -->
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h1 class="display-5">Crypto Market Overview</h1>
+    <input type="text" id="search-bar" class="form-control w-25" placeholder="Search by name or symbol...">
+  </div>
+
+  <!-- Table Section -->
+  <div class="table-responsive">
+    <table class="table table-striped table-hover">
+      <thead>
+        <tr>
+          <th>Rank</th>
+          <th>Name</th>
+          <th>Symbol</th>
+          <th>Current Price</th>
+          <th>Market Cap</th>
+          <th>Volume (24h)</th>
+          <th>Price Change (24h)</th>
+          <th>ATH</th>
+          <th>Circulating Supply</th>
+          <th>Total Supply</th>
+          <th>Last Updated</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for coin in coins %}
+        <tr>
+          <td>{{ coin.market_cap_rank }}</td>
+          <td>
+            <img src="{{ coin.image }}" alt="{{ coin.name }}" style="width: 24px; height: 24px;" class="mr-2">
+            {{ coin.name }}
+          </td>
+          <td>{{ coin.symbol | upper }}</td>
+          <td>${{ coin.current_price | round(2) }}</td>
+          <td>${{ coin.market_cap | round(2) }}</td>
+          <td>${{ coin.total_volume | round(2) }}</td>
+          <td class="{{ 'text-success' if coin.price_change_percentage_24h > 0 else 'text-danger' }}">
+            {{ coin.price_change_percentage_24h | round(2) }}%
+          </td>
+          <td>${{ coin.ath | round(2) }}</td>
+          <td>{{ coin.circulating_supply | round(2) }}</td>
+          <td>{{ coin.total_supply | round(2) if coin.total_supply else 'N/A' }}</td>
+          <td>{{ coin.last_updated }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<script>
+  // Filter functionality
+  document.getElementById('search-bar').addEventListener('input', function(e) {
+    const searchTerm = e.target.value.toLowerCase();
+    const rows = document.querySelectorAll('tbody tr');
+    rows.forEach(row => {
+      const name = row.children[1].innerText.toLowerCase();
+      const symbol = row.children[2].innerText.toLowerCase();
+      row.style.display = name.includes(searchTerm) || symbol.includes(searchTerm) ? '' : 'none';
+    });
+  });
+</script>
+
+{% endblock %}
