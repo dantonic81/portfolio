@@ -86,61 +86,42 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function () {
-  const tableContainer = document.querySelector('.table-responsive'); // Ensure this matches the HTML
+  const tableContainer = document.querySelector('.table-responsive');
   const table = document.querySelector('table');
-  let scrollInterval = null;
+  let isDragging = false; // Flag to track whether dragging is happening
+  let startX = 0; // Initial mouse position on click
+  let scrollLeft = 0; // Initial scroll position
 
-  // Function to start scrolling
-  function startScrolling(direction) {
-    if (scrollInterval) return; // Don't start a new interval if one is already running
-    scrollInterval = setInterval(() => {
-      tableContainer.scrollLeft += direction; // Scroll left or right
-    }, 5); // Adjust speed of scrolling here
+  // Function to handle mouse drag
+  function handleMouseMove(e) {
+    if (!isDragging) return;
+    const deltaX = e.clientX - startX; // Calculate the movement distance
+    tableContainer.scrollLeft = scrollLeft - deltaX; // Adjust the scroll position
   }
 
-  // Function to stop scrolling
-  function stopScrolling() {
-    if (scrollInterval) {
-      clearInterval(scrollInterval);
-      scrollInterval = null;
-    }
-  }
-
-  // Get threshold width based on container size (10% of the width)
-  const getThreshold = () => tableContainer.offsetWidth / 10;
-
-  // Mouse enter event: detects if inside threshold and starts scrolling
-  tableContainer.addEventListener('mouseenter', function (e) {
-    const mouseX = e.clientX - tableContainer.getBoundingClientRect().left;
-    const threshold = getThreshold();
-
-    if (mouseX < threshold) {
-      startScrolling(-1);  // Scroll left
-    } else if (mouseX > tableContainer.offsetWidth - threshold) {
-      startScrolling(1);  // Scroll right
-    }
+  // Function to handle mouse down (start dragging)
+  tableContainer.addEventListener('mousedown', function (e) {
+    isDragging = true; // Start dragging
+    startX = e.clientX; // Save the initial position
+    scrollLeft = tableContainer.scrollLeft; // Save the current scroll position
+    tableContainer.style.cursor = 'grabbing'; // Change the cursor to 'grabbing'
   });
 
-  // Mouse move event: checks if mouse is inside threshold and continues scrolling
-  tableContainer.addEventListener('mousemove', function (e) {
-    const mouseX = e.clientX - tableContainer.getBoundingClientRect().left;
-    const threshold = getThreshold();
-
-    if (mouseX < threshold) {
-      if (!scrollInterval) startScrolling(-1);  // Start scrolling left if not already
-    } else if (mouseX > tableContainer.offsetWidth - threshold) {
-      if (!scrollInterval) startScrolling(1);  // Start scrolling right if not already
-    } else {
-      stopScrolling();  // Stop scrolling when moving outside the threshold
-    }
+  // Function to handle mouse up (stop dragging)
+  tableContainer.addEventListener('mouseup', function () {
+    isDragging = false; // Stop dragging
+    tableContainer.style.cursor = 'grab'; // Revert cursor to 'grab'
   });
 
-  // Mouse leave event: stops scrolling when the mouse leaves the container
+  // Function to handle mouse leave (stop dragging if mouse leaves the container)
   tableContainer.addEventListener('mouseleave', function () {
-    stopScrolling();
+    isDragging = false; // Stop dragging if mouse leaves the container
+    tableContainer.style.cursor = 'grab'; // Revert cursor to 'grab'
   });
-});
 
+  // Listen for mousemove events and adjust scroll position if dragging
+  tableContainer.addEventListener('mousemove', handleMouseMove);
+});
 
   // Debounce function to limit the rate of filtering
   function debounce(func, wait) {
