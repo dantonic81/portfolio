@@ -45,6 +45,11 @@
                         <i class="fas fa-chart-line"></i> Outliers
                     </a>
                 </li>
+                <li class="nav-item {% if request.endpoint == 'market_data' %}active{% endif %}">
+                    <a class="nav-link custom-link" href="{{ url_for('market_data') }}">
+                        <i class="fas fa-exchange-alt"></i> Market
+                    </a>
+                </li>
                 <li>
                     <div id="notification-bell">
                       <i class="fas fa-bell"></i>

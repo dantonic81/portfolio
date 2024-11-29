@@ -21,11 +21,24 @@
           <th>Symbol</th>
           <th>Current Price</th>
           <th>Market Cap</th>
+          <th>Market Cap Rank</th>
+          <th>Fully Diluted Valuation</th>
           <th>Volume (24h)</th>
+          <th>High 24h</th>
+          <th>Low 24h</th>
           <th>Price Change (24h)</th>
-          <th>ATH</th>
+          <th>Price Change Percentage (24h)</th>
+          <th>Market Cap Change 24h</th>
+          <th>Market Cap Change Percentage 24h</th>
           <th>Circulating Supply</th>
           <th>Total Supply</th>
+          <th>Max Supply</th>
+          <th>ATH</th>
+          <th>ATH Change Percentage</th>
+          <th>ATH Date</th>
+          <th>ATL</th>
+          <th>ATL Change Percentage</th>
+          <th>ATL Date</th>
           <th>Last Updated</th>
         </tr>
       </thead>
@@ -40,13 +53,29 @@
           <td>{{ coin.symbol | upper }}</td>
           <td>${{ coin.current_price | round(2) }}</td>
           <td>${{ coin.market_cap | round(2) }}</td>
+          <td>{{ coin.market_cap_rank }}</td>
+          <td>${{ coin.fully_diluted_valuation | round(2) }}</td>
           <td>${{ coin.total_volume | round(2) }}</td>
+          <td>${{ coin.high_24h | round(2) }}</td>
+          <td>${{ coin.low_24h | round(2) }}</td>
+          <td>${{ coin.price_change_24h | round(2) }}</td>
           <td class="{{ 'text-success' if coin.price_change_percentage_24h > 0 else 'text-danger' }}">
             {{ coin.price_change_percentage_24h | round(2) }}%
           </td>
-          <td>${{ coin.ath | round(2) }}</td>
+          <td>${{ coin.market_cap_change_24h | round(2) }}</td>
+          <td class="{{ 'text-success' if coin.market_cap_change_percentage_24h > 0 else 'text-danger' }}">
+            ${{ coin.market_cap_change_percentage_24h | round(2) }}%</td>
           <td>{{ coin.circulating_supply | round(2) }}</td>
           <td>{{ coin.total_supply | round(2) if coin.total_supply else 'N/A' }}</td>
+          <td>{{ coin.max_supply | round(2) }}</td>
+          <td>${{ coin.ath | round(2) }}</td>
+          <td class="{{ 'text-success' if coin.ath_change_percentage > 0 else 'text-danger' }}">
+            ${{ coin.ath_change_percentage | round(2) }}%</td>
+          <td>{{ coin.ath_date }}</td>
+          <td>${{ coin.atl | round(2) }}</td>
+          <td class="{{ 'text-success' if coin.atl_change_percentage > 0 else 'text-danger' }}">
+            ${{ coin.atl_change_percentage | round(2) }}%</td>
+          <td>{{ coin.atl_date }}</td>
           <td>{{ coin.last_updated }}</td>
         </tr>
         {% endfor %}
@@ -56,16 +85,36 @@
 </div>
 
 <script>
+  // Debounce function to limit the rate of filtering
+  function debounce(func, wait) {
+    let timeout;
+    return function(...args) {
+      clearTimeout(timeout);
+      timeout = setTimeout(() => func.apply(this, args), wait);
+    };
+  }
+
+  // Cache table rows and their data for faster filtering
+  const rows = Array.from(document.querySelectorAll('tbody tr'));
+  const rowData = rows.map(row => ({
+    element: row,
+    name: row.children[1].innerText.toLowerCase(),
+    symbol: row.children[2].innerText.toLowerCase(),
+  }));
+
   // Filter functionality
-  document.getElementById('search-bar').addEventListener('input', function(e) {
-    const searchTerm = e.target.value.toLowerCase();
-    const rows = document.querySelectorAll('tbody tr');
-    rows.forEach(row => {
-      const name = row.children[1].innerText.toLowerCase();
-      const symbol = row.children[2].innerText.toLowerCase();
-      row.style.display = name.includes(searchTerm) || symbol.includes(searchTerm) ? '' : 'none';
+  function filterTable(searchTerm) {
+    rowData.forEach(({ element, name, symbol }) => {
+      element.style.display = name.includes(searchTerm) || symbol.includes(searchTerm) ? '' : 'none';
     });
-  });
+  }
+
+  // Attach debounced event listener to the search bar
+  document.getElementById('search-bar').addEventListener('input', debounce(function(e) {
+    const searchTerm = e.target.value.toLowerCase();
+    filterTable(searchTerm);
+  }, 200)); // Adjust debounce delay as needed
 </script>
+
 
 {% endblock %}

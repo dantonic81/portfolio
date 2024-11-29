@@ -10,6 +10,7 @@ import pandas as pd
 import numpy as np
 import os
 from dotenv import load_dotenv
+from dateutil.parser import parse
 
 load_dotenv()
 
@@ -1147,8 +1148,18 @@ def market_data():
     cryptos = get_top_1000_crypto()
     # Convert `last_updated` to `datetime` for each crypto
     for coin in cryptos:
-        coin['last_updated'] = datetime.strptime(coin['last_updated'], '%Y-%m-%dT%H:%M:%S.%fZ')
+        coin['ath_date'] = parse(coin['ath_date'])
+        coin['atl_date'] = parse(coin['atl_date'])
+        coin['last_updated'] = parse(coin['last_updated'])
         coin['price_change_percentage_24h'] = coin['price_change_percentage_24h'] or 0
+        coin['max_supply'] = coin['max_supply'] or 0
+        coin['high_24h'] = coin['high_24h'] or 0
+        coin['low_24h'] = coin['low_24h'] or 0
+        coin['price_change_24h'] = coin['price_change_24h'] or 0
+        coin['market_cap_change_24h'] = coin['market_cap_change_24h'] or 0
+        coin['market_cap_change_percentage_24h'] = coin['market_cap_change_percentage_24h'] or 0
+        coin['fully_diluted_valuation'] = coin['fully_diluted_valuation'] or 0
+
 
     return render_template('market.html', coins=cryptos)
 
