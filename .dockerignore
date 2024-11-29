@@ -4,3 +4,6 @@ tests/
 conftest.py
 README.md
 .coverage
+.idea
+.venv
+__pycache__/
