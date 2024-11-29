@@ -70,7 +70,6 @@ document.addEventListener("DOMContentLoaded", () => {
           </div>
           <div class="d-flex align-items-center">
             <input type="number" class="form-control" id="alert-value-${coin.abbreviation}" name="alert-value-${coin.abbreviation}" placeholder="Value in USD" aria-label="Value in USD">
-            <span class="ml-2 text-muted">USD</span>
           </div>
         </div>
       `;
