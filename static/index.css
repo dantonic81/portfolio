@@ -412,8 +412,7 @@ label {
 
 /* Styling for the number input */
 .form-control {
-  width: 280px;
-  margin-right: 10px;
+  width: 70%;
 }
 
 /* Optional: Adding some spacing between each input section */
