@@ -21,6 +21,9 @@ function updateUnreadCount() {
 // Call the function to update the count when the page loads
 window.addEventListener('load', updateUnreadCount);
 
+// Poll every 10 seconds
+setInterval(updateUnreadCount, 10000);  // 10000ms = 10 seconds
+
 document.getElementById('notification-bell').addEventListener('click', function(event) {
   event.preventDefault();  // Prevent default behavior, like page navigation
 
