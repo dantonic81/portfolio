@@ -275,6 +275,29 @@ def delete_alert(alert_id):
     return jsonify({"message": "Alert deleted successfully"})
 
 
+@api.route('/notifications', methods=['GET'])
+def get_notifications():
+    query = "SELECT * FROM notifications ORDER BY created_at DESC;"
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute(query)
+    notifications = cursor.fetchall()
+    conn.close()
+    # Format notifications into a list of dictionaries for JSON response
+    notifications_dict = [
+        {
+            "id": row[0],
+            "alert_id": row[1],
+            "notification_text": row[3],  # This should be the actual notification message
+            "current_price": row[4],       # This should be the price value
+            "is_read": bool(row[5]),       # Ensure this is a boolean
+            "created_at": row[2]          # Timestamp field
+        }
+        for row in notifications
+    ]
+    return jsonify(notifications_dict)
+
+
 @api.route('/notifications/<int:notification_id>/mark-read', methods=['POST'])
 def mark_notification_as_read(notification_id):
     query = "UPDATE notifications SET is_read = 1 WHERE id = ?;"  # SQLite uses ? as a placeholder
