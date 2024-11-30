@@ -31,22 +31,22 @@
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav ml-auto">
                 <li class="nav-item {% if request.endpoint == 'show_portfolio' %}active{% endif %}">
-                    <a class="nav-link custom-link" href="{{ url_for('show_portfolio') }}">
+                    <a class="nav-link custom-link" href="{{ url_for('api.show_portfolio') }}">
                         <i class="fas fa-wallet"></i> Owned
                     </a>
                 </li>
                 <li class="nav-item {% if request.endpoint == 'show_unowned_cryptos' %}active{% endif %}">
-                    <a class="nav-link custom-link" href="{{ url_for('show_unowned_cryptos') }}">
+                    <a class="nav-link custom-link" href="{{ url_for('api.show_unowned_cryptos') }}">
                         <i class="fas fa-search"></i> Watch List
                     </a>
                 </li>
                 <li class="nav-item {% if request.endpoint == 'show_outliers' %}active{% endif %}">
-                    <a class="nav-link custom-link" href="{{ url_for('show_outliers') }}">
+                    <a class="nav-link custom-link" href="{{ url_for('api.show_outliers') }}">
                         <i class="fas fa-chart-line"></i> Outliers
                     </a>
                 </li>
                 <li class="nav-item {% if request.endpoint == 'market_data' %}active{% endif %}">
-                    <a class="nav-link custom-link" href="{{ url_for('market_data') }}">
+                    <a class="nav-link custom-link" href="{{ url_for('api.market_data') }}">
                         <i class="fas fa-exchange-alt"></i> Market
                     </a>
                 </li>
