@@ -21,7 +21,6 @@
           <th>Symbol</th>
           <th>Current Price</th>
           <th>Market Cap</th>
-          <th>Market Cap Rank</th>
           <th>Fully Diluted Valuation</th>
           <th>Volume (24h)</th>
           <th>High 24h</th>
@@ -53,7 +52,6 @@
           <td>{{ coin.symbol | upper }}</td>
           <td>${{ coin.current_price | round(2) }}</td>
           <td>${{ coin.market_cap | round(2) }}</td>
-          <td>{{ coin.market_cap_rank }}</td>
           <td>${{ coin.fully_diluted_valuation | round(2) }}</td>
           <td>${{ coin.total_volume | round(2) }}</td>
           <td>${{ coin.high_24h | round(2) }}</td>
