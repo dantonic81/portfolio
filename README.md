@@ -96,6 +96,7 @@ Also there's nothing there to indicate that cards are editable when I hover abov
 - develop market template
 
 
+- users should be able to edit existing active alerts or delete them
 
 
 ## TODO:

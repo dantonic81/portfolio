@@ -98,8 +98,8 @@
           <button type="button" class="btn btn-primary w-100" data-toggle="modal" data-target="#setAlertsModal" title="Set price alerts">
             <i class="fas fa-bell"></i> Set Alerts
           </button>
-          <button type="button" class="btn btn-primary w-100" title="Explore the crypto market" onclick="window.location.href='/market';">
-            <i class="fas fa-search"></i> Market
+          <button type="button" class="btn btn-primary w-100" data-toggle="modal" data-target="#openEditAlertsModal" title="Edit Active Alerts">
+            <i class="fas fa-bell"></i> Edit Alerts
           </button>
       </div>
     </section>
@@ -169,4 +169,23 @@
   </div>
 </div>
 
+<!-- Modal for Editing Alerts -->
+<div class="modal fade" id="openEditAlertsModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Edit Active Alerts</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div id="alertListContainer"></div> <!-- List of active alerts will be shown here -->
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
 {% endblock %}

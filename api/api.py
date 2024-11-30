@@ -7,6 +7,7 @@ from utils.coingecko import get_top_1000_crypto, fetch_gainers_and_losers_owned
 from utils.anomaly_detection import detect_outliers, combine_results, preprocess_data
 from datetime import datetime
 from utils.logger import logger
+from services.alerts import get_active_alerts
 
 
 
@@ -194,6 +195,20 @@ def get_owned_coins():
         return jsonify({"error": "Failed to fetch owned coins"}), 500
 
 
+@api.route('/api/active_alerts', methods=['GET'])
+def active_alerts():
+    alerts = get_active_alerts()
+
+    # Convert the list of tuples into a list of dictionaries
+    column_names = ['id', 'name', 'threshold', 'alert_type', 'status']  # Update this list to match your table structure
+    alert_dicts = []
+
+    for alert in alerts:
+        alert_dict = dict(zip(column_names, alert))
+        alert_dicts.append(alert_dict)
+
+    return jsonify(alert_dicts)
+
 @api.route('/api/set_alert', methods=['POST'])
 def set_alert():
     data = request.json
@@ -223,6 +238,78 @@ def set_alert():
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
+
+@api.route('/api/alert/<int:alert_id>', methods=['GET'])
+def get_alert(alert_id):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+    query = "SELECT * FROM alerts WHERE id = ?"  # Use '?' placeholder for parameters
+    cursor.execute(query, (alert_id,))
+
+    alert = cursor.fetchone()  # Fetch one result, as alert_id should be unique
+
+    if alert:
+        column_names = ['id', 'name', 'threshold', 'alert_type', 'status']  # Example column names
+        alert_dict = dict(zip(column_names, alert))
+        conn.close()
+        return jsonify(alert_dict)
+    else:
+        conn.close()
+        return jsonify({"error": "Alert not found"}), 404
+
+# Update an alert
+@api.route('/api/alert/<int:alert_id>', methods=['PUT'])
+def update_alert(alert_id):
+    updated_data = request.get_json()
+
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+    query = """
+        UPDATE alerts
+        SET name = %s, threshold = %s, alert_type = %s
+        WHERE id = %s
+    """
+    cursor.execute(query, (updated_data['name'], updated_data['threshold'], updated_data['alert_type'], alert_id))
+
+    conn.commit()
+    conn.close()
+
+    return jsonify({"message": "Alert updated successfully"})
+
+# Delete an alert
+@api.route('/api/alert/<int:alert_id>', methods=['DELETE'])
+def delete_alert(alert_id):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+    query = "DELETE FROM alerts WHERE id = ?"
+    cursor.execute(query, (alert_id,))
+
+    conn.commit()
+    conn.close()
+
+    return jsonify({"message": "Alert deleted successfully"})
+
+
+@api.route('/api/notifications/<int:alert_id>', methods=['DELETE'])
+def delete_notification(alert_id):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+    query = "DELETE FROM notifications WHERE alert_id = ?"
+    cursor.execute(query, (alert_id,))
+
+    # Check how many rows were affected
+    if cursor.rowcount == 0:
+        return jsonify({"error": "No notifications found for this alert"}), 404
+
+    conn.commit()
+    conn.close()
+
+    return jsonify({"message": "Notification deleted successfully"})
 
 
 @api.route('/notifications', methods=['GET'])
