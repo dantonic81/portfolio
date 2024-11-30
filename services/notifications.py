@@ -1,10 +1,11 @@
 from models.database import get_db_connection
 import sqlite3
+from utils.logger import logger
 
 
 # Function to send notifications
 def send_notification(alert, current_price):
-    print(f"Alert: {alert['cryptocurrency']} price is {current_price}. Threshold: {alert['threshold']}")
+    logger.info(f"Alert: {alert['cryptocurrency']} price is {current_price}. Threshold: {alert['threshold']}")
 
 
 def save_notification(alert, current_price):
