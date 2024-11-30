@@ -200,7 +200,7 @@ def active_alerts():
     alerts = get_active_alerts()
 
     # Convert the list of tuples into a list of dictionaries
-    column_names = ['id', 'name', 'threshold', 'alert_type', 'status']  # Update this list to match your table structure
+    column_names = ['id', 'name', 'cryptocurrency', 'alert_type', 'threshold', 'created_at', 'status']
     alert_dicts = []
 
     for alert in alerts:
@@ -259,25 +259,6 @@ def get_alert(alert_id):
         conn.close()
         return jsonify({"error": "Alert not found"}), 404
 
-# Update an alert
-@api.route('/api/alert/<int:alert_id>', methods=['PUT'])
-def update_alert(alert_id):
-    updated_data = request.get_json()
-
-    conn = get_db_connection()
-    cursor = conn.cursor()
-
-    query = """
-        UPDATE alerts
-        SET name = %s, threshold = %s, alert_type = %s
-        WHERE id = %s
-    """
-    cursor.execute(query, (updated_data['name'], updated_data['threshold'], updated_data['alert_type'], alert_id))
-
-    conn.commit()
-    conn.close()
-
-    return jsonify({"message": "Alert updated successfully"})
 
 # Delete an alert
 @api.route('/api/alert/<int:alert_id>', methods=['DELETE'])
@@ -292,31 +273,6 @@ def delete_alert(alert_id):
     conn.close()
 
     return jsonify({"message": "Alert deleted successfully"})
-
-
-@api.route('/notifications', methods=['GET'])
-def get_notifications():
-    query = "SELECT * FROM notifications ORDER BY created_at DESC;"
-    conn = get_db_connection()
-    cursor = conn.cursor()
-    cursor.execute(query)
-    notifications = cursor.fetchall()
-    conn.close()
-
-    # Format notifications into a list of dictionaries for JSON response
-    notifications_dict = [
-        {
-            "id": row[0],
-            "alert_id": row[1],
-            "notification_text": row[3],  # This should be the actual notification message
-            "current_price": row[4],       # This should be the price value
-            "is_read": bool(row[5]),       # Ensure this is a boolean
-            "created_at": row[2]          # Timestamp field
-        }
-        for row in notifications
-    ]
-
-    return jsonify(notifications_dict)
 
 
 @api.route('/notifications/<int:notification_id>/mark-read', methods=['POST'])
