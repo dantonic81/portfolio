@@ -294,24 +294,6 @@ def delete_alert(alert_id):
     return jsonify({"message": "Alert deleted successfully"})
 
 
-@api.route('/api/notifications/<int:alert_id>', methods=['DELETE'])
-def delete_notification(alert_id):
-    conn = get_db_connection()
-    cursor = conn.cursor()
-
-    query = "DELETE FROM notifications WHERE alert_id = ?"
-    cursor.execute(query, (alert_id,))
-
-    # Check how many rows were affected
-    if cursor.rowcount == 0:
-        return jsonify({"error": "No notifications found for this alert"}), 404
-
-    conn.commit()
-    conn.close()
-
-    return jsonify({"message": "Notification deleted successfully"})
-
-
 @api.route('/notifications', methods=['GET'])
 def get_notifications():
     query = "SELECT * FROM notifications ORDER BY created_at DESC;"

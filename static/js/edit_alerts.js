@@ -98,7 +98,6 @@ function editAlert(alertId) {
         });
 }
 
-// Function to handle deleting an alert
 function deleteAlert(alertId) {
     if (confirm('Are you sure you want to delete this alert?')) {
         fetch(`/api/alert/${alertId}`, { method: 'DELETE' })
