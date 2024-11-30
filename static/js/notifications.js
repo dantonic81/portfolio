@@ -70,6 +70,9 @@ document.getElementById('notification-bell').addEventListener('click', function(
             .then(data => {
               // Update the modal or UI to reflect the read status
               listItem.classList.remove('unread');
+
+              // Update the unread notifications count
+              updateUnreadCount();
             })
             .catch(error => console.error('Error marking as read:', error));
         });
