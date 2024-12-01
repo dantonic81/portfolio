@@ -40,7 +40,9 @@
 
     <!-- Return on Investment Section -->
     <section class="roi-section">
-      <h3>Your Return on Investment</h3>
+      <h3 data-toggle="tooltip" data-placement="top" title="Your investment's return percentage compared to the initial amount invested.">
+        Your Nominal Return on Investment
+      </h3>
       <p class="roi-value {{ 'positive' if nominal_roi > 0 else 'negative' }}">Nominal ROI: {{ formatted_nominal_roi }}</p>
     </section>
 
@@ -83,7 +85,7 @@
           {'target': '#setAlertsModal', 'icon': 'fas fa-bell', 'text': 'Set Alerts', 'title': 'Set price alerts'},
           {'target': '#openEditAlertsModal', 'icon': 'fas fa-trash-alt', 'text': 'Delete Alerts', 'title': 'Edit Active Alerts'}
         ] %}
-        <button type="button" class="btn btn-primary w-100" data-toggle="modal" data-target="{{ action.target }}" title="{{ action.title }}">
+        <button type="button" class="btn btn-primary w-100" data-toggle="modal" data-target="{{ action.target }}" title="{{ action.title }}" aria-label="{{ action.text }}">
           <i class="{{ action.icon }}"></i> {{ action.text }}
         </button>
         {% endfor %}
