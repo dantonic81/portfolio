@@ -1,5 +1,9 @@
 document.addEventListener("DOMContentLoaded", () => {
   const alertForm = document.getElementById('alertForm');
+    if (!alertForm) {
+    console.error("alertForm element not found!");
+    return; // Exit if the element doesn't exist
+  }
   const setAlertsButton = document.querySelector('[data-toggle="modal"][data-target="#setAlertsModal"]');
   const saveAlertsButton = document.getElementById('saveAlertsButton'); // Reference the Save Alerts button
   const searchInput = document.createElement('input'); // Create the search bar dynamically
