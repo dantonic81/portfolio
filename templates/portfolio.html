@@ -3,7 +3,6 @@
 {% block title %}Your Crypto Portfolio{% endblock %}
 
 {% block styles %}
-    <!-- Link to the specific CSS for this page -->
     <link rel="stylesheet" href="{{ url_for('static', filename='portfolio.css') }}">
 {% endblock %}
 
@@ -44,7 +43,7 @@
                 <div class="card asset-card shadow-sm"  data-id="{{ asset.id }}">
                     <div class="card-header">
                         <h5 class="card-title text-primary">
-                            <img src="{{ asset.image }}" class="crypto-logo" width="30" height="30" style="margin-right: 10px;">
+                            <img src="{{ asset.image if asset.image else '/static/default-image.png' }}" class="crypto-logo" width="30" height="30" style="margin-right: 10px;">
                             {{ asset.name }}
                             <small class="text-muted">({{ asset.abbreviation }})</small>
                         </h5>
