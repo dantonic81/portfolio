@@ -89,8 +89,8 @@
 <!-- Pagination Section -->
 <div class="d-flex justify-content-between align-items-center mt-3">
   <div>
-    <a href="{{ url_for('api.market_data', page=page-1 if page > 1 else 1) }}" class="btn btn-primary" {% if page == 1 %}disabled{% endif %}>Previous</a>
-    <a href="{{ url_for('api.market_data', page=page+1 if page < total_pages else total_pages) }}" class="btn btn-primary" {% if page == total_pages %}disabled{% endif %}>Next</a>
+    <a href="{{ url_for('api.market_data', page=page-1 if page > 1 else 1, search=request.args.get('search', '')) }}" class="btn btn-primary" {% if page == 1 %}disabled{% endif %}>Previous</a>
+    <a href="{{ url_for('api.market_data', page=page+1 if page < total_pages else total_pages, search=request.args.get('search', '')) }}" class="btn btn-primary" {% if page == total_pages %}disabled{% endif %}>Next</a>
   </div>
   <div>
     <span>Page {{ page }} of {{ total_pages }}</span>

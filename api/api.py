@@ -326,22 +326,27 @@ def get_unread_count():
 
 @api.route('/market', methods=['GET'])
 def market_data():
-    # Get the current page and items per page from the query parameters
+    # Get the current page, items per page, and search term
     page = request.args.get('page', 1, type=int)
     per_page = request.args.get('per_page', 100, type=int)
+    search = request.args.get('search', '', type=str).lower()
 
     cryptos = get_top_1000_crypto()
+
+    # Filter cryptos if search term is provided
+    if search:
+        cryptos = [crypto for crypto in cryptos if search in crypto['name'].lower() or search in crypto['symbol'].lower()]
 
     # Calculate the total number of pages
     total_cryptos = len(cryptos)
     total_pages = ceil(total_cryptos / per_page)
 
-    # Apply pagination by slicing the list of cryptos
+    # Apply pagination
     start = (page - 1) * per_page
     end = start + per_page
     paginated_cryptos = cryptos[start:end]
 
-    # Convert `last_updated` to `datetime` for each crypto
+    # Format data as needed
     for coin in paginated_cryptos:
         coin['ath_date'] = parse(coin['ath_date'])
         coin['atl_date'] = parse(coin['atl_date'])
@@ -355,7 +360,7 @@ def market_data():
         coin['market_cap_change_percentage_24h'] = coin['market_cap_change_percentage_24h'] or 0
         coin['fully_diluted_valuation'] = coin['fully_diluted_valuation'] or 0
 
-    return render_template('market.html', coins=paginated_cryptos, page=page, total_pages=total_pages)
+    return render_template('market.html', coins=paginated_cryptos, page=page, total_pages=total_pages, search=search)
 
 
 @api.context_processor
