@@ -44,6 +44,7 @@
       <p class="roi-value {{ 'positive' if nominal_roi > 0 else 'negative' }}">Nominal ROI: {{ formatted_nominal_roi }}</p>
     </section>
 
+    <!-- Gainers and Losers Section -->
     <section class="gainers-losers-section mb-4">
       <div class="container">
         <div class="row">
@@ -93,21 +94,19 @@
     </section>
 
 
-    <!-- Quick Action Buttons - Repositioned for Visibility -->
+    <!-- Quick Action Buttons -->
     <section class="cta-buttons d-flex justify-content-center flex-wrap">
       <div class="d-flex justify-content-center">
-          <button type="button" class="btn btn-primary w-100" data-toggle="modal" data-target="#addAssetModal" title="Add a new asset">
-            <i class="fas fa-plus-square"></i> Add Asset
-          </button>
-          <button type="button" class="btn btn-primary w-100" data-toggle="modal" data-target="#editAssetModal" title="Edit an existing asset">
-            <i class="fas fa-edit"></i> Edit Asset
-          </button>
-          <button type="button" class="btn btn-primary w-100" data-toggle="modal" data-target="#setAlertsModal" title="Set price alerts">
-            <i class="fas fa-bell"></i> Set Alerts
-          </button>
-          <button type="button" class="btn btn-primary w-100" data-toggle="modal" data-target="#openEditAlertsModal" title="Edit Active Alerts">
-            <i class="fas fa-trash-alt"></i> Delete Alerts
-          </button>
+        {% for action in [
+          {'target': '#addAssetModal', 'icon': 'fas fa-plus-square', 'text': 'Add Asset', 'title': 'Add a new asset'},
+          {'target': '#editAssetModal', 'icon': 'fas fa-edit', 'text': 'Edit Asset', 'title': 'Edit an existing asset'},
+          {'target': '#setAlertsModal', 'icon': 'fas fa-bell', 'text': 'Set Alerts', 'title': 'Set price alerts'},
+          {'target': '#openEditAlertsModal', 'icon': 'fas fa-trash-alt', 'text': 'Delete Alerts', 'title': 'Edit Active Alerts'}
+        ] %}
+        <button type="button" class="btn btn-primary w-100" data-toggle="modal" data-target="{{ action.target }}" title="{{ action.title }}">
+          <i class="{{ action.icon }}"></i> {{ action.text }}
+        </button>
+        {% endfor %}
       </div>
     </section>
   </div>
