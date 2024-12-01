@@ -8,7 +8,7 @@
   <!-- Page Header -->
   <div class="d-flex justify-content-between align-items-center mb-3">
     <h1 class="display-5">Crypto Market Overview</h1>
-    <input type="text" id="search-bar" class="form-control w-25" placeholder="Search by name or symbol...">
+    <input type="text" id="search-bar" class="form-control w-100 w-md-25" placeholder="Search by name or symbol...">
   </div>
 
   <!-- Table Section -->
@@ -46,7 +46,7 @@
         <tr>
           <td>{{ coin.market_cap_rank }}</td>
           <td>
-            <img src="{{ coin.image }}" alt="{{ coin.name }}" style="width: 24px; height: 24px;" class="mr-2">
+            <img src="{{ coin.image }}" alt="{{ coin.name }}" class="coin-image">
             {{ coin.name }}
           </td>
           <td>{{ coin.symbol | upper }}</td>
@@ -66,11 +66,15 @@
           <td>{{ coin.circulating_supply | round(2) }}</td>
           <td>{{ coin.total_supply | round(2) if coin.total_supply else 'N/A' }}</td>
           <td>{{ coin.max_supply | round(2) }}</td>
-          <td>${{ coin.ath | round(2) }}</td>
+          <td data-toggle="tooltip" data-placement="top" title="All-Time High (ATH)">
+            ${{ coin.ath | round(2) }}
+          </td>
           <td class="{{ 'text-success' if coin.ath_change_percentage > 0 else 'text-danger' }}">
             ${{ coin.ath_change_percentage | round(2) }}%</td>
           <td>{{ coin.ath_date }}</td>
-          <td>${{ coin.atl | round(2) }}</td>
+          <td data-toggle="tooltip" data-placement="top" title="All-Time Low (ATL)">
+            ${{ coin.atl | round(2) }}
+          </td>
           <td class="{{ 'text-success' if coin.atl_change_percentage > 0 else 'text-danger' }}">
             ${{ coin.atl_change_percentage | round(2) }}%</td>
           <td>{{ coin.atl_date }}</td>
