@@ -8,7 +8,7 @@ from utils.anomaly_detection import detect_outliers, combine_results, preprocess
 from datetime import datetime
 from utils.logger import logger
 from services.alerts import get_active_alerts
-
+from math import ceil
 
 
 
@@ -326,9 +326,23 @@ def get_unread_count():
 
 @api.route('/market', methods=['GET'])
 def market_data():
+    # Get the current page and items per page from the query parameters
+    page = request.args.get('page', 1, type=int)
+    per_page = request.args.get('per_page', 100, type=int)
+
     cryptos = get_top_1000_crypto()
+
+    # Calculate the total number of pages
+    total_cryptos = len(cryptos)
+    total_pages = ceil(total_cryptos / per_page)
+
+    # Apply pagination by slicing the list of cryptos
+    start = (page - 1) * per_page
+    end = start + per_page
+    paginated_cryptos = cryptos[start:end]
+
     # Convert `last_updated` to `datetime` for each crypto
-    for coin in cryptos:
+    for coin in paginated_cryptos:
         coin['ath_date'] = parse(coin['ath_date'])
         coin['atl_date'] = parse(coin['atl_date'])
         coin['last_updated'] = parse(coin['last_updated'])
@@ -341,7 +355,7 @@ def market_data():
         coin['market_cap_change_percentage_24h'] = coin['market_cap_change_percentage_24h'] or 0
         coin['fully_diluted_valuation'] = coin['fully_diluted_valuation'] or 0
 
-    return render_template('market.html', coins=cryptos)
+    return render_template('market.html', coins=paginated_cryptos, page=page, total_pages=total_pages)
 
 
 @api.context_processor
