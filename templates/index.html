@@ -8,6 +8,9 @@
 {% block modals %}
     {{ super() }}
     {% include 'modals/add_asset_modal.html' %}
+    {% include 'modals/edit_asset_modal.html' %}
+    {% include 'modals/set_alerts_modal.html' %}
+    {% include 'modals/edit_alerts_modal.html' %}
 {% endblock %}
 
 <!-- Jumbotron Section -->
@@ -107,89 +110,6 @@
           </button>
       </div>
     </section>
-  </div>
-</div>
-
-
-<div class="modal fade" id="setAlertsModal" tabindex="-1" role="dialog" aria-labelledby="setAlertsModalLabel" aria-hidden="true">
-  <div class="modal-dialog" role="document">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="setAlertsModalLabel">Set Price Alerts</h5>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
-      <div class="modal-body">
-        <form id="alertForm">
-          <!-- Dynamic coin list will be populated here -->
-        </form>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-        <div class="sticky-save-button">
-          <button type="button" class="btn btn-primary" id="saveAlertsButton">Save Alerts</button>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-
-
-<!-- Edit Asset Modal -->
-<div class="modal fade" id="editAssetModal" tabindex="-1" role="dialog" aria-labelledby="editAssetModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered" role="document">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="editAssetModalLabel">Edit Asset</h5>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
-      <div class="modal-body">
-        <!-- Search bar to search for assets -->
-        <input type="text" id="searchAsset" class="form-control mb-3" placeholder="Search for an asset...">
-        <!-- List of search results -->
-        <ul id="assetResults" class="list-group mt-2" style="max-height: 200px; overflow-y: auto;">
-          <!-- Search results will be dynamically populated here -->
-        </ul>
-
-        <!-- Asset details to edit (hidden until asset is selected) -->
-        <input type="hidden" id="edit-asset-id">
-        <div class="form-group">
-          <label for="edit-asset-name">Asset Name</label>
-          <input type="text" class="form-control" id="edit-asset-name" disabled>
-        </div>
-        <div class="form-group">
-          <label for="edit-asset-amount">Enter New Amount</label>
-          <input type="number" class="form-control" id="edit-asset-amount">
-        </div>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-danger" id="deleteAssetButton" title="Delete this asset">Delete Asset</button>
-        <button type="button" class="btn btn-primary" id="saveChangesButton" title="Save changes to the asset">Save Changes</button>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- Modal for Managing Alerts -->
-<div class="modal fade" id="openEditAlertsModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-  <div class="modal-dialog" role="document">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="exampleModalLabel">Manage Active Alerts</h5>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
-      <div class="modal-body">
-        <div id="alertListContainer"></div> <!-- List of active alerts will be shown here -->
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-      </div>
-    </div>
   </div>
 </div>
 
