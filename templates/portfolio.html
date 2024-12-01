@@ -10,7 +10,8 @@
 {% block content %}
 
 {% block modals %}
-        {% include 'modals/add_asset_modal.html' %}
+    {{ super() }}
+    {% include 'modals/add_asset_modal.html' %}
 {% endblock %}
 
 <div class="container">
