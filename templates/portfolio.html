@@ -7,70 +7,69 @@
 {% endblock %}
 
 {% block content %}
+    {% block modals %}
+        {{ super() }}
+        {% include 'modals/add_asset_modal.html' %}
+        {% include 'modals/delete_asset_modal.html' %}
+    {% endblock %}
 
-{% block modals %}
-    {{ super() }}
-    {% include 'modals/add_asset_modal.html' %}
-    {% include 'modals/delete_asset_modal.html' %}
-{% endblock %}
+    <div class="container">
+        <h1 class="dashboard-title text-center mb-5">Owned Crypto</h1>
 
-<div class="container">
-    <h1 class="dashboard-title text-center mb-5">Owned Crypto</h1>
-    <!-- Portfolio Breakdown -->
-    <div class="row">
-
-        <div class="col-md-6 col-lg-4 mb-4">
-            <div class="card asset-card shadow-sm add-new-card">
-                <!-- Add New Title aligned with other card headers -->
-                <h5 class="text-center add-new-title">Add New Asset</h5>
-
-                <!-- Body aligned with other card bodies -->
-                <div class="card-body text-center">
-                    <p class="card-text add-new-text">
-                        Click here to add a new cryptocurrency to your portfolio.
-                    </p>
-                </div>
-
-                <!-- Invisible Footer to align Add button with other cards -->
-                <div class="card-footer text-center add-new-footer">
-                    <button class="btn btn-sm btn-primary add-new-button" data-toggle="modal" data-target="#addAssetModal">
-                        <i class="fa fa-plus"></i> Add New
-                    </button>
-                </div>
-            </div>
-        </div>
-        {% for asset in portfolio %}
+        <!-- Portfolio Breakdown -->
+        <div class="row">
             <div class="col-md-6 col-lg-4 mb-4">
-                <div class="card asset-card shadow-sm"  data-id="{{ asset.id }}">
-                    <div class="card-header">
-                        <h5 class="card-title text-primary">
-                            <img src="{{ asset.image if asset.image else '/static/default-image.png' }}" class="crypto-logo" width="30" height="30" style="margin-right: 10px;">
-                            {{ asset.name }}
-                            <small class="text-muted">({{ asset.abbreviation }})</small>
-                        </h5>
-                    </div>
-                    <div class="card-body">
-                        <p class="card-text">
-                            <strong>Amount:</strong> {{ asset.amount }}<br>
-                            <strong>Current Price:</strong> ${{ asset.current_price }}<br>
-                            <strong>Value:</strong> ${{ asset.value }}<br>
-                            <strong>Rank:</strong> {{ asset.rank }}<br>
-                            <strong>Allocation:</strong> {{ asset.allocation_percentage }}% of portfolio
+                <div class="card asset-card shadow-sm add-new-card">
+                    <h5 class="text-center add-new-title">Add New Asset</h5>
+
+                    <div class="card-body text-center">
+                        <p class="card-text add-new-text">
+                            Click here to add a new cryptocurrency to your portfolio.
                         </p>
                     </div>
-                    <!-- Delete button -->
-                    <div class="card-footer text-right">
-                        <button class="btn btn-sm btn-danger delete-asset" data-id="{{ asset.id }}"
-                                data-toggle="modal" data-target="#deleteAssetModal">
-                            <i class="fa fa-trash"></i> Delete
+
+                    <div class="card-footer text-center add-new-footer">
+                        <button class="btn btn-sm btn-primary add-new-button" data-toggle="modal" data-target="#addAssetModal" aria-label="Add a new asset to the portfolio">
+                            <i class="fa fa-plus"></i> Add New
                         </button>
                     </div>
                 </div>
             </div>
-        {% endfor %}
-    </div>
-</div>
 
+            {% if portfolio|length == 0 %}
+                <div class="alert alert-info text-center w-100">Your portfolio is empty.</div>
+            {% else %}
+                {% for asset in portfolio %}
+                    <div class="col-md-6 col-lg-4 mb-4">
+                        <div class="card asset-card shadow-sm" data-id="{{ asset.id }}">
+                            <div class="card-header">
+                                <h5 class="card-title text-primary">
+                                    <img src="{{ asset.image or '/static/default-image.png' }}" class="crypto-logo" width="30" height="30" style="margin-right: 10px;">
+                                    {{ asset.name }}
+                                    <small class="text-muted">({{ asset.abbreviation }})</small>
+                                </h5>
+                            </div>
+                            <div class="card-body">
+                                <p class="card-text">
+                                    <strong>Amount:</strong> {{ asset.amount }}<br>
+                                    <strong>Current Price:</strong> ${{ asset.current_price }}<br>
+                                    <strong>Value:</strong> ${{ asset.value }}<br>
+                                    <strong>Rank:</strong> {{ asset.rank }}<br>
+                                    <strong>Allocation:</strong> {{ asset.allocation_percentage }}% of portfolio
+                                </p>
+                            </div>
+
+                            <div class="card-footer text-right">
+                                <button class="btn btn-sm btn-danger delete-asset" data-id="{{ asset.id }}" data-toggle="modal" data-target="#deleteAssetModal" title="Delete Asset">
+                                    <i class="fa fa-trash"></i> Delete
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        </div>
+    </div>
 {% endblock %}
 
 {% block scripts %}
