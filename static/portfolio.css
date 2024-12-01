@@ -71,9 +71,15 @@
     transition: background-color 0.3s ease;
 }
 
-/* Hover effect for delete button */
+/* On hover, add pulse animation */
 .delete-asset:hover {
     background-color: #d62828;
+    animation: pulse 1s ease-in-out infinite; /* Apply the pulse animation */
+}
+
+/* Optional: Add a slight pulse effect when focused */
+.delete-asset:focus {
+    animation: pulse 1s ease-in-out infinite; /* Apply pulse effect on focus */
 }
 
 /* Modal Styling */
@@ -127,32 +133,6 @@
         opacity: 1;
     }
 }
-
-/* Apply the pulse effect on hover */
-.delete-asset {
-    font-size: 1rem;
-    font-weight: 500;
-    background-color: #e63946;
-    color: #ffffff;
-    border: none;
-    padding: 8px 15px;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-    animation: none; /* Default no animation */
-}
-
-/* On hover, add pulse animation */
-.delete-asset:hover {
-    background-color: #d62828;
-    animation: pulse 1s ease-in-out infinite; /* Apply the pulse animation */
-}
-
-/* Optional: Add a slight pulse effect when focused */
-.delete-asset:focus {
-    animation: pulse 1s ease-in-out infinite; /* Apply pulse effect on focus */
-}
-
 
 /* Main Card Styling */
 .add-new-card {
