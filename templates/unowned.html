@@ -13,13 +13,17 @@
 
     <!-- Missing Cryptos List -->
     <div class="row">
-        {% if missing_cryptos %}
+        {% if missing_cryptos is none %}
+            <div class="col-12 text-center">
+                <i class="fa fa-spinner fa-spin"></i> Loading...
+            </div>
+        {% elif missing_cryptos %}
             {% for crypto in missing_cryptos %}
-                <div class="col-md-6 col-lg-4 mb-4">
+                <article class="col-md-6 col-lg-4 mb-4">
                     <div class="card asset-card shadow-sm">
                         <div class="card-header">
                             <h5 class="card-title text-primary">
-                                <img src="{{ crypto.image }}" class="crypto-logo" width="30" height="30" style="margin-right: 10px;">
+                                <img src="{{ crypto.image }}" class="crypto-logo" width="30" height="30" style="margin-right: 10px;" alt="{{ crypto.name }} logo" loading="lazy">
                                 {{ crypto.name }}
                                 <small class="text-muted">({{ crypto.abbreviation | upper }})</small>
                             </h5>
@@ -31,13 +35,13 @@
                             </p>
                         </div>
                         <div class="card-footer text-right">
-                            <!-- Placeholder for future action, like adding to portfolio -->
-                            <button class="btn btn-sm btn-outline-primary add-to-portfolio" data-id="{{ crypto.id }}">
+                            <!-- Button with feedback -->
+                            <button class="btn btn-sm btn-outline-primary add-to-portfolio" data-id="{{ crypto.id }}" aria-label="Add {{ crypto.name }} to portfolio" onclick="this.innerHTML = '<i class=\'fa fa-check\'></i> Added'; this.disabled = true;">
                                 <i class="fa fa-plus"></i> Add to Portfolio
                             </button>
                         </div>
                     </div>
-                </div>
+                </article>
             {% endfor %}
         {% else %}
             <p class="text-dark">No missing cryptocurrencies from the top 100!</p>
