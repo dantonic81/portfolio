@@ -1,5 +1,7 @@
-from flask import Blueprint, jsonify, request, render_template
+from flask import Blueprint, jsonify, request, render_template, session
 from dateutil.parser import parse
+
+from models.db_connection import get_db_cursor
 from services.portfolio import get_assets_by_query, read_portfolio, calculate_portfolio_value, fetch_owned_coins_from_db
 from models.database import get_db_connection
 import sqlite3
@@ -9,6 +11,7 @@ from datetime import datetime
 from utils.logger import logger
 from services.alerts import get_active_alerts
 from math import ceil
+from werkzeug.security import generate_password_hash, check_password_hash
 
 
 
@@ -36,8 +39,9 @@ def filter_assets_by_letter():
         return jsonify({"error": "Invalid letter parameter. Please provide a single alphabet character."}), 400
 
     # Query the portfolio for assets whose names start with the specified letter
-    conn = get_db_connection()
-    cursor = conn.cursor()
+    cursor, conn = get_db_cursor()
+    if cursor is None:
+        return jsonify({'error': 'Database connection failed'}), 500
 
     cursor.execute('''SELECT name, abbreviation, amount FROM portfolio WHERE name LIKE ?''', (f'{letter}%',))
     filtered_assets = [dict(row) for row in cursor.fetchall()]
@@ -58,9 +62,9 @@ def update_asset():
         if not asset_id or new_amount is None:
             return jsonify({'success': False, 'message': 'Invalid data provided'}), 400
 
-        # Connect to the database and update the specified asset
-        conn = get_db_connection()
-        cursor = conn.cursor()
+        cursor, conn = get_db_cursor()
+        if cursor is None:
+            return jsonify({'error': 'Database connection failed'}), 500
 
         # Update the asset in the database
         cursor.execute('''
@@ -99,9 +103,9 @@ def delete_asset():
         if not asset_id:
             return jsonify({'success': False, 'message': 'Invalid data provided'}), 400
 
-        # Connect to the database
-        conn = get_db_connection()
-        cursor = conn.cursor()
+        cursor, conn = get_db_cursor()
+        if cursor is None:
+            return jsonify({'error': 'Database connection failed'}), 500
 
         # Delete the asset from the database
         cursor.execute('''
@@ -142,8 +146,10 @@ def save_portfolio_value():
         today_date = datetime.now().strftime('%Y-%m-%d')
 
         # Connect to the database and check for an existing record
-        conn = get_db_connection()
-        cursor = conn.cursor()
+        cursor, conn = get_db_cursor()
+        if cursor is None:
+            return jsonify({'error': 'Database connection failed'}), 500
+
         cursor.execute('SELECT portfolio_value FROM portfolio_daily WHERE date = ?', (today_date,))
         existing_record = cursor.fetchone()
 
@@ -222,8 +228,9 @@ def set_alert():
 
     # Insert the alert into the database
     try:
-        conn = get_db_connection()
-        cursor = conn.cursor()
+        cursor, conn = get_db_cursor()
+        if cursor is None:
+            return jsonify({'error': 'Database connection failed'}), 500
 
         query = '''
         INSERT INTO alerts (name, cryptocurrency, alert_type, threshold)
@@ -242,8 +249,10 @@ def set_alert():
 
 @api.route('/api/alert/<int:alert_id>', methods=['GET'])
 def get_alert(alert_id):
-    conn = get_db_connection()
-    cursor = conn.cursor()
+    cursor, conn = get_db_cursor()
+    if cursor is None:
+        return jsonify({'error': 'Database connection failed'}), 500
+
 
     query = "SELECT * FROM alerts WHERE id = ?"  # Use '?' placeholder for parameters
     cursor.execute(query, (alert_id,))
@@ -263,8 +272,10 @@ def get_alert(alert_id):
 # Delete an alert
 @api.route('/api/alert/<int:alert_id>', methods=['DELETE'])
 def delete_alert(alert_id):
-    conn = get_db_connection()
-    cursor = conn.cursor()
+    cursor, conn = get_db_cursor()
+    if cursor is None:
+        return jsonify({'error': 'Database connection failed'}), 500
+
 
     query = "DELETE FROM alerts WHERE id = ?"
     cursor.execute(query, (alert_id,))
@@ -278,8 +289,10 @@ def delete_alert(alert_id):
 @api.route('/notifications', methods=['GET'])
 def get_notifications():
     query = "SELECT * FROM notifications ORDER BY created_at DESC;"
-    conn = get_db_connection()
-    cursor = conn.cursor()
+    cursor, conn = get_db_cursor()
+    if cursor is None:
+        return jsonify({'error': 'Database connection failed'}), 500
+
     cursor.execute(query)
     notifications = cursor.fetchall()
     conn.close()
@@ -301,8 +314,10 @@ def get_notifications():
 @api.route('/notifications/<int:notification_id>/mark-read', methods=['POST'])
 def mark_notification_as_read(notification_id):
     query = "UPDATE notifications SET is_read = 1 WHERE id = ?;"  # SQLite uses ? as a placeholder
-    conn = get_db_connection()
-    cursor = conn.cursor()
+    cursor, conn = get_db_cursor()
+    if cursor is None:
+        return jsonify({'error': 'Database connection failed'}), 500
+
     try:
         cursor.execute(query, (notification_id,))
         conn.commit()
@@ -316,8 +331,10 @@ def mark_notification_as_read(notification_id):
 @api.route('/notifications/unread-count', methods=['GET'])
 def get_unread_count():
     query = "SELECT COUNT(*) FROM notifications WHERE is_read = 0;"
-    conn = get_db_connection()
-    cursor = conn.cursor()
+    cursor, conn = get_db_cursor()
+    if cursor is None:
+        return jsonify({'error': 'Database connection failed'}), 500
+
     cursor.execute(query)
     count = cursor.fetchone()[0]
     conn.close()
@@ -439,8 +456,9 @@ def index():
         today_date = datetime.now().strftime('%Y-%m-%d')
 
         # Connect to the database and check if a record for today already exists
-        conn = get_db_connection()
-        cursor = conn.cursor()
+        cursor, conn = get_db_cursor()
+        if cursor is None:
+            return jsonify({'error': 'Database connection failed'}), 500
 
         # Calculate the sum of all investments in the transactions table
         cursor.execute('SELECT SUM(price) FROM transactions')
@@ -554,8 +572,9 @@ def add_asset():
         amount = float(data.get('amount'))  # Ensure the amount is a float
 
         # Connect to SQLite and check if the asset already exists
-        conn = sqlite3.connect('crypto_portfolio.db')
-        cursor = conn.cursor()
+        cursor, conn = get_db_cursor()
+        if cursor is None:
+            return jsonify({'error': 'Database connection failed'}), 500
 
         # Query to check for existing asset by name or abbreviation
         cursor.execute('''
@@ -585,4 +604,60 @@ def add_asset():
         # Log any error that occurs
         logger.error("Error while adding asset: %s", e)
         return jsonify({"success": False, "error": str(e)})
+
+
+# Register a user
+@api.route('/register', methods=['POST'])
+def register():
+    data = request.get_json()
+    username = data.get('username')
+    email = data.get('email')
+    password = data.get('password')
+
+    if not username or not email or not password:
+        return jsonify({'error': 'Missing required fields'}), 400
+
+    password_hash = generate_password_hash(password)
+    cursor, conn = get_db_cursor()
+    if cursor is None:
+        return jsonify({'error': 'Database connection failed'}), 500
+
+
+    try:
+        cursor.execute('''
+            INSERT INTO users (username, email, password_hash)
+            VALUES (?, ?, ?)
+        ''', (username, email, password_hash))
+        conn.commit()
+        return jsonify({'message': 'User registered successfully!'}), 201
+    except Exception as e:
+        return jsonify({'error': str(e)}), 400
+    finally:
+        conn.close()
+
+# Login a user
+@api.route('/login', methods=['POST'])
+def login():
+    data = request.get_json()
+    username = data.get('username')
+    password = data.get('password')
+
+    cursor, conn = get_db_cursor()
+    if cursor is None:
+        return jsonify({'error': 'Database connection failed'}), 500
+
+    cursor.execute('SELECT password_hash FROM users WHERE username = ?', (username,))
+    row = cursor.fetchone()
+
+    if row and check_password_hash(row[0], password):
+        session['username'] = username  # Save user in session
+        return jsonify({'message': 'Login successful!'}), 200
+    else:
+        return jsonify({'error': 'Invalid username or password'}), 401
+
+# Logout a user
+@api.route('/logout', methods=['POST'])
+def logout():
+    session.pop('username', None)  # Remove user from session
+    return jsonify({'message': 'Logout successful!'}), 200
 

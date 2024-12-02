@@ -99,6 +99,10 @@ Also there's nothing there to indicate that cards are editable when I hover abov
 - users should be able to edit existing active alerts or delete them
 
 
+- develop user authentication flow
+
+
+
 ## TODO:
 
 - type hints

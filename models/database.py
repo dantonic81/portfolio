@@ -9,6 +9,33 @@ def init_db():
 
     # Create tables
     cursor.execute('''
+        CREATE TABLE IF NOT EXISTS users (
+            user_id INTEGER PRIMARY KEY AUTOINCREMENT,
+            username TEXT UNIQUE NOT NULL,
+            email TEXT UNIQUE NOT NULL,
+            password_hash TEXT NOT NULL,
+            created_at TEXT DEFAULT (DATETIME('now'))
+        )
+    ''')
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS profiles (
+            profile_id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id INTEGER NOT NULL,
+            bio TEXT,
+            profile_picture TEXT,
+            created_at TEXT DEFAULT (DATETIME('now')),
+            FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
+        )
+    ''')
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS guest_data (
+            session_id TEXT PRIMARY KEY,
+            crypto_name TEXT NOT NULL,
+            quantity REAL NOT NULL,
+            added_at TEXT DEFAULT (DATETIME('now'))
+        )
+    ''')
+    cursor.execute('''
         CREATE TABLE IF NOT EXISTS portfolio (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             name TEXT,
