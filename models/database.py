@@ -14,7 +14,9 @@ def init_db():
             username TEXT UNIQUE NOT NULL,
             email TEXT UNIQUE NOT NULL,
             password_hash TEXT NOT NULL,
+            is_active BOOLEAN DEFAULT 0,
             created_at TEXT DEFAULT (DATETIME('now'))
+            
         )
     ''')
     cursor.execute('''

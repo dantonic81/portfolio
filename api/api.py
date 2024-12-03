@@ -2,6 +2,7 @@ from flask import Blueprint, jsonify, request, render_template, session, redirec
 from dateutil.parser import parse
 
 from models.db_connection import get_db_cursor
+from services.email import send_email
 from services.portfolio import get_assets_by_query, read_portfolio, calculate_portfolio_value, fetch_owned_coins_from_db
 import sqlite3
 from utils.coingecko import get_top_1000_crypto, fetch_gainers_and_losers_owned
@@ -628,6 +629,39 @@ def add_asset():
         return jsonify({"success": False, "error": str(e)})
 
 
+@api.route('/confirm_email')
+def confirm_email():
+    # Get the email from the query parameters
+    email = request.args.get('email')
+
+    if not email:
+        return "Invalid confirmation link.", 400  # Return an error if no email is provided
+
+    cursor, conn = get_db_cursor()
+    if cursor is None:
+        return "Database connection failed.", 500
+
+    try:
+        # Check if the email exists in the database
+        cursor.execute('SELECT * FROM users WHERE email = ?', (email,))
+        user = cursor.fetchone()
+
+        if not user:
+            return "User not found.", 404
+
+        # Update the user's is_active status to 1 (active)
+        cursor.execute('UPDATE users SET is_active = 1 WHERE email = ?', (email,))
+        conn.commit()
+
+        # Optionally, you can redirect to a page that informs the user their email has been confirmed
+        return render_template('email_confirmed.html')
+
+    except Exception as e:
+        return f"Error confirming email: {str(e)}", 500
+    finally:
+        conn.close()
+
+
 @api.route('/register', methods=['GET', 'POST'])
 def register():
     if request.method == 'POST':
@@ -646,11 +680,26 @@ def register():
 
         try:
             cursor.execute('''
-                INSERT INTO users (username, email, password_hash)
-                VALUES (?, ?, ?)
+                INSERT INTO users (username, email, password_hash, is_active)
+                VALUES (?, ?, ?, 0)
             ''', (username, email, password_hash))
             conn.commit()
+
+            # Send confirmation email
+            confirm_link = url_for('api.confirm_email', email=email, _external=True)
+            email_subject = "Confirm Your Email Address"
+            email_content = f"""
+                <p>Hi {username},</p>
+                <p>Thanks for registering! Please confirm your email address by clicking the link below:</p>
+                <a href="{confirm_link}">Confirm Email</a>
+                <p>If you didn't register, you can ignore this email.</p>
+            """
+            print(f"Sending email to {email}")
+            send_email(email, email_subject, email_content)
+            flash('A confirmation email has been sent to your email address. Please check your inbox to confirm your email.', 'success')
+
             return redirect(url_for('api.login'))  # Redirect to login page after registration
+
         except Exception as e:
             return render_template('register.html', error=str(e))
         finally:

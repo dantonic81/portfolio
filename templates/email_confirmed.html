@@ -1,0 +1,34 @@
+<!-- email_confirmed.html -->
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Email Confirmation</title>
+    <!-- Bootstrap CDN for styling -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-KyZXEJxvJcG5e4t9Hjs+G8F8Hhp8j/iayg66t9IkR5XG56twSCrxrJzbhZtm5i7T" crossorigin="anonymous">
+</head>
+
+<body class="bg-light">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-12 col-md-6">
+                <div class="card mt-5">
+                    <div class="card-body">
+                        <h1 class="card-title text-center text-success">Email Successfully Confirmed!</h1>
+                        <p class="card-text text-center">Thank you for confirming your email address. You can now log in to your account.</p>
+                        <div class="text-center">
+                            <a href="{{ url_for('api.login') }}" class="btn btn-primary">Go to Login</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS (optional, for components like dropdowns or modals if needed) -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js" integrity="sha384-pzjw8f+ua7Kw1TIq0g4Fb0I9yiBQUdDbTnUb/YMZDJW7t74p5F5MZyMnF54Icu8c" crossorigin="anonymous"></script>
+</body>
+
+</html>

@@ -7,3 +7,4 @@ gunicorn==23.0.0
 Flask-APScheduler==1.13.1
 python-dateutil~=2.9.0.post0
 Flask-Session==0.8.0
+sendgrid==6.11.0
