@@ -1,9 +1,8 @@
-from flask import Blueprint, jsonify, request, render_template, session
+from flask import Blueprint, jsonify, request, render_template, session, redirect, url_for, flash
 from dateutil.parser import parse
 
 from models.db_connection import get_db_cursor
 from services.portfolio import get_assets_by_query, read_portfolio, calculate_portfolio_value, fetch_owned_coins_from_db
-from models.database import get_db_connection
 import sqlite3
 from utils.coingecko import get_top_1000_crypto, fetch_gainers_and_losers_owned
 from utils.anomaly_detection import detect_outliers, combine_results, preprocess_data
@@ -439,6 +438,8 @@ def show_unowned_cryptos():
 @api.route('/')
 def index():
     try:
+        if 'user_id' not in session:
+            return redirect('/login')  # Redirect to login if not logged in
         # Fetch owned coins
         owned_coins = fetch_owned_coins_from_db()
 
@@ -635,25 +636,39 @@ def register():
     finally:
         conn.close()
 
-# Login a user
-@api.route('/login', methods=['POST'])
+
+@api.route('/login', methods=['GET', 'POST'])
 def login():
-    data = request.get_json()
-    username = data.get('username')
-    password = data.get('password')
+    if request.method == 'POST':
+        username = request.form.get('username')
+        password = request.form.get('password')
 
-    cursor, conn = get_db_cursor()
-    if cursor is None:
-        return jsonify({'error': 'Database connection failed'}), 500
+        if not username or not password:
+            flash('Username and password are required!', 'error')
+            return render_template('login.html')
 
-    cursor.execute('SELECT password_hash FROM users WHERE username = ?', (username,))
-    row = cursor.fetchone()
+        cursor, conn = get_db_cursor()
+        if cursor is None:
+            flash('Database connection failed!', 'error')
+            return render_template('login.html')
 
-    if row and check_password_hash(row[0], password):
-        session['username'] = username  # Save user in session
-        return jsonify({'message': 'Login successful!'}), 200
-    else:
-        return jsonify({'error': 'Invalid username or password'}), 401
+        try:
+            # Query for the user by username
+            cursor.execute("SELECT username, password_hash FROM users WHERE username = ?", (username,))
+            user = cursor.fetchone()
+
+            if user and check_password_hash(user[1], password):
+                session['username'] = username
+                flash('Login successful!', 'success')
+                return redirect(url_for('api.index'))  # Replace 'api.index' with your desired endpoint
+            else:
+                flash('Invalid username or password', 'error')
+        except Exception as e:
+            flash(f'An error occurred: {str(e)}', 'error')
+        finally:
+            conn.close()
+
+    return render_template('login.html')
 
 # Logout a user
 @api.route('/logout', methods=['POST'])

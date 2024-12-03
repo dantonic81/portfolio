@@ -5,11 +5,16 @@ from api.api import api
 from models.database import init_db
 from utils.scheduler import configure_scheduler
 from services.alerts import check_alerts
+from flask_session import Session
 
 
 load_dotenv()
 
 app = Flask(__name__)
+app.secret_key = os.environ.get("SECRET_KEY")
+app.config['SESSION_TYPE'] = 'filesystem'
+app.config['SESSION_FILE_DIR'] = './sessions'
+Session(app)
 
 app.register_blueprint(api)
 
