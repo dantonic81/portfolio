@@ -440,6 +440,7 @@ def index():
     try:
         if 'user_id' not in session:
             return redirect('/login')  # Redirect to login if not logged in
+
         # Fetch owned coins
         owned_coins = fetch_owned_coins_from_db()
 
@@ -657,11 +658,12 @@ def login():
 
         try:
             # Query for the user by username
-            cursor.execute("SELECT username, password_hash FROM users WHERE username = ?", (username,))
+            cursor.execute("SELECT username, password_hash, user_id FROM users WHERE username = ?", (username,))
             user = cursor.fetchone()
 
             if user and check_password_hash(user[1], password):
-                session['username'] = username
+                session['user_id'] = user[2]  # Store user_id in session, not just username
+                session['username'] = user[0]
                 flash('Login successful!', 'success')
                 return redirect(url_for('api.index'))  # Replace 'api.index' with your desired endpoint
             else:
@@ -673,9 +675,10 @@ def login():
 
     return render_template('login.html')
 
-# Logout a user
+
 @api.route('/logout', methods=['POST'])
 def logout():
+    # Debugging log: Print the session before logout
+    print(session)
     session.pop('username', None)  # Remove user from session
     return jsonify({'message': 'Logout successful!'}), 200
-
