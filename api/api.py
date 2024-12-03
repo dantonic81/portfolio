@@ -8,6 +8,7 @@ from utils.coingecko import get_top_1000_crypto, fetch_gainers_and_losers_owned
 from utils.anomaly_detection import detect_outliers, combine_results, preprocess_data
 from datetime import datetime
 from utils.logger import logger
+from utils.login_required import login_required
 from services.alerts import get_active_alerts
 from math import ceil
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -20,6 +21,7 @@ api = Blueprint('api', __name__)
 
 
 @api.route('/search_assets', methods=['GET'])
+@login_required
 def search_assets():
     query = request.args.get('query')  # Get the query parameter from the request
     if query:
@@ -30,6 +32,7 @@ def search_assets():
 
 
 @api.route('/portfolio/filter_by_letter', methods=['GET'])
+@login_required
 def filter_assets_by_letter():
     letter = request.args.get('letter', '').upper()  # Defaults to empty string if not provided
     logger.debug(f"Filtering assets by letter: {letter}")  # Add this log
@@ -51,6 +54,7 @@ def filter_assets_by_letter():
 
 
 @api.route('/update_asset', methods=['POST'])
+@login_required
 def update_asset():
     try:
         # Parse data from the request
@@ -93,6 +97,7 @@ def update_asset():
 
 
 @api.route('/delete_asset', methods=['POST'])
+@login_required
 def delete_asset():
     try:
         # Parse data from the request
@@ -133,6 +138,7 @@ def delete_asset():
 
 
 @api.route('/save_portfolio_value', methods=['POST'])
+@login_required
 def save_portfolio_value():
     try:
         portfolio = read_portfolio()  # Assuming this reads your portfolio data
@@ -190,6 +196,7 @@ def save_portfolio_value():
 
 
 @api.route('/get-owned-coins', methods=['GET'])
+@login_required
 def get_owned_coins():
     try:
         # Fetch owned coins from your database
@@ -201,6 +208,7 @@ def get_owned_coins():
 
 
 @api.route('/api/active_alerts', methods=['GET'])
+@login_required
 def active_alerts():
     alerts = get_active_alerts()
 
@@ -215,6 +223,7 @@ def active_alerts():
     return jsonify(alert_dicts)
 
 @api.route('/api/set_alert', methods=['POST'])
+@login_required
 def set_alert():
     data = request.json
     print("Received data:", data)
@@ -247,6 +256,7 @@ def set_alert():
 
 
 @api.route('/api/alert/<int:alert_id>', methods=['GET'])
+@login_required
 def get_alert(alert_id):
     cursor, conn = get_db_cursor()
     if cursor is None:
@@ -270,6 +280,7 @@ def get_alert(alert_id):
 
 # Delete an alert
 @api.route('/api/alert/<int:alert_id>', methods=['DELETE'])
+@login_required
 def delete_alert(alert_id):
     cursor, conn = get_db_cursor()
     if cursor is None:
@@ -286,6 +297,7 @@ def delete_alert(alert_id):
 
 
 @api.route('/notifications', methods=['GET'])
+@login_required
 def get_notifications():
     query = "SELECT * FROM notifications ORDER BY created_at DESC;"
     cursor, conn = get_db_cursor()
@@ -311,6 +323,7 @@ def get_notifications():
 
 
 @api.route('/notifications/<int:notification_id>/mark-read', methods=['POST'])
+@login_required
 def mark_notification_as_read(notification_id):
     query = "UPDATE notifications SET is_read = 1 WHERE id = ?;"  # SQLite uses ? as a placeholder
     cursor, conn = get_db_cursor()
@@ -328,6 +341,7 @@ def mark_notification_as_read(notification_id):
 
 
 @api.route('/notifications/unread-count', methods=['GET'])
+@login_required
 def get_unread_count():
     query = "SELECT COUNT(*) FROM notifications WHERE is_read = 0;"
     cursor, conn = get_db_cursor()
@@ -341,6 +355,7 @@ def get_unread_count():
 
 
 @api.route('/market', methods=['GET'])
+@login_required
 def market_data():
     # Get the current page, items per page, and search term
     page = request.args.get('page', 1, type=int)
@@ -389,6 +404,7 @@ def inject_total_portfolio_value():
 
 # Route to show portfolio in HTML format
 @api.route('/portfolio', methods=['GET'])
+@login_required
 def show_portfolio():
     portfolio = read_portfolio()
     top_1000_cryptos = get_top_1000_crypto()
@@ -405,6 +421,7 @@ def show_portfolio():
 
 
 @api.route('/unowned', methods=['GET'])
+@login_required
 def show_unowned_cryptos():
     # Read the portfolio and get the top 100 cryptos from CoinGecko
     portfolio = read_portfolio()
@@ -438,6 +455,7 @@ def show_unowned_cryptos():
 @api.route('/')
 def index():
     try:
+        print(session)
         if 'user_id' not in session:
             return redirect('/login')  # Redirect to login if not logged in
 
@@ -532,6 +550,7 @@ def index():
 
 
 @api.route('/outliers', methods=['GET'])
+@login_required
 def show_outliers():
     # Fetch owned coins
     owned_coins = fetch_owned_coins_from_db()
@@ -560,6 +579,7 @@ def show_outliers():
 
 
 @api.route('/add_asset', methods=['POST'])
+@login_required
 def add_asset():
     # Log that the request has been received
     logger.debug("Received POST request at '/add_asset'")
@@ -643,6 +663,9 @@ def register():
 
 @api.route('/login', methods=['GET', 'POST'])
 def login():
+    if 'user_id' in session:
+        return redirect(url_for('api.index'))  # Redirect to dashboard if already logged in
+
     if request.method == 'POST':
         username = request.form.get('username')
         password = request.form.get('password')
@@ -680,5 +703,7 @@ def login():
 def logout():
     # Debugging log: Print the session before logout
     print(session)
-    session.pop('username', None)  # Remove user from session
+    session.clear()
+    # session.pop('username', None)  # Remove user from session
+    # session.pop('user_id', None)  # Explicitly remove user_id as well
     return jsonify({'message': 'Logout successful!'}), 200
