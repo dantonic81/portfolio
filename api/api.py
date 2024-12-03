@@ -607,34 +607,37 @@ def add_asset():
         return jsonify({"success": False, "error": str(e)})
 
 
-# Register a user
-@api.route('/register', methods=['POST'])
+@api.route('/register', methods=['GET', 'POST'])
 def register():
-    data = request.get_json()
-    username = data.get('username')
-    email = data.get('email')
-    password = data.get('password')
+    if request.method == 'POST':
+        # Handle form submission (data from an HTML form)
+        username = request.form.get('username')
+        email = request.form.get('email')
+        password = request.form.get('password')
 
-    if not username or not email or not password:
-        return jsonify({'error': 'Missing required fields'}), 400
+        if not username or not email or not password:
+            return render_template('register.html', error="All fields are required.")
 
-    password_hash = generate_password_hash(password)
-    cursor, conn = get_db_cursor()
-    if cursor is None:
-        return jsonify({'error': 'Database connection failed'}), 500
+        password_hash = generate_password_hash(password)
+        cursor, conn = get_db_cursor()
+        if cursor is None:
+            return render_template('register.html', error="Database connection failed.")
 
+        try:
+            cursor.execute('''
+                INSERT INTO users (username, email, password_hash)
+                VALUES (?, ?, ?)
+            ''', (username, email, password_hash))
+            conn.commit()
+            return redirect(url_for('api.login'))  # Redirect to login page after registration
+        except Exception as e:
+            return render_template('register.html', error=str(e))
+        finally:
+            conn.close()
 
-    try:
-        cursor.execute('''
-            INSERT INTO users (username, email, password_hash)
-            VALUES (?, ?, ?)
-        ''', (username, email, password_hash))
-        conn.commit()
-        return jsonify({'message': 'User registered successfully!'}), 201
-    except Exception as e:
-        return jsonify({'error': str(e)}), 400
-    finally:
-        conn.close()
+    # Render the registration form for GET requests
+    return render_template('register.html')
+
 
 
 @api.route('/login', methods=['GET', 'POST'])
