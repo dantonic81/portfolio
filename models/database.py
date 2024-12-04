@@ -126,6 +126,18 @@ def init_db():
             FOREIGN KEY (alert_id) REFERENCES alerts(id) ON DELETE CASCADE
         )
     ''')
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS audit_log (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            event_type TEXT NOT NULL,              -- e.g., "login_attempt", "registration_attempt"
+            username TEXT,                         -- Username entered by the user
+            ip_address TEXT,                       -- IP address of the client
+            user_agent TEXT,                       -- User-Agent string from the request headers
+            status TEXT NOT NULL,                  -- e.g., "success", "failure"
+            error_message TEXT,                    -- For recording failure reasons
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP -- Automatically logs the time of the event
+        )
+    ''')
     conn.commit()
 
     # Check if the portfolio table is empty before loading CSV data

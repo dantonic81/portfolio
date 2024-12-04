@@ -5,6 +5,8 @@ from models.db_connection import get_db_cursor
 from services.email import send_email
 from services.portfolio import get_assets_by_query, read_portfolio, calculate_portfolio_value, fetch_owned_coins_from_db
 import sqlite3
+
+from utils.auditing import log_audit_event
 from utils.coingecko import get_top_1000_crypto, fetch_gainers_and_losers_owned
 from utils.anomaly_detection import detect_outliers, combine_results, preprocess_data
 from datetime import datetime
@@ -671,11 +673,13 @@ def register():
         password = request.form.get('password')
 
         if not username or not email or not password:
+            log_audit_event(request, 'registration_attempt', username, 'failure', 'Missing required fields')
             return render_template('register.html', error="All fields are required.")
 
         password_hash = generate_password_hash(password)
         cursor, conn = get_db_cursor()
         if cursor is None:
+            log_audit_event(request, 'registration_attempt', username, 'failure', 'Database connection failed')
             return render_template('register.html', error="Database connection failed.")
 
         try:
@@ -685,6 +689,7 @@ def register():
             ''', (username, email, password_hash))
             conn.commit()
 
+            log_audit_event(request, 'registration_attempt', username, 'success')
             # Send confirmation email
             confirm_link = url_for('api.confirm_email', email=email, _external=True)
             email_subject = "Confirm Your Email Address"
@@ -701,6 +706,7 @@ def register():
             return redirect(url_for('api.login'))  # Redirect to login page after registration
 
         except Exception as e:
+            log_audit_event(request, 'registration_attempt', username, 'failure', str(e))
             return render_template('register.html', error=str(e))
         finally:
             conn.close()
@@ -720,11 +726,13 @@ def login():
         password = request.form.get('password')
 
         if not username or not password:
+            log_audit_event(request, 'login_attempt', username, 'failure', 'Username or password missing')
             flash('Username and password are required!', 'error')
             return render_template('login.html')
 
         cursor, conn = get_db_cursor()
         if cursor is None:
+            log_audit_event(request, 'login_attempt', username, 'failure', 'Database connection failed')
             flash('Database connection failed!', 'error')
             return render_template('login.html')
 
@@ -736,11 +744,14 @@ def login():
             if user and check_password_hash(user[1], password):
                 session['user_id'] = user[2]  # Store user_id in session, not just username
                 session['username'] = user[0]
+                log_audit_event(request, 'login_attempt', username, 'success')
                 flash('Login successful!', 'success')
                 return redirect(url_for('api.index'))  # Replace 'api.index' with your desired endpoint
             else:
+                log_audit_event(request, 'login_attempt', username, 'failure', 'Invalid credentials')
                 flash('Invalid username or password', 'error')
         except Exception as e:
+            log_audit_event(request, 'login_attempt', username, 'failure', str(e))
             flash(f'An error occurred: {str(e)}', 'error')
         finally:
             conn.close()

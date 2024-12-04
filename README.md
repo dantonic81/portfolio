@@ -99,7 +99,10 @@ Also there's nothing there to indicate that cards are editable when I hover abov
 - users should be able to edit existing active alerts or delete them
 
 
-- develop user authentication flow
+- develop user authentication flow (captcha)
+
+
+- add auditing for login and registration
 
 
 
@@ -127,4 +130,4 @@ Also there's nothing there to indicate that cards are editable when I hover abov
 - staking and rewards
 - market depth and liquidity
 - price volatility
-- 
+- database replication
