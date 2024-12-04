@@ -633,9 +633,7 @@ def add_asset():
 
 @api.route('/confirm_email')
 def confirm_email():
-    # Get the email from the query parameters
     email = request.args.get('email')
-
     if not email:
         return "Invalid confirmation link.", 400  # Return an error if no email is provided
 
@@ -644,24 +642,22 @@ def confirm_email():
         return "Database connection failed.", 500
 
     try:
-        # Check if the email exists in the database
         cursor.execute('SELECT * FROM users WHERE email = ?', (email,))
         user = cursor.fetchone()
 
         if not user:
             return "User not found.", 404
 
-        # Update the user's is_active status to 1 (active)
         cursor.execute('UPDATE users SET is_active = 1 WHERE email = ?', (email,))
-        conn.commit()
+        conn.commit()  # Commit the email confirmation update
 
-        # Optionally, you can redirect to a page that informs the user their email has been confirmed
         return render_template('email_confirmed.html')
 
     except Exception as e:
         return f"Error confirming email: {str(e)}", 500
+
     finally:
-        conn.close()
+        conn.close()  # Ensure the connection is closed
 
 
 @api.route('/register', methods=['GET', 'POST'])
@@ -683,36 +679,29 @@ def register():
             return render_template('register.html', error="Database connection failed.")
 
         try:
-            cursor.execute('''
-                INSERT INTO users (username, email, password_hash, is_active)
-                VALUES (?, ?, ?, 0)
-            ''', (username, email, password_hash))
-            conn.commit()
+            cursor.execute('''INSERT INTO users (username, email, password_hash, is_active) VALUES (?, ?, ?, 0)''',
+                           (username, email, password_hash))
+            conn.commit()  # Commit the transaction to ensure it's saved
 
-            log_audit_event(request, 'registration_attempt', username, 'success')
             # Send confirmation email
             confirm_link = url_for('api.confirm_email', email=email, _external=True)
             email_subject = "Confirm Your Email Address"
-            email_content = f"""
-                <p>Hi {username},</p>
-                <p>Thanks for registering! Please confirm your email address by clicking the link below:</p>
-                <a href="{confirm_link}">Confirm Email</a>
-                <p>If you didn't register, you can ignore this email.</p>
-            """
-            print(f"Sending email to {email}")
+            email_content = f"""<p>Hi {username},</p><p>Please confirm your email by clicking below:</p><a href="{confirm_link}">Confirm Email</a>"""
             send_email(email, email_subject, email_content)
-            flash('A confirmation email has been sent to your email address. Please check your inbox to confirm your email.', 'success')
+            flash('A confirmation email has been sent.', 'success')
 
-            return redirect(url_for('api.login'))  # Redirect to login page after registration
+            return redirect(url_for('api.login'))  # Redirect after successful registration
 
         except Exception as e:
             log_audit_event(request, 'registration_attempt', username, 'failure', str(e))
             return render_template('register.html', error=str(e))
-        finally:
-            conn.close()
 
-    # Render the registration form for GET requests
+        finally:
+            conn.close()  # Ensure the connection is closed
+
+    # Handle GET request: Render the registration form
     return render_template('register.html')
+
 
 
 
