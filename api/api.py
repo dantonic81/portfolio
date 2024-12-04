@@ -672,6 +672,7 @@ def register():
             log_audit_event(request, 'registration_attempt', username, 'failure', 'Missing required fields')
             return render_template('register.html', error="All fields are required.")
 
+        # Hash the password before storing it
         password_hash = generate_password_hash(password)
         cursor, conn = get_db_cursor()
         if cursor is None:
@@ -679,6 +680,16 @@ def register():
             return render_template('register.html', error="Database connection failed.")
 
         try:
+            # Check if email already exists
+            cursor.execute('SELECT * FROM users WHERE email = ?', (email,))
+            existing_user = cursor.fetchone()
+
+            if existing_user:
+                log_audit_event(request, 'registration_attempt', username, 'failure', 'Email already exists')
+                flash("User with this email already exists.", 'error')
+                return render_template('register.html', error="User with this email already exists.")
+
+            # Proceed with the insert if email does not exist
             cursor.execute('''INSERT INTO users (username, email, password_hash, is_active) VALUES (?, ?, ?, 0)''',
                            (username, email, password_hash))
             conn.commit()  # Commit the transaction to ensure it's saved
@@ -701,7 +712,6 @@ def register():
 
     # Handle GET request: Render the registration form
     return render_template('register.html')
-
 
 
 
