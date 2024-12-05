@@ -782,3 +782,18 @@ def view_users():
 
     return render_template('admin_users.html', users=users)  # Pass the user data to a template
 
+
+@api.route('/admin/audit', methods=['GET'])
+@admin_required
+def view_audits():
+    cursor, conn = get_db_cursor()
+    if cursor is None:
+        return "Database connection failed.", 500
+
+    cursor.execute("SELECT * FROM audit_log")
+    audits = cursor.fetchall()
+    conn.close()
+
+    return render_template('admin_audit_log.html', audits=audits)  # Pass the user data to a template
+
+
