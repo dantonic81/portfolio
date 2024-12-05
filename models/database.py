@@ -40,6 +40,7 @@ def init_db():
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS portfolio (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id INTEGER,
             name TEXT,
             abbreviation TEXT UNIQUE COLLATE NOCASE,
             amount REAL
@@ -78,6 +79,7 @@ def init_db():
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS portfolio_daily (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id INTEGER,
             date TEXT NOT NULL UNIQUE,
             portfolio_value DECIMAL(20, 2) NOT NULL,
             created_at TEXT DEFAULT CURRENT_TIMESTAMP
@@ -86,6 +88,7 @@ def init_db():
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS gainers_losers_cache (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id INTEGER,
             owned_coins TEXT,
             gainers TEXT,
             losers TEXT,
@@ -95,6 +98,7 @@ def init_db():
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS transactions (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id INTEGER,
             name TEXT NOT NULL,
             abbreviation TEXT NOT NULL,
             transaction_date TEXT NOT NULL,
@@ -107,6 +111,7 @@ def init_db():
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS alerts (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id INTEGER,
             name TEXT NOT NULL,
             cryptocurrency TEXT NOT NULL,
             alert_type TEXT NOT NULL,
@@ -118,6 +123,7 @@ def init_db():
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS notifications (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id INTEGER,
             alert_id INTEGER NOT NULL,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             notification_text TEXT NOT NULL,

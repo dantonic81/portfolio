@@ -105,13 +105,16 @@ Also there's nothing there to indicate that cards are editable when I hover abov
 - add auditing for login and registration
 
 
+- associate data with users, handle user isolation
+
+
+
 
 ## TODO:
 
 - type hints
 - docstrings
 - error handling
-- logging
 - tests
 - linting
 - formatting
@@ -120,7 +123,6 @@ Also there's nothing there to indicate that cards are editable when I hover abov
 - modern styling
 - withdrawal fee calculation and transactions
 - logos for all tokens
-- create users, notifications, security, authentication
 - I need a notification center accessible as an icon on every page, user preference control (opt-in/opt-out)
 - polling for alerts? definitely push notifications through web push as well as email notifications (sendgrid?), in-app notifications (websockets, long polling), this will have to be a scheduled job behind all of this (flask-apscheduler?)
 - circulating supply vs total max supply
@@ -131,4 +133,3 @@ Also there's nothing there to indicate that cards are editable when I hover abov
 - market depth and liquidity
 - price volatility
 - database replication
-- admin interface
