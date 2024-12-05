@@ -27,7 +27,7 @@
             {% endwith %}
 
             <!-- Login Form -->
-            <form method="POST" action="{{ url_for('api.login') }}">
+            <form method="POST" action="{{ url_for('login_api.login') }}">
                 <div class="mb-3">
                     <label for="username" class="form-label">Username</label>
                     <input type="text" id="username" name="username" class="form-control" required placeholder="Enter your username" value="{{ request.form.username }}" autocomplete="username">
@@ -42,7 +42,7 @@
             </form>
 
             <div class="text-center mt-3">
-                <p>Don't have an account? <a href="{{ url_for('api.register') }}" class="modern-link">Register here</a></p>
+                <p>Don't have an account? <a href="{{ url_for('login_api.register') }}" class="modern-link">Register here</a></p>
             </div>
         </div>
     </div>

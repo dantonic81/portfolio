@@ -2,6 +2,10 @@ import os
 from flask import Flask
 from dotenv import load_dotenv
 from api.api import api
+from api.admin_api import admin_api
+from api.login_api import login_api
+from api.alert_api import alert_api
+from api.notification_api import notification_api
 from models.database import init_db
 from services.admin import create_default_admin
 from utils.scheduler import configure_scheduler
@@ -18,6 +22,10 @@ app.config['SESSION_FILE_DIR'] = './sessions'
 Session(app)
 
 app.register_blueprint(api)
+app.register_blueprint(admin_api)
+app.register_blueprint(login_api)
+app.register_blueprint(alert_api)
+app.register_blueprint(notification_api)
 
 
 API_KEY = os.environ.get("API_KEY")
