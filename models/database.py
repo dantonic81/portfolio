@@ -15,8 +15,8 @@ def init_db():
             email TEXT UNIQUE NOT NULL,
             password_hash TEXT NOT NULL,
             is_active BOOLEAN DEFAULT 0,
+            is_admin BOOLEAN DEFAULT 0,
             created_at TEXT DEFAULT (DATETIME('now'))
-            
         )
     ''')
     cursor.execute('''

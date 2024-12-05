@@ -3,6 +3,7 @@ from flask import Flask
 from dotenv import load_dotenv
 from api.api import api
 from models.database import init_db
+from services.admin import create_default_admin
 from utils.scheduler import configure_scheduler
 from services.alerts import check_alerts
 from flask_session import Session
@@ -24,7 +25,11 @@ API_KEY = os.environ.get("API_KEY")
 if not API_KEY:
     raise EnvironmentError("API_KEY is not set in the environment variables.")
 
+# initialize the database
 init_db()
+
+# Ensure the default admin account is created
+create_default_admin()
 
 # Configure the scheduler
 configure_scheduler(app, check_alerts)  # Pass your app and the function to the scheduler

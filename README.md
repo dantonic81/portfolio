@@ -131,3 +131,4 @@ Also there's nothing there to indicate that cards are editable when I hover abov
 - market depth and liquidity
 - price volatility
 - database replication
+- admin interface

@@ -2,6 +2,7 @@ from flask import Blueprint, jsonify, request, render_template, session, redirec
 from dateutil.parser import parse
 
 from models.db_connection import get_db_cursor
+from services.admin import admin_required
 from services.email import send_email
 from services.portfolio import get_assets_by_query, read_portfolio, calculate_portfolio_value, fetch_owned_coins_from_db
 import sqlite3
@@ -766,3 +767,18 @@ def logout():
     # session.pop('username', None)  # Remove user from session
     # session.pop('user_id', None)  # Explicitly remove user_id as well
     return jsonify({'message': 'Logout successful!'}), 200
+
+
+@api.route('/admin/users', methods=['GET'])
+@admin_required
+def view_users():
+    cursor, conn = get_db_cursor()
+    if cursor is None:
+        return "Database connection failed.", 500
+
+    cursor.execute("SELECT user_id, username, email, is_active FROM users")
+    users = cursor.fetchall()
+    conn.close()
+
+    return render_template('admin_users.html', users=users)  # Pass the user data to a template
+
