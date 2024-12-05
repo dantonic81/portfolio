@@ -6,7 +6,6 @@ from services.admin import admin_required
 from services.email import send_email
 from services.portfolio import get_assets_by_query, read_portfolio, calculate_portfolio_value, fetch_owned_coins_from_db
 import sqlite3
-
 from utils.auditing import log_audit_event
 from utils.coingecko import get_top_1000_crypto, fetch_gainers_and_losers_owned
 from utils.anomaly_detection import detect_outliers, combine_results, preprocess_data

@@ -2,11 +2,12 @@ from models.db_connection import get_db_cursor
 from utils.logger import logger
 import sqlite3
 import time
+from flask import request
 
 
 def log_audit_event(request, event_type, username, status, error_message=None):
     """Logs an audit event to the SQLite database with retry logic."""
-    ip_address = request.remote_addr
+    ip_address = get_client_ip()
     user_agent = request.headers.get("User-Agent")
 
     retries = 5
@@ -46,3 +47,15 @@ def log_audit_event(request, event_type, username, status, error_message=None):
 
     # If all retries are exhausted, log an error
     logger.error("Max retries reached. Could not log audit event due to database lock.")
+
+
+def get_client_ip():
+    # Check for the X-Forwarded-For header
+    x_forwarded_for = request.headers.get('X-Forwarded-For')
+    if x_forwarded_for:
+        # Extract the first IP in the list
+        ip = x_forwarded_for.split(',')[0]
+    else:
+        # Fallback to remote_addr if no X-Forwarded-For is present
+        ip = request.remote_addr
+    return ip
