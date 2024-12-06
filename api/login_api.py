@@ -71,13 +71,13 @@ def register():
             conn.commit()  # Commit the transaction to ensure it's saved
 
             # Send confirmation email
-            confirm_link = url_for('api.confirm_email', email=email, _external=True)
+            confirm_link = url_for('login_api.confirm_email', email=email, _external=True)
             email_subject = "Confirm Your Email Address"
             email_content = f"""<p>Hi {username},</p><p>Please confirm your email by clicking below:</p><a href="{confirm_link}">Confirm Email</a>"""
             send_email(email, email_subject, email_content)
             flash('A confirmation email has been sent.', 'success')
 
-            return redirect(url_for('api.login'))  # Redirect after successful registration
+            return redirect(url_for('login_api.login'))  # Redirect after successful registration
 
         except Exception as e:
             log_audit_event(request, 'registration_attempt', username, 'failure', str(e))

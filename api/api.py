@@ -19,8 +19,9 @@ api = Blueprint('api', __name__)
 @login_required
 def search_assets():
     query = request.args.get('query')  # Get the query parameter from the request
+    user_id = session['user_id']
     if query:
-        assets = get_assets_by_query(query)  # Function to fetch assets based on the query
+        assets = get_assets_by_query(query, user_id)  # Function to fetch assets based on the query
         return jsonify({'assets': assets})  # Send the result back as JSON
     else:
         return jsonify({'assets': []})  # Return empty if no query is provided
@@ -35,12 +36,14 @@ def filter_assets_by_letter():
     if not letter or len(letter) != 1 or not letter.isalpha():
         return jsonify({"error": "Invalid letter parameter. Please provide a single alphabet character."}), 400
 
+    user_id = session['user_id']
+
     # Query the portfolio for assets whose names start with the specified letter
     cursor, conn = get_db_cursor()
     if cursor is None:
         return jsonify({'error': 'Database connection failed'}), 500
 
-    cursor.execute('''SELECT name, abbreviation, amount FROM portfolio WHERE name LIKE ?''', (f'{letter}%',))
+    cursor.execute('''SELECT name, abbreviation, amount FROM portfolio WHERE name LIKE ? AND user_id = ?''', (f'{letter}%', user_id))
     filtered_assets = [dict(row) for row in cursor.fetchall()]
     conn.close()
 
@@ -60,6 +63,8 @@ def update_asset():
         if not asset_id or new_amount is None:
             return jsonify({'success': False, 'message': 'Invalid data provided'}), 400
 
+        user_id = session['user_id']
+
         cursor, conn = get_db_cursor()
         if cursor is None:
             return jsonify({'error': 'Database connection failed'}), 500
@@ -68,8 +73,8 @@ def update_asset():
         cursor.execute('''
             UPDATE portfolio
             SET amount = ?
-            WHERE id = ?
-        ''', (float(new_amount), int(asset_id)))
+            WHERE id = ? AND user_id = ?
+        ''', (float(new_amount), int(asset_id), user_id))
 
         conn.commit()
         conn.close()
@@ -102,6 +107,8 @@ def delete_asset():
         if not asset_id:
             return jsonify({'success': False, 'message': 'Invalid data provided'}), 400
 
+        user_id = session['user_id']
+
         cursor, conn = get_db_cursor()
         if cursor is None:
             return jsonify({'error': 'Database connection failed'}), 500
@@ -109,8 +116,8 @@ def delete_asset():
         # Delete the asset from the database
         cursor.execute('''
             DELETE FROM portfolio
-            WHERE id = ?
-        ''', (int(asset_id),))
+            WHERE id = ? AND user_id = ?
+        ''', (int(asset_id), user_id))
 
         conn.commit()
         conn.close()
@@ -136,7 +143,8 @@ def delete_asset():
 @login_required
 def save_portfolio_value():
     try:
-        portfolio = read_portfolio()  # Assuming this reads your portfolio data
+        user_id = session['user_id']
+        portfolio = read_portfolio(user_id)  # Assuming this reads your portfolio data
         top_1000_cryptos = get_top_1000_crypto()  # Assuming this gets the top 1000 cryptos
 
         # Calculate the total portfolio value
@@ -150,7 +158,7 @@ def save_portfolio_value():
         if cursor is None:
             return jsonify({'error': 'Database connection failed'}), 500
 
-        cursor.execute('SELECT portfolio_value FROM portfolio_daily WHERE date = ?', (today_date,))
+        cursor.execute('SELECT portfolio_value FROM portfolio_daily WHERE user_id = ? AND date = ?', (user_id, today_date))
         existing_record = cursor.fetchone()
 
         if existing_record:
@@ -161,8 +169,8 @@ def save_portfolio_value():
                 cursor.execute('''
                     UPDATE portfolio_daily 
                     SET portfolio_value = ? 
-                    WHERE date = ?
-                ''', (total_portfolio_value, today_date))
+                    WHERE user_id = ? AND date = ?
+                ''', (total_portfolio_value, user_id, today_date))
 
                 conn.commit()
                 conn.close()
@@ -176,9 +184,9 @@ def save_portfolio_value():
 
         # If no record exists for today, insert a new record
         cursor.execute('''
-            INSERT INTO portfolio_daily (date, portfolio_value) 
-            VALUES (?, ?)
-        ''', (today_date, total_portfolio_value))
+            INSERT INTO portfolio_daily (user_id, date, portfolio_value) 
+            VALUES (?, ?, ?)
+        ''', (user_id, today_date, total_portfolio_value))
 
         conn.commit()
         conn.close()
@@ -194,8 +202,9 @@ def save_portfolio_value():
 @login_required
 def get_owned_coins():
     try:
+        user_id = session['user_id']
         # Fetch owned coins from your database
-        portfolio = read_portfolio()
+        portfolio = read_portfolio(user_id)
         return jsonify(portfolio)
     except Exception as e:
         logger.error(f"Error fetching owned coins: {e}")  # More detailed logging
@@ -244,7 +253,8 @@ def market_data():
 
 @api.context_processor
 def inject_total_portfolio_value():
-    portfolio = read_portfolio()
+    user_id = session['user_id']
+    portfolio = read_portfolio(user_id)
     top_1000_cryptos = get_top_1000_crypto()
     total_portfolio_value = calculate_portfolio_value(portfolio, top_1000_cryptos)
     return {'total_portfolio_value': total_portfolio_value}
@@ -254,7 +264,8 @@ def inject_total_portfolio_value():
 @api.route('/portfolio', methods=['GET'])
 @login_required
 def show_portfolio():
-    portfolio = read_portfolio()
+    user_id = session['user_id']
+    portfolio = read_portfolio(user_id)
     top_1000_cryptos = get_top_1000_crypto()
     total_portfolio_value = calculate_portfolio_value(portfolio, top_1000_cryptos)
 
@@ -271,8 +282,9 @@ def show_portfolio():
 @api.route('/unowned', methods=['GET'])
 @login_required
 def show_unowned_cryptos():
+    user_id = session['user_id']
     # Read the portfolio and get the top 100 cryptos from CoinGecko
-    portfolio = read_portfolio()
+    portfolio = read_portfolio(user_id)
     top_1000_cryptos = get_top_1000_crypto()
     top_100_cryptos = top_1000_cryptos[:100]  # Get only the top 100
 
@@ -307,14 +319,17 @@ def index():
         if 'user_id' not in session:
             return redirect('/login')  # Redirect to login if not logged in
 
+        # Extract the user_id from session
+        user_id = session['user_id']
+
         # Fetch owned coins
-        owned_coins = fetch_owned_coins_from_db()
+        owned_coins = fetch_owned_coins_from_db(user_id)
 
         # Fetch gainers and losers
-        gainers, losers = fetch_gainers_and_losers_owned(owned_coins)
+        gainers, losers = fetch_gainers_and_losers_owned(user_id, owned_coins)
 
         # Fetch the portfolio data that we need for calculation
-        portfolio = read_portfolio()  # Your function to read portfolio data
+        portfolio = read_portfolio(user_id)  # Your function to read portfolio data
         top_1000_cryptos = get_top_1000_crypto()  # Function to get the top 1000 cryptos
 
         # Calculate the total portfolio value
@@ -329,18 +344,22 @@ def index():
             return jsonify({'error': 'Database connection failed'}), 500
 
         # Calculate the sum of all investments in the transactions table
-        cursor.execute('SELECT SUM(price) FROM transactions')
-        total_investment = round(cursor.fetchone()[0], 2)  # Fetch the sum of prices
+        cursor.execute('SELECT SUM(price) FROM transactions WHERE user_id = ?', (user_id,))
+        sum_price = cursor.fetchone()[0]
+        total_investment = round(sum_price, 2) if sum_price is not None else 0
 
         # If there's no sum (i.e., no records), set total_investment to 0
         if total_investment is None:
             total_investment = 0
 
         # Calculate Nominal ROI
-        nominal_roi = ((total_portfolio_value - total_investment) / total_investment) * 100
+        if total_investment > 0:
+            nominal_roi = ((total_portfolio_value - total_investment) / total_investment) * 100
+        else:
+            nominal_roi = 0
         formatted_nominal_roi = f"{nominal_roi:+.2f}%"
 
-        cursor.execute('SELECT 1 FROM portfolio_daily WHERE date = ?', (today_date,))
+        cursor.execute('SELECT 1 FROM portfolio_daily WHERE date = ? AND user_id = ?', (today_date, user_id))
         existing_record = cursor.fetchone()
 
         if existing_record:
@@ -348,14 +367,14 @@ def index():
             cursor.execute('''
                 UPDATE portfolio_daily 
                 SET portfolio_value = ? 
-                WHERE date = ?
-            ''', (total_portfolio_value, today_date))
+                WHERE date = ? AND user_id = ?
+            ''', (total_portfolio_value, today_date, user_id))
         else:
             # If no record for today, insert the new portfolio_value
             cursor.execute('''
-                INSERT INTO portfolio_daily (date, portfolio_value) 
-                VALUES (?, ?)
-            ''', (today_date, total_portfolio_value))
+                INSERT INTO portfolio_daily (user_id, date, portfolio_value) 
+                VALUES (?, ?, ?)
+            ''', (user_id, today_date, total_portfolio_value))
 
         conn.commit()
 
@@ -363,9 +382,10 @@ def index():
         cursor.execute('''
             SELECT portfolio_value 
             FROM portfolio_daily 
+            WHERE user_id = ?
             ORDER BY date DESC 
             LIMIT 2
-        ''')
+        ''', (user_id,))
         records = cursor.fetchall()
         conn.close()
 
@@ -400,12 +420,13 @@ def index():
 @api.route('/outliers', methods=['GET'])
 @login_required
 def show_outliers():
+    user_id = session['user_id']
     # Fetch owned coins
-    owned_coins = fetch_owned_coins_from_db()
+    owned_coins = fetch_owned_coins_from_db(user_id)
     # print("Owned Coins:", owned_coins)  # Debugging line
 
     # Fetch gainers and losers
-    gainers, losers = fetch_gainers_and_losers_owned(owned_coins)
+    gainers, losers = fetch_gainers_and_losers_owned(user_id, owned_coins)
 
     if not gainers and not losers:
         return "Failed to fetch data from the API.", 500
@@ -440,6 +461,7 @@ def add_asset():
         name = data.get('name').strip().lower()
         abbreviation = data.get('abbreviation').strip().lower()
         amount = float(data.get('amount'))  # Ensure the amount is a float
+        user_id = session['user_id']
 
         # Connect to SQLite and check if the asset already exists
         cursor, conn = get_db_cursor()
@@ -449,8 +471,8 @@ def add_asset():
         # Query to check for existing asset by name or abbreviation
         cursor.execute('''
                 SELECT * FROM portfolio
-                WHERE name = ? OR abbreviation = ?
-            ''', (name, abbreviation))
+                WHERE user_id = ? AND (name = ? OR abbreviation = ?)
+            ''', (user_id, name, abbreviation))
         existing_asset = cursor.fetchone()
 
         if existing_asset:
@@ -460,9 +482,9 @@ def add_asset():
 
         # Insert the new asset if it doesn't exist
         cursor.execute('''
-                INSERT INTO portfolio (name, abbreviation, amount)
-                VALUES (?, ?, ?)
-            ''', (name, abbreviation, amount))
+                INSERT INTO portfolio (user_id, name, abbreviation, amount)
+                VALUES (?, ?, ?, ?)
+            ''', (user_id, name, abbreviation, amount))
 
         conn.commit()
         conn.close()

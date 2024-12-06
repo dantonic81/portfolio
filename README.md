@@ -105,7 +105,7 @@ Also there's nothing there to indicate that cards are editable when I hover abov
 - add auditing for login and registration
 
 
-- associate data with users, handle user isolation
+- associate data with users, handle user isolation (multi-tenant architecture)
 
 
 

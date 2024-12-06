@@ -121,12 +121,13 @@ def get_top_1000_crypto():
     return all_cryptos
 
 
-def fetch_gainers_and_losers_owned(owned_coins):
+def fetch_gainers_and_losers_owned(user_id, owned_coins):
     """
     Fetch the top gainers and losers for owned coins with caching.
 
     Args:
-        owned_coins (list): List of coin IDs owned (e.g., ["bitcoin", "ethereum", "dogecoin"]).
+        :param owned_coins: List of coin IDs owned (e.g., ["bitcoin", "ethereum", "dogecoin"]).
+        :param user_id:
 
     Returns:
         tuple: (list of gainers, list of losers)
@@ -135,7 +136,7 @@ def fetch_gainers_and_losers_owned(owned_coins):
     cursor = conn.cursor()
 
     # Check if cached data exists and is still valid
-    cursor.execute('SELECT timestamp FROM gainers_losers_cache WHERE owned_coins = ?', (",".join(owned_coins),))
+    cursor.execute('SELECT timestamp FROM gainers_losers_cache WHERE user_id = ? AND owned_coins = ?', (user_id, ",".join(owned_coins)))
     result = cursor.fetchone()
 
     if result:
@@ -144,8 +145,8 @@ def fetch_gainers_and_losers_owned(owned_coins):
 
         if (datetime.now() - last_cache_time).total_seconds() < CACHE_EXPIRY:
             print("Using cached data.")
-            cursor.execute('SELECT gainers, losers FROM gainers_losers_cache WHERE owned_coins = ?',
-                           (",".join(owned_coins),))
+            cursor.execute('SELECT gainers, losers FROM gainers_losers_cache WHERE user_id = ? AND owned_coins = ?',
+                           (user_id, ",".join(owned_coins)))
             cached_data = cursor.fetchone()
             conn.close()
             # Return the cached gainers and losers (they are stored as text, so need to be evaluated)
@@ -176,14 +177,15 @@ def fetch_gainers_and_losers_owned(owned_coins):
 
         # Cache the new data in SQLite
         cursor.execute('''
-            DELETE FROM gainers_losers_cache WHERE owned_coins = ?
-        ''', (",".join(owned_coins),))
+            DELETE FROM gainers_losers_cache WHERE user_id = ? AND owned_coins = ?
+        ''', (user_id, ",".join(owned_coins)))
 
         # Store the gainers and losers as text for later retrieval
         cursor.execute('''
-            INSERT INTO gainers_losers_cache (owned_coins, gainers, losers, timestamp)
-            VALUES (?, ?, ?, ?)
+            INSERT INTO gainers_losers_cache (user_id, owned_coins, gainers, losers, timestamp)
+            VALUES (?, ?, ?, ?, ?)
         ''', (
+            user_id,
             ",".join(owned_coins),
             str(gainers),  # Store as text
             str(losers),  # Store as text

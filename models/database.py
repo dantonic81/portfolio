@@ -1,3 +1,5 @@
+import os
+from werkzeug.security import generate_password_hash
 from models.db_connection import get_db_connection
 from utils.csv_loader import load_portfolio_from_csv, load_transactions_from_csv
 
@@ -40,10 +42,11 @@ def init_db():
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS portfolio (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
-            user_id INTEGER,
+            user_id INTEGER NOT NULL REFERENCES users(user_id),
             name TEXT,
-            abbreviation TEXT UNIQUE COLLATE NOCASE,
-            amount REAL
+            abbreviation TEXT COLLATE NOCASE,
+            amount REAL,
+            UNIQUE(user_id, abbreviation COLLATE NOCASE)
         )
     ''')
     cursor.execute('''
@@ -79,16 +82,17 @@ def init_db():
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS portfolio_daily (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
-            user_id INTEGER,
-            date TEXT NOT NULL UNIQUE,
+            user_id INTEGER NOT NULL REFERENCES users(user_id),
+            date TEXT NOT NULL,
             portfolio_value DECIMAL(20, 2) NOT NULL,
-            created_at TEXT DEFAULT CURRENT_TIMESTAMP
+            created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+            UNIQUE(user_id, date)
         )
     ''')
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS gainers_losers_cache (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
-            user_id INTEGER,
+            user_id INTEGER NOT NULL REFERENCES users(user_id),
             owned_coins TEXT,
             gainers TEXT,
             losers TEXT,
@@ -98,7 +102,7 @@ def init_db():
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS transactions (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
-            user_id INTEGER,
+            user_id INTEGER NOT NULL REFERENCES users(user_id),
             name TEXT NOT NULL,
             abbreviation TEXT NOT NULL,
             transaction_date TEXT NOT NULL,
@@ -111,7 +115,7 @@ def init_db():
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS alerts (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
-            user_id INTEGER,
+            user_id INTEGER NOT NULL REFERENCES users(user_id),
             name TEXT NOT NULL,
             cryptocurrency TEXT NOT NULL,
             alert_type TEXT NOT NULL,
@@ -123,7 +127,7 @@ def init_db():
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS notifications (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
-            user_id INTEGER,
+            user_id INTEGER NOT NULL REFERENCES users(user_id),
             alert_id INTEGER NOT NULL,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             notification_text TEXT NOT NULL,
@@ -146,27 +150,50 @@ def init_db():
     ''')
     conn.commit()
 
-    # Check if the portfolio table is empty before loading CSV data
-    cursor.execute('SELECT COUNT(*) FROM portfolio')
-    portfolio_count = cursor.fetchone()[0]
-    # print(portfolio_count)
+    # Ensure the default admin account exists
+    username = os.getenv('ADMIN_USERNAME')
+    email = os.getenv('ADMIN_EMAIL')
+    password = os.getenv('ADMIN_PASSWORD')
+    password_hash = generate_password_hash(password)
 
-    if portfolio_count == 0:
-        print("Loading portfolio data from CSV...")
-        load_portfolio_from_csv('crypto_portfolio.csv')
+    try:
+        cursor.execute('''
+            INSERT INTO users (username, email, password_hash, is_admin, is_active)
+            VALUES (?, ?, ?, 1, 1)
+            ON CONFLICT (email) DO NOTHING
+        ''', (username, email, password_hash))
+        conn.commit()
+
+        # Fetch the user_id of the default admin
+        cursor.execute('SELECT user_id FROM users WHERE email = ?', (email,))
+        admin_user_id = cursor.fetchone()[0]
+        print(f"Default admin account ensured: {username} ({email}) with user_id {admin_user_id}")
+    except Exception as e:
+        print(f"Error creating default admin account: {e}")
+        admin_user_id = None
+
+    # Check if the portfolio table is empty before loading CSV data and ensure admin exists before loading data
+    if admin_user_id:
+        cursor.execute('SELECT COUNT(*) FROM portfolio')
+        portfolio_count = cursor.fetchone()[0]
+
+        if portfolio_count == 0:
+            print("Loading portfolio data from CSV...")
+            load_portfolio_from_csv('crypto_portfolio.csv', admin_user_id)
+        else:
+            print("Portfolio data already loaded.")
+
+        # Check if the transactions table is empty before loading CSV data
+        cursor.execute('SELECT COUNT(*) FROM transactions')
+        transactions_count = cursor.fetchone()[0]
+
+        if transactions_count == 0:
+            print("Loading transactions data from CSV...")
+            load_transactions_from_csv('crypto_transactions.csv', admin_user_id)
+        else:
+            print("Transactions data already loaded.")
+
     else:
-        print("Portfolio data already loaded.")
-
-    # Check if the transactions table is empty before loading CSV data
-    cursor.execute('SELECT COUNT(*) FROM transactions')
-    transactions_count = cursor.fetchone()[0]
-    # print(transactions_count)
-
-    if transactions_count == 0:
-        print("Loading transactions data from CSV...")
-        load_transactions_from_csv('crypto_transactions.csv')
-    else:
-        print("Portfolio data already loaded.")
-
+        print("Admin user not created; skipping data load.")
 
     conn.close()

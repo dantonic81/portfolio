@@ -6,6 +6,6 @@ def login_required(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
         if 'user_id' not in session:
-            return redirect(url_for('api.login'))  # Redirect to login if user is not logged in
+            return redirect(url_for('login_api.login'))  # Redirect to login if user is not logged in
         return f(*args, **kwargs)
     return decorated_function
