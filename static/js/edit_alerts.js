@@ -68,6 +68,7 @@ function deleteAlert(alertId) {
                 console.error('Error deleting alert:', error);
                 alert('Failed to delete alert. Please try again later.');
             });
+        alert('Alert deleted successfully!');
     }
 }
 

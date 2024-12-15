@@ -1,4 +1,4 @@
-from flask import Blueprint, jsonify, request
+from flask import Blueprint, jsonify, request, session
 from models.db_connection import get_db_cursor
 from services.alerts import get_active_alerts
 from utils.login_required import login_required
@@ -13,7 +13,7 @@ def active_alerts():
     alerts = get_active_alerts()
 
     # Convert the list of tuples into a list of dictionaries
-    column_names = ['id', 'name', 'cryptocurrency', 'alert_type', 'threshold', 'created_at', 'status']
+    column_names = ['id', 'user_id', 'name', 'cryptocurrency', 'alert_type', 'threshold', 'created_at', 'status']
     alert_dicts = []
 
     for alert in alerts:
@@ -34,6 +34,12 @@ def set_alert():
         if field not in data:
             return jsonify({"error": f"Missing field: {field}"}), 400
 
+    # Retrieve user_id from the session
+    user_id = session['user_id']
+    if not user_id:
+        return jsonify({"error": "User not logged in"}), 401  # Ensure user_id is available
+
+
     # Insert the alert into the database
     try:
         cursor, conn = get_db_cursor()
@@ -41,10 +47,10 @@ def set_alert():
             return jsonify({'error': 'Database connection failed'}), 500
 
         query = '''
-        INSERT INTO alerts (name, cryptocurrency, alert_type, threshold)
-        VALUES (?, ?, ?, ?)
+        INSERT INTO alerts (user_id, name, cryptocurrency, alert_type, threshold)
+        VALUES (?, ?, ?, ?, ?)
         '''
-        cursor.execute(query, (data['name'], data["cryptocurrency"], data["alert_type"], data["threshold"]))
+        cursor.execute(query, (user_id, data['name'], data["cryptocurrency"], data["alert_type"], data["threshold"]))
         conn.commit()
         alert_id = cursor.lastrowid  # Get the ID of the newly created alert
         conn.close()
@@ -82,10 +88,22 @@ def get_alert(alert_id):
 @alert_api.route('/api/alert/<int:alert_id>', methods=['DELETE'])
 @login_required
 def delete_alert(alert_id):
+    # Retrieve user_id from the session
+    user_id = session['user_id']
+    if not user_id:
+        return jsonify({"error": "User not logged in"}), 401
+
     cursor, conn = get_db_cursor()
     if cursor is None:
         return jsonify({'error': 'Database connection failed'}), 500
 
+    # Check if the alert belongs to the logged-in user
+    check_query = "SELECT id FROM alerts WHERE id = ? AND user_id = ?"
+    cursor.execute(check_query, (alert_id, user_id))
+    alert = cursor.fetchone()
+
+    if not alert:
+        return jsonify({"error": "Alert not found or does not belong to the user"}), 404
 
     query = "DELETE FROM alerts WHERE id = ?"
     cursor.execute(query, (alert_id,))
