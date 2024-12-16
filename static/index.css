@@ -481,6 +481,8 @@ label {
   padding: 30px;
   border-radius: 8px;
   width: 90%;
+  max-height: 70vh; /* Limit height to 70% of viewport */
+  overflow-y: auto; /* Scroll if content exceeds height */
   max-width: 600px; /* Responsive width */
   box-shadow: 0 4px 8px rgba(0,0,0,0.1); /* Soft shadow */
   transition: transform 0.3s ease-out; /* Smooth opening */
