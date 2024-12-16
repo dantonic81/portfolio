@@ -9,6 +9,7 @@ def send_notification(alert, current_price):
 
 
 def save_notification(alert, current_price):
+    user_id = alert['user_id']
     notification_text = (
         f"{alert['name']} is now {'above' if alert['alert_type'] == 'more' else 'below'} "
         f"{alert['threshold']} USD (current price: {current_price} USD)."
@@ -20,9 +21,9 @@ def save_notification(alert, current_price):
     # Get the last active notification's price for this alert
     cursor.execute('''
         SELECT current_price FROM notifications 
-        WHERE alert_id = ? AND is_read = 0 
+        WHERE alert_id = ? AND user_id = ? AND is_read = 0 
         ORDER BY created_at DESC LIMIT 1
-    ''', (alert['id'],))
+    ''', (alert['id'], user_id))
     last_notification = cursor.fetchone()
 
     # If there is a previous notification and the price hasn't changed as required, do not insert a new notification
@@ -41,10 +42,10 @@ def save_notification(alert, current_price):
 
     # If conditions are met, insert a new notification
     query = """
-    INSERT INTO notifications (alert_id, notification_text, current_price)
-    VALUES (?, ?, ?);
+    INSERT INTO notifications (alert_id, user_id, notification_text, current_price)
+    VALUES (?, ?, ?, ?);
     """
-    values = (alert['id'], notification_text, current_price)
+    values = (alert['id'], user_id, notification_text, current_price)
 
     try:
         cursor.execute(query, values)

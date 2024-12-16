@@ -23,6 +23,9 @@ def check_alerts():
     active_alerts = get_active_alerts()
 
     for alert in active_alerts:
+        # Extract user_id from the alert
+        user_id = alert['user_id']
+
         # Get the current price data from the CoinGecko API
         price_data = get_current_price(alert['name'].lower(), target_currency='usd')
 
