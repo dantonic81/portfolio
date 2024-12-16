@@ -325,8 +325,12 @@ def index():
         # Fetch owned coins
         owned_coins = fetch_owned_coins_from_db(user_id)
 
-        # Fetch gainers and losers
-        gainers, losers = fetch_gainers_and_losers_owned(user_id, owned_coins)
+        # If no owned coins, return empty lists for gainers and losers
+        if not owned_coins:
+            gainers, losers = [], []
+        else:
+            # Fetch gainers and losers
+            gainers, losers = fetch_gainers_and_losers_owned(user_id, owned_coins)
 
         # Fetch the portfolio data that we need for calculation
         portfolio = read_portfolio(user_id)  # Your function to read portfolio data

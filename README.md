@@ -136,5 +136,4 @@ Also there's nothing there to indicate that cards are editable when I hover abov
 
 ## FIX
 
-- a new user shouldn't see any winners or losers because by default his data is nonexistent
 - button colors need work on email confirmed template
