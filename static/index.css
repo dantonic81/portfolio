@@ -367,12 +367,14 @@ h3 {
 .coin-name {
   font-size: 0.8em; /* Adjust size as needed */
   font-weight: bold;
+  text-align: left;
 }
 
 /* Secondary text (symbol) styling */
 .secondary-text {
   font-size: 0.6em;
   color: grey;
+  text-align: left;
 }
 
 .badge {
