@@ -30,17 +30,17 @@
             <form method="POST" action="{{ url_for('login_api.register') }}">
                 <div class="mb-3">
                     <label for="username" class="form-label">Username:</label>
-                    <input type="text" id="username" name="username" class="form-control" required placeholder="Enter your username">
+                    <input type="text" id="username" name="username" class="form-control" required placeholder="Enter your username" autocomplete="username">
                 </div>
 
                 <div class="mb-3">
                     <label for="email" class="form-label">Email:</label>
-                    <input type="email" id="email" name="email" class="form-control" required placeholder="Enter your email">
+                    <input type="email" id="email" name="email" class="form-control" required placeholder="Enter your email" autocomplete="email">
                 </div>
 
                 <div class="mb-3">
                     <label for="password" class="form-label">Password:</label>
-                    <input type="password" id="password" name="password" class="form-control" required placeholder="Enter your password">
+                    <input type="password" id="password" name="password" class="form-control" required placeholder="Enter your password" autocomplete="new-password">
                 </div>
 
                 <button type="submit" class="btn modern-btn-primary w-100">Register</button>

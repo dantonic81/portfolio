@@ -133,3 +133,11 @@ Also there's nothing there to indicate that cards are editable when I hover abov
 - market depth and liquidity
 - price volatility
 - database replication
+
+## FIX
+
+- there should be some padding between top winners and losers elements
+- a new user shouldn't see any winners or losers because by default his data is nonexistent
+- button colors need work on email confirmed template
+- on the navbar buttons, there should be more padding between font awesome icon and text
+- 
