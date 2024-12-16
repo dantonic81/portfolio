@@ -10,6 +10,11 @@ alert_api = Blueprint('alert_api', __name__)
 @alert_api.route('/api/active_alerts', methods=['GET'])
 @login_required
 def active_alerts():
+    # Retrieve user_id from the session
+    user_id = session['user_id']
+    if not user_id:
+        return jsonify({"error": "User not logged in"}), 401  # Ensure user_id is available
+
     alerts = get_active_alerts()
 
     # Convert the list of tuples into a list of dictionaries
@@ -20,7 +25,10 @@ def active_alerts():
         alert_dict = dict(zip(column_names, alert))
         alert_dicts.append(alert_dict)
 
-    return jsonify(alert_dicts)
+    # Filter alerts by the logged-in user's user_id
+    user_alerts = [alert for alert in alert_dicts if alert['user_id'] == user_id]
+
+    return jsonify(user_alerts)
 
 @alert_api.route('/api/set_alert', methods=['POST'])
 @login_required
