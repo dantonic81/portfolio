@@ -16,7 +16,7 @@
                 <!-- Dynamic navigation links -->
                 <li class="nav-item {% if request.endpoint and route.endpoint in request.endpoint %}active{% endif %}">
                     <a class="nav-link custom-link" href="{{ url_for('api.' ~ route.endpoint) }}" title="{{ route.label }}">
-                        <i class="fas {{ route.icon }}"></i>{{ route.label }}
+                        <i class="fas {{ route.icon }}"></i>&nbsp;{{ route.label }}
                     </a>
                 </li>
                 {% endfor %}
