@@ -59,7 +59,7 @@ def register():
         # Hash the password before storing it
         password_hash = generate_password_hash(password)
         token = str(uuid.uuid4())  # Generate a unique token
-        expiration_time = datetime.now(timezone.utc) + timedelta(minutes=5)  # Token expires in 1 hour
+        expiration_time = datetime.now(timezone.utc) + timedelta(minutes=5)  # Token expires in 5 minutes
 
         cursor, conn = get_db_cursor()
         if cursor is None:
@@ -72,23 +72,50 @@ def register():
             existing_user = cursor.fetchone()
 
             if existing_user:
-                log_audit_event(request, 'registration_attempt', username, 'failure', 'Email already exists')
-                flash("User with this email already exists.", 'error')
-                return render_template('register.html', error="User with this email already exists.")
+                # Token check if token is None or expired
+                token_expiry_str = existing_user['token_expiry']
+                if not token_expiry_str or datetime.strptime(token_expiry_str, '%Y-%m-%d %H:%M:%S.%f%z') < datetime.now(timezone.utc):
+                    # Token expired or missing, delete the user
+                    cursor.execute('DELETE FROM users WHERE email = ?', (email,))  # Remove expired user
 
-            # Proceed with the insert if email does not exist
-            cursor.execute('''INSERT INTO users (username, email, password_hash, is_active, confirmation_token, token_expiry) VALUES (?, ?, ?, 0, ?, ?)''',
-                           (username, email, password_hash, token, expiration_time))
-            conn.commit()  # Commit the transaction to ensure it's saved
+                    # Generate a new token for the new registration
+                    new_token = str(uuid.uuid4())
+                    new_expiration_time = datetime.now(timezone.utc) + timedelta(minutes=5)  # New token expires in 5 minutes
 
-            # Send confirmation email
-            confirm_link = url_for('login_api.confirm_email', token=token, email=email, _external=True)
-            email_subject = "Confirm Your Email Address"
-            email_content = f"""<p>Hi {username},</p><p>Please confirm your email by clicking below:</p><a href="{confirm_link}">Confirm Email</a>"""
-            send_email(email, email_subject, email_content)
-            flash('A confirmation email has been sent.', 'success')
+                    # Proceed with the new registration
+                    cursor.execute(
+                        'INSERT INTO users (username, email, password_hash, is_active, confirmation_token, token_expiry) VALUES (?, ?, ?, 0, ?, ?)',
+                        (username, email, password_hash, new_token, new_expiration_time))
+                    conn.commit()
 
-            return redirect(url_for('login_api.login'))  # Redirect after successful registration
+                    # Send confirmation email for new registration
+                    confirm_link = url_for('login_api.confirm_email', token=new_token, email=email, _external=True)
+                    email_subject = "Confirm Your Email Address"
+                    email_content = f"""<p>Hi {username},</p><p>Please confirm your email by clicking below:</p><a href="{confirm_link}">Confirm Email</a>"""
+                    send_email(email, email_subject, email_content)
+                    flash('A confirmation email has been sent.', 'success')
+
+                    return redirect(url_for('login_api.login'))
+                else:
+                    # Token not expired, use the existing one
+                    log_audit_event(request, 'registration_attempt', username, 'failure', 'Token not expired')
+                    flash("Confirmation link has not expired. Please use the existing link.", 'error')
+                    return render_template('register.html', error="Confirmation link has not expired.")
+            else:
+                # Proceed with the insert if email does not exist
+                cursor.execute(
+                    '''INSERT INTO users (username, email, password_hash, is_active, confirmation_token, token_expiry) VALUES (?, ?, ?, 0, ?, ?)''',
+                    (username, email, password_hash, token, expiration_time))
+                conn.commit()  # Commit the transaction to ensure it's saved
+
+                # Send confirmation email
+                confirm_link = url_for('login_api.confirm_email', token=token, email=email, _external=True)
+                email_subject = "Confirm Your Email Address"
+                email_content = f"""<p>Hi {username},</p><p>Please confirm your email by clicking below:</p><a href="{confirm_link}">Confirm Email</a>"""
+                send_email(email, email_subject, email_content)
+                flash('A confirmation email has been sent.', 'success')
+
+                return redirect(url_for('login_api.login'))  # Redirect after successful registration
 
         except Exception as e:
             log_audit_event(request, 'registration_attempt', username, 'failure', str(e))
@@ -99,7 +126,6 @@ def register():
 
     # Handle GET request: Render the registration form
     return render_template('register.html')
-
 
 
 @login_api.route('/login', methods=['GET', 'POST'])
