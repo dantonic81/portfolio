@@ -45,8 +45,8 @@
                             <div class="card-header">
                                 <h5 class="card-title text-primary">
                                     <img src="{{ asset.image or '/static/default-image.png' }}" class="crypto-logo" width="30" height="30" style="margin-right: 10px;">
-                                    {{ asset.name }}
-                                    <small class="text-muted">({{ asset.abbreviation }})</small>
+                                    {{ asset.name | capitalize }}
+                                    <small class="text-muted">({{ asset.abbreviation | upper }})</small>
                                 </h5>
                             </div>
                             <div class="card-body">

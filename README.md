@@ -139,7 +139,8 @@ Also there's nothing there to indicate that cards are editable when I hover abov
 ## FIX
 
 - confirmation email should have its expiration set
-- on the portfolio template, all tokens should be capitalized and abbreviation should be in uppercase
 - outliers should be cached so we escape error 429 too many requests
-- crypto names in alerts should also be capitalized, also in notifications
+- crypto names in set alerts should also be capitalized
+- adding a new asset should result in mame being capitalized and abbreviation being uppercased
 - notification logic should always check if an asset is still owned before creating a new notification
+- get_current_price in alerts logic should be cached

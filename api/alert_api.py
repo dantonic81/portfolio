@@ -23,6 +23,10 @@ def active_alerts():
 
     for alert in alerts:
         alert_dict = dict(zip(column_names, alert))
+        # Capitalize the 'name' field
+        if 'name' in alert_dict and isinstance(alert_dict['name'], str):
+            alert_dict['name'] = alert_dict['name'].capitalize()
+
         alert_dicts.append(alert_dict)
 
     # Filter alerts by the logged-in user's user_id

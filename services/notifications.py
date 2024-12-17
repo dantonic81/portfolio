@@ -11,7 +11,7 @@ def send_notification(alert, current_price):
 def save_notification(alert, current_price):
     user_id = alert['user_id']
     notification_text = (
-        f"{alert['name']} is now {'above' if alert['alert_type'] == 'more' else 'below'} "
+        f"{alert['name'].capitalize()} is now {'above' if alert['alert_type'] == 'more' else 'below'} "
         f"{alert['threshold']} USD (current price: {current_price} USD)."
     )
 
