@@ -488,7 +488,7 @@ def add_asset():
         cursor.execute('''
                 INSERT INTO portfolio (user_id, name, abbreviation, amount)
                 VALUES (?, ?, ?, ?)
-            ''', (user_id, name, abbreviation, amount))
+            ''', (user_id, name.capitalize(), abbreviation.upper(), amount))
 
         conn.commit()
         conn.close()
