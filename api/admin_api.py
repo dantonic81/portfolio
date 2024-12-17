@@ -14,7 +14,7 @@ def view_users():
     if cursor is None:
         return "Database connection failed.", 500
 
-    cursor.execute("SELECT user_id, username, email, is_active FROM users WHERE NOT is_deleted")
+    cursor.execute("SELECT user_id, username, email, is_active, is_admin FROM users WHERE NOT is_deleted")
     users = cursor.fetchall()
     conn.close()
 
