@@ -1,4 +1,6 @@
 from flask import Blueprint, render_template, request, flash, redirect, url_for
+from werkzeug.security import generate_password_hash
+
 from models.db_connection import get_db_cursor
 from services.admin import admin_required
 
@@ -39,10 +41,10 @@ def create_user():
     """Create a new user."""
     username = request.form.get('username')
     email = request.form.get('email')
-    password_hash = request.form.get('password_hash')  # Assume password comes hashed already
+    password = request.form.get('password')  # Capture plain text password
     is_admin = request.form.get('is_admin') == 'on'  # Check if checkbox is on
 
-    if not username or not email or not password_hash:
+    if not username or not email or not password:
         flash("All fields are required to create a user.", "danger")
         return redirect(url_for('admin_api.view_users'))
 
@@ -51,12 +53,15 @@ def create_user():
         if cursor is None:
             return "Database connection failed.", 500
 
+        # Hash the password before saving it
+        hashed_password = generate_password_hash(password)
+
         cursor.execute(
             """
             INSERT INTO users (username, email, password_hash, is_active, is_admin)
             VALUES (?, ?, ?, 1, ?)
             """,
-            (username, email, password_hash, is_admin)
+            (username, email, hashed_password, is_admin)
         )
         conn.commit()
         flash("User created successfully.", "success")
