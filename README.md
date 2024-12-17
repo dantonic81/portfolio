@@ -136,7 +136,7 @@ Also there's nothing there to indicate that cards are editable when I hover abov
 - database replication
 - we should add funtionality to add to portfolio button
 - add create user to admin
-- add delete user to admin
+- add delete user to admin (implement soft deletes)
 
 
 ## FIX
