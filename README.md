@@ -133,7 +133,13 @@ Also there's nothing there to indicate that cards are editable when I hover abov
 - market depth and liquidity
 - price volatility
 - database replication
+- we should add funtionality to add to portfolio button
+
 
 ## FIX
 
 - confirmation email should have its expiration set
+- on the portfolio template, all tokens should be capitalized and abbreviation should be in uppercase
+- outliers should be cached so we escape error 429 too many requests
+- crypto names in alerts should also be capitalized, also in notifications
+- notification logic should always check if an asset is still owned before creating a new notification
