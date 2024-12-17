@@ -142,5 +142,4 @@ Also there's nothing there to indicate that cards are editable when I hover abov
 ## FIX
 
 - outliers should be cached so we escape error 429 too many requests
-- notification logic should always check if an asset is still owned before creating a new notification
 - get_current_price in alerts logic should be cached

@@ -1,5 +1,9 @@
+import sqlite3
+
 from models.database import get_db_connection
 from datetime import datetime
+
+from models.db_connection import get_db_cursor
 from utils.coingecko import get_current_price
 from services.notifications import save_notification, send_notification
 
@@ -32,11 +36,32 @@ def check_alerts():
         if price_data is not None:
             current_price = price_data
 
-            # Check the condition (based on the alert type)
-            if (alert['alert_type'] == 'more' and current_price > alert['threshold']) or \
-               (alert['alert_type'] == 'less' and current_price < alert['threshold']):
-                save_notification(alert, current_price)
-                # Trigger a notification
-                send_notification(alert, current_price)
+            # Check if the coin is still in the user's portfolio
+            cursor, conn = get_db_cursor()
+            if cursor is None:
+                print(f"Error: No database connection available for user {user_id}")
+                continue
+
+            try:
+                cursor.execute('SELECT * FROM portfolio WHERE user_id = ? AND name = ?', (user_id, alert['name']))
+                portfolio_record = cursor.fetchone()
+
+                if portfolio_record:
+                    # Check the condition (based on the alert type)
+                    if (alert['alert_type'] == 'more' and current_price > alert['threshold']) or \
+                       (alert['alert_type'] == 'less' and current_price < alert['threshold']):
+                        save_notification(alert, current_price)
+                        # Trigger a notification
+                        send_notification(alert, current_price)
+                else:
+                    # Coin is no longer in the portfolio, skip notification
+                    print(f"Coin {alert['name']} is no longer in the portfolio for user {user_id}")
+
+
+            except sqlite3.Error as e:
+                print(f"Error checking portfolio for user {user_id}: {e}")
+
+            finally:
+                conn.close()
         else:
             print(f"Error: No price data available for {alert['name']}")
