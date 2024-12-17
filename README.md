@@ -136,4 +136,4 @@ Also there's nothing there to indicate that cards are editable when I hover abov
 
 ## FIX
 
-- button colors need work on email confirmed template
+- confirmation email should have its expiration set
