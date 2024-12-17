@@ -12,7 +12,7 @@ def view_users():
     if cursor is None:
         return "Database connection failed.", 500
 
-    cursor.execute("SELECT user_id, username, email, is_active FROM users")
+    cursor.execute("SELECT user_id, username, email, is_active FROM users WHERE NOT is_deleted")
     users = cursor.fetchall()
     conn.close()
 
@@ -71,20 +71,18 @@ def create_user():
 @admin_api.route('/admin/users/delete/<int:user_id>', methods=['POST'])
 @admin_required
 def delete_user(user_id):
-    """Delete a user by ID."""
-    try:
-        cursor, conn = get_db_cursor()
-        if cursor is None:
-            return "Database connection failed.", 500
+    cursor, conn = get_db_cursor()
+    if cursor is None:
+        return "Database connection failed.", 500
 
-        cursor.execute("DELETE FROM users WHERE user_id = ?", (user_id,))
-        if cursor.rowcount == 0:
-            flash("User not found.", "warning")
-        else:
-            conn.commit()
-            flash("User deleted successfully.", "success")
+    try:
+        # Perform a soft delete by setting is_deleted to TRUE
+        cursor.execute("UPDATE users SET is_deleted = 1 WHERE user_id = ?", (user_id,))
+        conn.commit()
+        flash('User marked as deleted.', 'success')
     except Exception as e:
-        flash(f"Error deleting user: {str(e)}", "danger")
+        conn.rollback()
+        flash(f'Error marking user as deleted: {e}', 'danger')
     finally:
         conn.close()
 

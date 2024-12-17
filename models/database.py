@@ -20,6 +20,7 @@ def init_db():
             is_admin BOOLEAN DEFAULT 0,
             confirmation_token TEXT,
             token_expiry TEXT,
+            is_deleted BOOLEAN DEFAULT 0,
             created_at TEXT DEFAULT (DATETIME('now'))
         )
     ''')

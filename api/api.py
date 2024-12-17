@@ -319,6 +319,15 @@ def index():
         if 'user_id' not in session:
             return redirect('/login')  # Redirect to login if not logged in
 
+        # Validate that user exists in the database
+        cursor, conn = get_db_cursor()
+        cursor.execute('SELECT 1 FROM users WHERE user_id = ?', (session['user_id'],))
+        user_exists = cursor.fetchone()
+
+        if not user_exists:
+            session.clear()  # Clear invalid session
+            return redirect('/login')  # Redirect to login
+
         # Extract the user_id from session
         user_id = session['user_id']
 
