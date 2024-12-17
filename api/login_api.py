@@ -3,28 +3,36 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from models.db_connection import get_db_cursor
 from services.email import send_email
 from utils.auditing import log_audit_event
+import uuid
+from datetime import datetime, timedelta, timezone
 
 login_api = Blueprint('login_api', __name__)
 
 
 @login_api.route('/confirm_email')
 def confirm_email():
-    email = request.args.get('email')
-    if not email:
-        return "Invalid confirmation link.", 400  # Return an error if no email is provided
+    token = request.args.get('token')
+    if not token:
+        return "Invalid confirmation link.", 400  # Return an error if no token is provided
 
     cursor, conn = get_db_cursor()
     if cursor is None:
         return "Database connection failed.", 500
 
     try:
-        cursor.execute('SELECT * FROM users WHERE email = ?', (email,))
+        cursor.execute('SELECT * FROM users WHERE confirmation_token = ?', (token,))
         user = cursor.fetchone()
 
         if not user:
-            return "User not found.", 404
+            return "Invalid or expired link.", 404
 
-        cursor.execute('UPDATE users SET is_active = 1 WHERE email = ?', (email,))
+        token_expiry_str = user['token_expiry']
+        token_expiry = datetime.strptime(token_expiry_str, '%Y-%m-%d %H:%M:%S.%f%z')
+        # Check token expiration11
+        if token_expiry < datetime.now(timezone.utc):
+            return "Confirmation link has expired.", 400  # If the token is expired
+
+        cursor.execute('UPDATE users SET is_active = 1, confirmation_token = NULL, token_expiry = NULL WHERE confirmation_token = ?', (token,))
         conn.commit()  # Commit the email confirmation update
 
         return render_template('email_confirmed.html')
@@ -50,6 +58,9 @@ def register():
 
         # Hash the password before storing it
         password_hash = generate_password_hash(password)
+        token = str(uuid.uuid4())  # Generate a unique token
+        expiration_time = datetime.now(timezone.utc) + timedelta(minutes=5)  # Token expires in 1 hour
+
         cursor, conn = get_db_cursor()
         if cursor is None:
             log_audit_event(request, 'registration_attempt', username, 'failure', 'Database connection failed')
@@ -66,12 +77,12 @@ def register():
                 return render_template('register.html', error="User with this email already exists.")
 
             # Proceed with the insert if email does not exist
-            cursor.execute('''INSERT INTO users (username, email, password_hash, is_active) VALUES (?, ?, ?, 0)''',
-                           (username, email, password_hash))
+            cursor.execute('''INSERT INTO users (username, email, password_hash, is_active, confirmation_token, token_expiry) VALUES (?, ?, ?, 0, ?, ?)''',
+                           (username, email, password_hash, token, expiration_time))
             conn.commit()  # Commit the transaction to ensure it's saved
 
             # Send confirmation email
-            confirm_link = url_for('login_api.confirm_email', email=email, _external=True)
+            confirm_link = url_for('login_api.confirm_email', token=token, email=email, _external=True)
             email_subject = "Confirm Your Email Address"
             email_content = f"""<p>Hi {username},</p><p>Please confirm your email by clicking below:</p><a href="{confirm_link}">Confirm Email</a>"""
             send_email(email, email_subject, email_content)

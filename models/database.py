@@ -18,6 +18,8 @@ def init_db():
             password_hash TEXT NOT NULL,
             is_active BOOLEAN DEFAULT 0,
             is_admin BOOLEAN DEFAULT 0,
+            confirmation_token TEXT,
+            token_expiry TEXT,
             created_at TEXT DEFAULT (DATETIME('now'))
         )
     ''')
