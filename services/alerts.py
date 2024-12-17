@@ -12,14 +12,23 @@ def get_active_alerts():
     conn = get_db_connection()
     cursor = conn.cursor()
 
-    query = "SELECT * FROM alerts WHERE status = 'active'"  # Only fetch active alerts
-    cursor.execute(query)
+    # Fetch only active alerts
+    cursor.execute("SELECT * FROM alerts WHERE status = 'active'")
+    active_alerts = cursor.fetchall()
 
-    alerts = cursor.fetchall()
+    for alert in active_alerts:
+        # Check if the coin is still in the user's portfolio
+        cursor.execute('SELECT * FROM portfolio WHERE user_id = ? AND name = ?', (alert['user_id'], alert['name']))
+        portfolio_record = cursor.fetchone()
+
+        if not portfolio_record:
+            # Coin is no longer in the portfolio, mark the alert as inactive
+            cursor.execute('UPDATE alerts SET status = ? WHERE id = ?', ('inactive', alert['id']))
+            conn.commit()
+            print(f"Alert for {alert['name']} is marked as inactive due to portfolio change.")
+
     conn.close()
-
-    return alerts
-
+    return active_alerts
 
 # Define the job that checks alerts
 def check_alerts():
