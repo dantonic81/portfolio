@@ -76,10 +76,17 @@ def delete_user(user_id):
         return "Database connection failed.", 500
 
     try:
-        # Perform a soft delete by setting is_deleted to TRUE
-        cursor.execute("UPDATE users SET is_deleted = 1 WHERE user_id = ?", (user_id,))
-        conn.commit()
-        flash('User marked as deleted.', 'success')
+        # Exclude the user being deleted from the count
+        cursor.execute("SELECT COUNT(*) FROM users WHERE is_deleted = 0 AND is_admin = 1 AND user_id != ?", (user_id,))
+        remaining_admins = cursor.fetchone()[0]
+
+        if remaining_admins <= 0:
+            flash('Cannot delete the last admin user.', 'danger')
+        else:
+            # Perform a soft delete by setting is_deleted to TRUE
+            cursor.execute("UPDATE users SET is_deleted = 1 WHERE user_id = ?", (user_id,))
+            conn.commit()
+            flash('User marked as deleted.', 'success')
     except Exception as e:
         conn.rollback()
         flash(f'Error marking user as deleted: {e}', 'danger')
