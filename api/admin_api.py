@@ -33,15 +33,12 @@ def view_users():
     users, error = handle_db_query(query)
 
     if error:
-        # Handle query failure
         flash("Error retrieving user data. Please try again later.", "danger")
         return render_template('admin_users.html', users=[])
 
     if not users:
-        # Handle case where no users exist
         flash("No users found. You can add new users below.", "info")
 
-    # Render the page regardless, passing the users list
     return render_template('admin_users.html', users=users)
 
 
@@ -52,14 +49,11 @@ def view_audits():
     audits, error = handle_db_query(query)
 
     if error:
-        # Handle database query failure
         flash("Error retrieving audit logs. Please try again later.", "danger")
         return render_template('admin_audit_log.html', audits=[])
     if not audits:
-        # Handle case where there are no audit logs
         flash("No audit logs available.", "info")
 
-    # Render the audit log template, passing the results (even if empty)
     return render_template('admin_audit_log.html', audits=audits)
 
 
@@ -86,7 +80,7 @@ def create_user():
         _, error = handle_db_query(query, params)
 
         if error:
-            flash(error, "danger")
+            flash("Error creating user: " + error, "danger")
         else:
             flash("User created successfully.", "success")
     except Exception as e:
