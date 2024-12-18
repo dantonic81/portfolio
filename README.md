@@ -135,7 +135,7 @@ Also there's nothing there to indicate that cards are editable when I hover abov
 - price volatility
 - database replication
 - we should add funtionality to add to portfolio button
-
+- right now we're just creating and deleting users, we need functionality to edit them and change roles as well
 
 ## FIX
 
