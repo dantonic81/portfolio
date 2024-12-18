@@ -10,6 +10,7 @@ from models.database import init_db
 from utils.scheduler import configure_scheduler
 from services.alerts import check_alerts
 from flask_session import Session
+from utils.logger import logger
 
 
 load_dotenv()
@@ -27,19 +28,29 @@ app.register_blueprint(alert_api)
 app.register_blueprint(notification_api)
 
 
-API_KEY = os.environ.get("API_KEY")
-# API_KEY = os.getenv("API_KEY")
+API_KEY = os.getenv("API_KEY")
 if not API_KEY:
     raise EnvironmentError("API_KEY is not set in the environment variables.")
+logger.info("App is starting...")
 
-# initialize the database and create default admin
-init_db()
+try:
+    logger.info("Initializing database.")
+    init_db()
+    logger.info("Database initialized successfully.")
+except Exception as e:
+    raise RuntimeError(f"Failed to initialize the database: {e}")
 
-# Configure the scheduler
-configure_scheduler(app, check_alerts)  # Pass your app and the function to the scheduler
 
+try:
+    logger.info("Adding jobs to schedule.")
+    configure_scheduler(app, check_alerts)
+    logger.info("Scheduler configured successfully.")
+except Exception as e:
+    raise RuntimeError(f"Failed to configure the scheduler: {e}")
 
 # Run the Flask web server on port 8000
 if __name__ == '__main__':
-    # init_db()
-    app.run(host='0.0.0.0', port=8000)
+    app.run(
+        host=os.environ.get('FLASK_HOST', '0.0.0.0'),
+        port=int(os.environ.get('FLASK_PORT', 8000))
+    )
