@@ -30,34 +30,6 @@ def configure_scheduler(app: Flask, check_alerts_func: Callable) -> None:
         scheduler.start()
         logger.info("Scheduler started and 'check_alerts' job added successfully.")
 
-        # Register the scheduler for shutdown
-        @app.teardown_appcontext
-        def cleanup_scheduler(exception=None):
-            shutdown_scheduler(scheduler)
-
-        # Handle shutdown signals for graceful termination
-        def handle_shutdown(*args, **kwargs):
-            logger.info("Received shutdown signal, shutting down the scheduler...")
-            shutdown_scheduler(scheduler)
-
     except Exception as e:
         logger.error(f"Failed to initialize the scheduler: {e}")
         raise
-
-
-def shutdown_scheduler(scheduler: APScheduler) -> None:
-    """
-    Stops the APScheduler gracefully.
-
-    Args:
-        scheduler (APScheduler): The scheduler instance to shut down.
-
-    Raises:
-        Exception: If an error occurs during the scheduler shutdown.
-    """
-    try:
-        logger.info("Initiating scheduler shutdown...")
-        scheduler.shutdown(wait=True)  # Wait for running jobs to finish
-        logger.info("Scheduler shut down successfully.")
-    except Exception as e:
-        logger.error(f"Error while shutting down scheduler: {e}")

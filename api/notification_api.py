@@ -20,9 +20,12 @@ def get_notifications():
     if cursor is None:
         return jsonify({'error': 'Database connection failed'}), 500
 
-    cursor.execute(query, (user_id,))
-    notifications = cursor.fetchall()
-    conn.close()
+    try:
+        cursor.execute(query, (user_id,))
+        notifications = cursor.fetchall()
+        conn.close()
+    except sqlite3.Error as e:
+        return jsonify({"error": str(e)}), 500
     # Format notifications into a list of dictionaries for JSON response
     notifications_dict = [
         {
@@ -52,20 +55,14 @@ def mark_notification_as_read(notification_id):
     if cursor is None:
         return jsonify({'error': 'Database connection failed'}), 500
 
-    cursor.execute(check_query, (notification_id,))
-    result = cursor.fetchone()
-
-    if not result or result[0] != user_id:
-        conn.close()
-        return jsonify({'error': 'Notification does not belong to the current user'}), 403
-
-
-    query = "UPDATE notifications SET is_read = 1 WHERE id = ?;"  # SQLite uses ? as a placeholder
-    cursor, conn = get_db_cursor()
-    if cursor is None:
-        return jsonify({'error': 'Database connection failed'}), 500
-
     try:
+        cursor.execute(check_query, (notification_id,))
+        result = cursor.fetchone()
+
+        if not result or result[0] != user_id:
+            return jsonify({'error': 'Notification does not belong to the current user'}), 403
+
+        query = "UPDATE notifications SET is_read = 1 WHERE id = ?;"  # SQLite uses ? as a placeholder
         cursor.execute(query, (notification_id,))
         conn.commit()
         return jsonify({"message": "Notification marked as read."})
@@ -87,7 +84,11 @@ def get_unread_count():
     if cursor is None:
         return jsonify({'error': 'Database connection failed'}), 500
 
-    cursor.execute(query, (user_id,))
-    count = cursor.fetchone()[0]
-    conn.close()
+    try:
+        cursor.execute(query, (user_id,))
+        count = cursor.fetchone()[0]
+        conn.close()
+    except sqlite3.Error as e:
+        return jsonify({"error": str(e)}), 500
+
     return jsonify({"unread_count": count})
