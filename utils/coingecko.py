@@ -34,7 +34,7 @@ class CryptoData(BaseModel):
     market_cap: Optional[int]
     market_cap_rank: Optional[int]
     fully_diluted_valuation: Optional[int]
-    total_volume: Optional[int]
+    total_volume: Optional[float]
     high_24h: Optional[float]
     low_24h: Optional[float]
     price_change_24h: Optional[float]
