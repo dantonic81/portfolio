@@ -9,6 +9,14 @@ from datetime import datetime, timedelta, timezone
 login_api = Blueprint('login_api', __name__)
 
 
+def send_confirmation_email(username, email, token):
+    confirm_link = url_for('login_api.confirm_email', token=token, email=email, _external=True)
+    email_subject = "Confirm Your Email Address"
+    email_content = f"""<p>Hi {username},</p><p>Please confirm your email by clicking below:</p><a href="{confirm_link}">Confirm Email</a> <p>If you didn’t request this, please ignore this email.</p><p>Best regards,</p><p>Your Crypto Portfolio Team</p>"""
+    send_email(email, email_subject, email_content)
+    flash('A confirmation email has been sent.', 'success')
+
+
 @login_api.route('/confirm_email')
 def confirm_email():
     token = request.args.get('token')
@@ -88,11 +96,10 @@ def register():
                         (username, email, password_hash, new_token, new_expiration_time))
                     conn.commit()
 
-                    # Send confirmation email for new registration
-                    confirm_link = url_for('login_api.confirm_email', token=new_token, email=email, _external=True)
-                    email_subject = "Confirm Your Email Address"
-                    email_content = f"""<p>Hi {username},</p><p>Please confirm your email by clicking below:</p><a href="{confirm_link}">Confirm Email</a>"""
-                    send_email(email, email_subject, email_content)
+                    # Render the HTML email template
+                    confirm_link = url_for('login_api.confirm_email', token=new_token, _external=True)
+                    email_content = render_template('email.html', username=username, confirm_link=confirm_link)
+                    send_email(email, "Confirm Your Email Address", email_content)
                     flash('A confirmation email has been sent.', 'success')
 
                     return redirect(url_for('login_api.login'))
@@ -108,11 +115,10 @@ def register():
                     (username, email, password_hash, token, expiration_time))
                 conn.commit()  # Commit the transaction to ensure it's saved
 
-                # Send confirmation email
-                confirm_link = url_for('login_api.confirm_email', token=token, email=email, _external=True)
-                email_subject = "Confirm Your Email Address"
-                email_content = f"""<p>Hi {username},</p><p>Please confirm your email by clicking below:</p><a href="{confirm_link}">Confirm Email</a> <p>If you didn’t request this, please ignore this email.</p><p>Best regards,</p><p>Your Crypto Portfolio Team</p>"""
-                send_email(email, email_subject, email_content)
+                # Render the HTML email template
+                confirm_link = url_for('login_api.confirm_email', token=token, _external=True)
+                email_content = render_template('email.html', username=username, confirm_link=confirm_link)
+                send_email(email, "Confirm Your Email Address", email_content)
                 flash('A confirmation email has been sent.', 'success')
 
                 return redirect(url_for('login_api.login'))  # Redirect after successful registration

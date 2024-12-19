@@ -8,6 +8,7 @@ from typing import Tuple, Optional
 SENDGRID_API_KEY = os.getenv('SENDGRID_API_KEY')
 SENDGRID_FROM_EMAIL = os.getenv('SENDGRID_FROM_EMAIL')
 
+
 def send_email(to_email: str, subject: str, content: str) -> Optional[Tuple[int, str, dict]]:
     """
     Sends an email using SendGrid.
