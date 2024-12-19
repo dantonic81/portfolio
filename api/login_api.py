@@ -111,7 +111,7 @@ def register():
                 # Send confirmation email
                 confirm_link = url_for('login_api.confirm_email', token=token, email=email, _external=True)
                 email_subject = "Confirm Your Email Address"
-                email_content = f"""<p>Hi {username},</p><p>Please confirm your email by clicking below:</p><a href="{confirm_link}">Confirm Email</a>"""
+                email_content = f"""<p>Hi {username},</p><p>Please confirm your email by clicking below:</p><a href="{confirm_link}">Confirm Email</a> <p>If you didn’t request this, please ignore this email.</p><p>Best regards,</p><p>Your Crypto Portfolio Team</p>"""
                 send_email(email, email_subject, email_content)
                 flash('A confirmation email has been sent.', 'success')
 

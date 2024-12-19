@@ -1,19 +1,32 @@
 import os
 from sendgrid import SendGridAPIClient
 from sendgrid.helpers.mail import Mail
+from typing import Tuple, Optional
 
+
+# Retrieve the SendGrid API key from environment variables
 SENDGRID_API_KEY = os.getenv('SENDGRID_API_KEY')
-print(SENDGRID_API_KEY)
-def send_email(to_email, subject, content):
+SENDGRID_FROM_EMAIL = os.getenv('SENDGRID_FROM_EMAIL')
+
+def send_email(to_email: str, subject: str, content: str) -> Optional[Tuple[int, str, dict]]:
     """
     Sends an email using SendGrid.
-    :param to_email: Recipient's email address
-    :param subject: Email subject
-    :param content: Email content (HTML or plain text)
+
+    Args:
+        to_email (str): Recipient's email address.
+        subject (str): Email subject.
+        content (str): Email content (HTML or plain text).
+
+    Returns:
+        Optional[Tuple[int, str, dict]]: Tuple containing the response status code, body, and headers, or `None` if an error occurs.
     """
+    if not SENDGRID_API_KEY or not SENDGRID_FROM_EMAIL:
+        print("Error: Required environment variables are not set.")
+        return None
+
     try:
         message = Mail(
-            from_email=os.getenv('SENDGRID_FROM_EMAIL'),
+            from_email=SENDGRID_FROM_EMAIL,
             to_emails=to_email,
             subject=subject,
             html_content=content

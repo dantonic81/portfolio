@@ -23,8 +23,9 @@ def log_audit_event(request, event_type: str, username: str, status: str, error_
 
     while retries > 0:
         try:
-            # Use context manager for DB connection
-            with get_db_cursor() as (cursor, conn):
+            # Get the connection and cursor
+            cursor, conn = get_db_cursor()
+            try:
                 cursor.execute('''
                     INSERT INTO audit_log (event_type, username, ip_address, user_agent, status, error_message)
                     VALUES (?, ?, ?, ?, ?, ?)
@@ -32,6 +33,10 @@ def log_audit_event(request, event_type: str, username: str, status: str, error_
                 conn.commit()
                 logger.info(f"Audit event logged successfully: event_type={event_type}, username={username}")
                 return  # Exit after successful logging
+            finally:
+                # Ensure cursor and connection are closed
+                cursor.close()
+                conn.close()
 
         except sqlite3.OperationalError as e:
             # Retry only on database lock
