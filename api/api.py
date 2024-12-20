@@ -315,7 +315,6 @@ def show_unowned_cryptos():
 @api.route('/')
 def index():
     try:
-        print(session)
         if 'user_id' not in session:
             return redirect('/login')  # Redirect to login if not logged in
 
@@ -436,7 +435,6 @@ def show_outliers():
     user_id = session['user_id']
     # Fetch owned coins
     owned_coins = fetch_owned_coins_from_db(user_id)
-    # print("Owned Coins:", owned_coins)  # Debugging line
 
     # Fetch gainers and losers
     gainers, losers = fetch_gainers_and_losers_owned(user_id, owned_coins)

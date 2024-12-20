@@ -179,7 +179,5 @@ def login():
 
 @login_api.route('/logout', methods=['POST'])
 def logout():
-    # Debugging log: Print the session before logout
-    print(session)
     session.clear()
     return jsonify({'message': 'Logout successful!'}), 200
