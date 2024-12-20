@@ -3,6 +3,7 @@ from utils.logger import logger
 from flask import Flask
 from typing import Callable
 
+
 def configure_scheduler(app: Flask, check_alerts_func: Callable) -> None:
     """
     Configures and starts the APScheduler for the Flask application.

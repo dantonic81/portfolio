@@ -3,7 +3,7 @@ from datetime import datetime
 from typing import List, Tuple, Optional, Dict, Any
 import requests
 from models.database import get_db_connection
-from pydantic import BaseModel, ValidationError, Field
+from pydantic import BaseModel, ValidationError
 import json
 
 
@@ -53,7 +53,7 @@ class CryptoData(BaseModel):
     last_updated: Optional[str]
 
 
-def fetch_data_from_api(endpoint: str, params: Dict[str, Any]) -> Optional[List[Dict[str, Any]]]:
+def fetch_data_from_api(endpoint: str, params: Dict[str, Any]) -> Optional[Dict[str, Any]]:
     """
     Fetch data from CoinGecko API.
 
@@ -193,7 +193,7 @@ def get_top_1000_crypto() -> List[Dict[str, Any]]:
     conn.commit()
     conn.close()
 
-    return [crypto.dict() for crypto in all_cryptos]
+    return [crypto.model_dump() for crypto in all_cryptos]
 
 
 def fetch_gainers_and_losers_owned(user_id: int, owned_coins: List[str]) -> Tuple[List[Dict[str, Any]], List[Dict[str, Any]]]:

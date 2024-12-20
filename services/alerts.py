@@ -1,8 +1,7 @@
 import sqlite3
 
 from models.database import get_db_connection
-from datetime import datetime
-
+from utils.logger import logger
 from models.db_connection import get_db_cursor
 from utils.coingecko import get_current_price
 from services.notifications import save_notification, send_notification
@@ -25,14 +24,14 @@ def get_active_alerts():
             # Coin is no longer in the portfolio, mark the alert as inactive
             cursor.execute('UPDATE alerts SET status = ? WHERE id = ?', ('inactive', alert['id']))
             conn.commit()
-            print(f"Alert for {alert['name']} is marked as inactive due to portfolio change.")
+            logger.warning(f"Alert for {alert['name']} is marked as inactive due to portfolio change.")
 
     conn.close()
     return active_alerts
 
+
 # Define the job that checks alerts
 def check_alerts():
-    print("Checking alerts at", datetime.now())
     active_alerts = get_active_alerts()
 
     for alert in active_alerts:
@@ -48,7 +47,7 @@ def check_alerts():
             # Check if the coin is still in the user's portfolio
             cursor, conn = get_db_cursor()
             if cursor is None:
-                print(f"Error: No database connection available for user {user_id}")
+                logger.warning(f"Error: No database connection available for user {user_id}")
                 continue
 
             try:
@@ -64,13 +63,13 @@ def check_alerts():
                         send_notification(alert, current_price)
                 else:
                     # Coin is no longer in the portfolio, skip notification
-                    print(f"Coin {alert['name']} is no longer in the portfolio for user {user_id}")
+                    logger.warning(f"Coin {alert['name']} is no longer in the portfolio for user {user_id}")
 
 
             except sqlite3.Error as e:
-                print(f"Error checking portfolio for user {user_id}: {e}")
+                logger.error(f"Error checking portfolio for user {user_id}: {e}")
 
             finally:
                 conn.close()
         else:
-            print(f"Error: No price data available for {alert['name']}")
+            logger.info(f"Error: No price data available for {alert['name']}")
