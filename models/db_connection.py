@@ -1,5 +1,8 @@
 import sqlite3
 from typing import Optional, Tuple
+from utils.logger import logger
+
+
 DATABASE = 'crypto_portfolio.db'
 
 
@@ -29,9 +32,11 @@ def get_db_cursor() -> Tuple[Optional[sqlite3.Cursor], Optional[sqlite3.Connecti
     """
     try:
         conn = get_db_connection()
+        if conn is None:
+            return None, None
+
         cursor = conn.cursor()
         return cursor, conn
     except sqlite3.Error as e:
-        # Log error if logging is set up, or print for simplicity
-        print(f"Error obtaining database cursor: {e}")
+        logger.error(f"Error obtaining database cursor: {e}")
         return None, None
