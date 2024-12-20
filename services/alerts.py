@@ -1,75 +1,77 @@
-import sqlite3
-
+from datetime import datetime
 from models.database import get_db_connection
 from utils.logger import logger
-from models.db_connection import get_db_cursor
+from typing import List, Dict, Any
 from utils.coingecko import get_current_price
 from services.notifications import save_notification, send_notification
 
 
-def get_active_alerts():
-    conn = get_db_connection()
-    cursor = conn.cursor()
+def get_active_alerts() -> List[Dict[str, Any]]:
+    """
+    Fetch active alerts from the database and deactivate any alerts for coins no longer in the user's portfolio.
 
-    # Fetch only active alerts
-    cursor.execute("SELECT * FROM alerts WHERE status = 'active'")
-    active_alerts = cursor.fetchall()
+    Returns:
+        List[Dict[str, Any]]: List of active alerts.
+    """
+    with get_db_connection() as conn:
+        cursor = conn.cursor()
 
-    for alert in active_alerts:
-        # Check if the coin is still in the user's portfolio
-        cursor.execute('SELECT * FROM portfolio WHERE user_id = ? AND name = ?', (alert['user_id'], alert['name']))
-        portfolio_record = cursor.fetchone()
+        # Fetch only active alerts
+        cursor.execute("SELECT * FROM alerts WHERE status = 'active'")
+        active_alerts = cursor.fetchall()
 
-        if not portfolio_record:
-            # Coin is no longer in the portfolio, mark the alert as inactive
-            cursor.execute('UPDATE alerts SET status = ? WHERE id = ?', ('inactive', alert['id']))
-            conn.commit()
-            logger.warning(f"Alert for {alert['name']} is marked as inactive due to portfolio change.")
+        for alert in active_alerts:
+            # Check if the coin is still in the user's portfolio
+            cursor.execute('SELECT * FROM portfolio WHERE user_id = ? AND name = ?', (alert['user_id'], alert['name']))
+            portfolio_record = cursor.fetchone()
 
-    conn.close()
+            if not portfolio_record:
+                # Coin is no longer in the portfolio, mark the alert as inactive
+                cursor.execute('UPDATE alerts SET status = ? WHERE id = ?', ('inactive', alert['id']))
+                conn.commit()
+                logger.warning(f"Alert for {alert['name']} is marked as inactive due to portfolio change.")
+
     return active_alerts
 
 
-# Define the job that checks alerts
-def check_alerts():
+def is_alert_condition_met(alert: Dict[str, Any], current_price: float) -> bool:
+    """
+    Check whether an alert condition is met based on the current price.
+
+    Args:
+        alert (Dict[str, Any]): The alert to check.
+        current_price (float): The current price of the cryptocurrency.
+
+    Returns:
+        bool: True if the alert condition is met, otherwise False.
+    """
+    if alert['alert_type'] == 'more' and current_price > alert['threshold']:
+        return True
+    if alert['alert_type'] == 'less' and current_price < alert['threshold']:
+        return True
+    return False
+
+
+def check_alerts() -> None:
+    """
+    Check all active alerts and trigger notifications if alert conditions are met.
+    """
+    logger.info(f"Checking alerts at {datetime.now()}")
     active_alerts = get_active_alerts()
 
     for alert in active_alerts:
-        # Extract user_id from the alert
-        user_id = alert['user_id']
-
-        # Get the current price data from the CoinGecko API
         price_data = get_current_price(alert['name'].lower(), target_currency='usd')
 
-        if price_data is not None:
-            current_price = price_data
+        if price_data is None:
+            logger.error(f"No price data available for {alert['name']}")
+            continue
 
-            # Check if the coin is still in the user's portfolio
-            cursor, conn = get_db_cursor()
-            if cursor is None:
-                logger.warning(f"Error: No database connection available for user {user_id}")
-                continue
+        current_price = price_data
 
+        if is_alert_condition_met(alert, current_price):
             try:
-                cursor.execute('SELECT * FROM portfolio WHERE user_id = ? AND name = ?', (user_id, alert['name']))
-                portfolio_record = cursor.fetchone()
-
-                if portfolio_record:
-                    # Check the condition (based on the alert type)
-                    if (alert['alert_type'] == 'more' and current_price > alert['threshold']) or \
-                       (alert['alert_type'] == 'less' and current_price < alert['threshold']):
-                        save_notification(alert, current_price)
-                        # Trigger a notification
-                        send_notification(alert, current_price)
-                else:
-                    # Coin is no longer in the portfolio, skip notification
-                    logger.warning(f"Coin {alert['name']} is no longer in the portfolio for user {user_id}")
-
-
-            except sqlite3.Error as e:
-                logger.error(f"Error checking portfolio for user {user_id}: {e}")
-
-            finally:
-                conn.close()
-        else:
-            logger.info(f"Error: No price data available for {alert['name']}")
+                save_notification(alert, current_price)
+                send_notification(alert, current_price)
+                logger.info(f"Notification sent for alert {alert['id']} at price {current_price}")
+            except Exception as e:
+                logger.error(f"Error processing alert {alert['id']}: {e}")
