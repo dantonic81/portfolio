@@ -204,8 +204,8 @@ def save_portfolio_value():
                 # Update the portfolio value if it's different
                 cursor.execute(
                     """
-                    UPDATE portfolio_daily 
-                    SET portfolio_value = ? 
+                    UPDATE portfolio_daily
+                    SET portfolio_value = ?
                     WHERE user_id = ? AND date = ?
                 """,
                     (total_portfolio_value, user_id, today_date),
@@ -236,7 +236,7 @@ def save_portfolio_value():
         # If no record exists for today, insert a new record
         cursor.execute(
             """
-            INSERT INTO portfolio_daily (user_id, date, portfolio_value) 
+            INSERT INTO portfolio_daily (user_id, date, portfolio_value)
             VALUES (?, ?, ?)
         """,
             (user_id, today_date, total_portfolio_value),
@@ -463,8 +463,8 @@ def index():
             # If the record exists, update the portfolio_value
             cursor.execute(
                 """
-                UPDATE portfolio_daily 
-                SET portfolio_value = ? 
+                UPDATE portfolio_daily
+                SET portfolio_value = ?
                 WHERE date = ? AND user_id = ?
             """,
                 (total_portfolio_value, today_date, user_id),
@@ -473,7 +473,7 @@ def index():
             # If no record for today, insert the new portfolio_value
             cursor.execute(
                 """
-                INSERT INTO portfolio_daily (user_id, date, portfolio_value) 
+                INSERT INTO portfolio_daily (user_id, date, portfolio_value)
                 VALUES (?, ?, ?)
             """,
                 (user_id, today_date, total_portfolio_value),
@@ -484,10 +484,10 @@ def index():
         # Fetch the previous day's portfolio value from the database for percentage change calculation
         cursor.execute(
             """
-            SELECT portfolio_value 
-            FROM portfolio_daily 
+            SELECT portfolio_value
+            FROM portfolio_daily
             WHERE user_id = ?
-            ORDER BY date DESC 
+            ORDER BY date DESC
             LIMIT 2
         """,
             (user_id,),

@@ -13,15 +13,15 @@ COINGECKO_API_BASE_URL = "https://api.coingecko.com/api/v3"
 
 # SQL Query Constants
 SELECT_CACHE_QUERY = """
-    SELECT gainers, losers FROM gainers_losers_cache 
+    SELECT gainers, losers FROM gainers_losers_cache
     WHERE user_id = ? AND owned_coins = ?
 """
 DELETE_CACHE_QUERY = """
-    DELETE FROM gainers_losers_cache 
+    DELETE FROM gainers_losers_cache
     WHERE user_id = ? AND owned_coins = ?
 """
 INSERT_CACHE_QUERY = """
-    INSERT INTO gainers_losers_cache (user_id, owned_coins, gainers, losers, timestamp) 
+    INSERT INTO gainers_losers_cache (user_id, owned_coins, gainers, losers, timestamp)
     VALUES (?, ?, ?, ?, ?)
 """
 

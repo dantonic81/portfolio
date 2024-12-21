@@ -46,8 +46,8 @@ def save_notification(alert: Dict[str, Any], current_price: float) -> None:
             # Get the last active notification's price for this alert
             cursor.execute(
                 """
-                SELECT current_price FROM notifications 
-                WHERE alert_id = ? AND user_id = ? AND is_read = 0 
+                SELECT current_price FROM notifications
+                WHERE alert_id = ? AND user_id = ? AND is_read = 0
                 ORDER BY created_at DESC LIMIT 1
             """,
                 (alert["id"], user_id),

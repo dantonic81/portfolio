@@ -96,7 +96,7 @@ def delete_user(user_id):
     try:
         # Check remaining admins
         query_check = """
-            SELECT COUNT(*) FROM users 
+            SELECT COUNT(*) FROM users
             WHERE is_deleted = 0 AND is_admin = 1 AND user_id != ?
         """
         remaining_admins, error = handle_db_query(query_check, (user_id,))
