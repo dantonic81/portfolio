@@ -3,7 +3,7 @@ from typing import Optional, Tuple
 from utils.logger import logger
 
 
-DATABASE = 'crypto_portfolio.db'
+DATABASE = "crypto_portfolio.db"
 
 
 def get_db_connection() -> sqlite3.Connection:
@@ -16,7 +16,9 @@ def get_db_connection() -> sqlite3.Connection:
     try:
         conn = sqlite3.connect(DATABASE)
         conn.execute("PRAGMA foreign_keys = ON;")  # Enforce foreign key constraints
-        conn.execute("PRAGMA journal_mode = WAL;")  # Enable Write-Ahead Logging for better concurrency
+        conn.execute(
+            "PRAGMA journal_mode = WAL;"
+        )  # Enable Write-Ahead Logging for better concurrency
         conn.row_factory = sqlite3.Row  # Return rows as dictionary-like objects
         return conn
     except sqlite3.Error as e:

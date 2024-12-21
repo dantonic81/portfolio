@@ -6,11 +6,13 @@ from utils.logger import logger
 
 
 # Retrieve the SendGrid API key from environment variables
-SENDGRID_API_KEY = os.getenv('SENDGRID_API_KEY')
-SENDGRID_FROM_EMAIL = os.getenv('SENDGRID_FROM_EMAIL')
+SENDGRID_API_KEY = os.getenv("SENDGRID_API_KEY")
+SENDGRID_FROM_EMAIL = os.getenv("SENDGRID_FROM_EMAIL")
 
 
-def send_email(to_email: str, subject: str, content: str) -> Optional[Tuple[int, str, dict]]:
+def send_email(
+    to_email: str, subject: str, content: str
+) -> Optional[Tuple[int, str, dict]]:
     """
     Sends an email using SendGrid.
 
@@ -31,7 +33,7 @@ def send_email(to_email: str, subject: str, content: str) -> Optional[Tuple[int,
             from_email=SENDGRID_FROM_EMAIL,
             to_emails=to_email,
             subject=subject,
-            html_content=content
+            html_content=content,
         )
         sg = SendGridAPIClient(SENDGRID_API_KEY)
         response = sg.send(message)

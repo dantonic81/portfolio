@@ -15,7 +15,10 @@ def read_portfolio(user_id):
     """
     with get_db_connection() as conn:
         cursor = conn.cursor()
-        cursor.execute('SELECT id, user_id, name, abbreviation, amount FROM portfolio WHERE user_id = ?', (user_id,))
+        cursor.execute(
+            "SELECT id, user_id, name, abbreviation, amount FROM portfolio WHERE user_id = ?",
+            (user_id,),
+        )
         portfolio = [dict(row) for row in cursor.fetchall()]
     return portfolio
 
@@ -32,27 +35,47 @@ def calculate_portfolio_value(portfolio, top_1000):
         float: The total value of the portfolio.
     """
     # Build a lookup dictionary for fast access by both name and symbol
-    price_lookup = {crypto['name'].lower(): {'price': crypto['current_price'], 'rank': crypto['market_cap_rank'], 'image': crypto['image']} for crypto in top_1000}
-    price_lookup.update({crypto['symbol'].upper(): {'price': crypto['current_price'], 'rank': crypto['market_cap_rank'], 'image': crypto['image']} for crypto in top_1000})
+    price_lookup = {
+        crypto["name"].lower(): {
+            "price": crypto["current_price"],
+            "rank": crypto["market_cap_rank"],
+            "image": crypto["image"],
+        }
+        for crypto in top_1000
+    }
+    price_lookup.update(
+        {
+            crypto["symbol"].upper(): {
+                "price": crypto["current_price"],
+                "rank": crypto["market_cap_rank"],
+                "image": crypto["image"],
+            }
+            for crypto in top_1000
+        }
+    )
 
     total_value = 0.0
     for asset in portfolio:
-        name = asset['name'].lower()
-        symbol = asset['abbreviation']
-        amount = asset['amount']
+        name = asset["name"].lower()
+        symbol = asset["abbreviation"]
+        amount = asset["amount"]
 
         # Try to look up by name first, then fallback to symbol
-        crypto_data = price_lookup.get(name) or price_lookup.get(symbol, {'price': 0, 'rank': None, 'image': None})
+        crypto_data = price_lookup.get(name) or price_lookup.get(
+            symbol, {"price": 0, "rank": None, "image": None}
+        )
 
-        current_price = crypto_data['price']
+        current_price = crypto_data["price"]
         asset_value = amount * current_price
 
-        asset.update({
-            'current_price': current_price,
-            'value': round(asset_value, 2),
-            'rank': crypto_data['rank'],
-            'image': crypto_data['image']
-        })
+        asset.update(
+            {
+                "current_price": current_price,
+                "value": round(asset_value, 2),
+                "rank": crypto_data["rank"],
+                "image": crypto_data["image"],
+            }
+        )
 
         total_value += asset_value
 
@@ -72,7 +95,9 @@ def fetch_owned_coins_from_db(user_id, db_path="crypto_portfolio.db"):
     """
     with sqlite3.connect(db_path) as connection:
         cursor = connection.cursor()
-        cursor.execute("SELECT abbreviation FROM portfolio WHERE user_id = ?", (user_id,))
+        cursor.execute(
+            "SELECT abbreviation FROM portfolio WHERE user_id = ?", (user_id,)
+        )
         owned_coins = [row[0].lower() for row in cursor.fetchall()]
     return owned_coins
 
@@ -88,10 +113,15 @@ def get_assets_by_query(query, user_id):
     Returns:
         list: A list of assets matching the query (each asset is represented as a dictionary).
     """
-    with sqlite3.connect('crypto_portfolio.db') as conn:
+    with sqlite3.connect("crypto_portfolio.db") as conn:
         cursor = conn.cursor()
-        cursor.execute("SELECT id, user_id, name, amount FROM portfolio WHERE name LIKE ? AND user_id = ?", ('%' + query + '%', user_id))
+        cursor.execute(
+            "SELECT id, user_id, name, amount FROM portfolio WHERE name LIKE ? AND user_id = ?",
+            ("%" + query + "%", user_id),
+        )
         assets = cursor.fetchall()
 
     # Return the results in a structured format (list of dictionaries)
-    return [{'id': asset[0], 'asset_name': asset[2], 'amount': asset[3]} for asset in assets]
+    return [
+        {"id": asset[0], "asset_name": asset[2], "amount": asset[3]} for asset in assets
+    ]

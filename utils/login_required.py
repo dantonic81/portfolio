@@ -19,10 +19,16 @@ def login_required(f: Callable) -> Callable:
     Returns:
         Callable: The wrapped route function.
     """
+
     @wraps(f)
     def decorated_function(*args, **kwargs):
-        if 'user_id' not in session:
-            logger.warning("Unauthorized access attempt to %s", url_for('login_api.login'))
-            return redirect(url_for('login_api.login'))  # Redirect to login if user is not logged in
+        if "user_id" not in session:
+            logger.warning(
+                "Unauthorized access attempt to %s", url_for("login_api.login")
+            )
+            return redirect(
+                url_for("login_api.login")
+            )  # Redirect to login if user is not logged in
         return f(*args, **kwargs)
+
     return decorated_function

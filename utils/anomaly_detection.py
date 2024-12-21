@@ -2,7 +2,9 @@ from sklearn.ensemble import IsolationForest
 from typing import List, Dict, Any, Tuple
 
 
-def preprocess_data(gainers: List[Dict[str, Any]], losers: List[Dict[str, Any]]) -> Tuple[List[List[float]], List[str]]:
+def preprocess_data(
+    gainers: List[Dict[str, Any]], losers: List[Dict[str, Any]]
+) -> Tuple[List[List[float]], List[str]]:
     """
     Extract features and coin IDs from gainers and losers.
 
@@ -17,7 +19,7 @@ def preprocess_data(gainers: List[Dict[str, Any]], losers: List[Dict[str, Any]])
     coin_ids = []
 
     for coin in gainers + losers:
-        price = coin.get('current_price', 0.0)  # Default to 0.0 if not available
+        price = coin.get("current_price", 0.0)  # Default to 0.0 if not available
         market_cap = coin.get("market_cap", 0.0)
         total_volume = coin.get("total_volume", 0.0)
 
@@ -27,7 +29,9 @@ def preprocess_data(gainers: List[Dict[str, Any]], losers: List[Dict[str, Any]])
     return features, coin_ids
 
 
-def detect_outliers(features: List[List[float]], contamination: float = 0.1) -> List[int]:
+def detect_outliers(
+    features: List[List[float]], contamination: float = 0.1
+) -> List[int]:
     """
     Use Isolation Forest to detect outliers.
 
@@ -71,18 +75,20 @@ def format_coin(coin: Dict[str, Any]) -> Dict[str, Any]:
         Dict[str, Any]: Formatted coin dictionary.
     """
     return {
-        'id': coin.get('id', 'N/A'),
-        'name': coin.get('name', 'N/A'),
-        'rank': coin.get('market_cap_rank', 'N/A'),
-        'current_price': coin.get('current_price', 'N/A'),
-        'percentage_gain': coin.get('price_change_percentage_24h', 'N/A'),
-        'market_cap': coin.get('market_cap', 'N/A'),
-        'volume': coin.get('total_volume', 'N/A'),
-        'image': coin.get('image', 'N/A'),
+        "id": coin.get("id", "N/A"),
+        "name": coin.get("name", "N/A"),
+        "rank": coin.get("market_cap_rank", "N/A"),
+        "current_price": coin.get("current_price", "N/A"),
+        "percentage_gain": coin.get("price_change_percentage_24h", "N/A"),
+        "market_cap": coin.get("market_cap", "N/A"),
+        "volume": coin.get("total_volume", "N/A"),
+        "image": coin.get("image", "N/A"),
     }
 
 
-def combine_results(labels: List[int], gainers: List[Dict[str, Any]], losers: List[Dict[str, Any]]) -> Dict[str, List[Dict[str, Any]]]:
+def combine_results(
+    labels: List[int], gainers: List[Dict[str, Any]], losers: List[Dict[str, Any]]
+) -> Dict[str, List[Dict[str, Any]]]:
     """
     Combine gainers and losers with their outlier labels.
 
@@ -108,7 +114,11 @@ def combine_results(labels: List[int], gainers: List[Dict[str, Any]], losers: Li
             unique_combined.append(formatted_coin)
             filtered_labels.append(labels[i])  # Keep corresponding label
 
-    outliers = [unique_combined[i] for i, label in enumerate(filtered_labels) if label == -1]
-    inliers = [unique_combined[i] for i, label in enumerate(filtered_labels) if label == 1]
+    outliers = [
+        unique_combined[i] for i, label in enumerate(filtered_labels) if label == -1
+    ]
+    inliers = [
+        unique_combined[i] for i, label in enumerate(filtered_labels) if label == 1
+    ]
 
     return {"outliers": outliers, "inliers": inliers}

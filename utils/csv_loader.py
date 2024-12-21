@@ -17,7 +17,7 @@ def load_data_from_csv(csv_file_path: str, query: str, params_func: callable) ->
         conn = get_db_connection()
         cursor = conn.cursor()
 
-        with open(csv_file_path, mode='r') as file:
+        with open(csv_file_path, mode="r") as file:
             reader = csv.DictReader(file)
             rows = [params_func(row) for row in reader]
 
@@ -42,13 +42,14 @@ def load_portfolio_from_csv(csv_file_path: str, user_id: int) -> None:
         csv_file_path (str): Path to the portfolio CSV file.
         user_id (int): ID of the user the data belongs to.
     """
-    def params(row):
-        return user_id, row['name'], row['abbreviation'].upper(), float(row['amount'])
 
-    query = '''
+    def params(row):
+        return user_id, row["name"], row["abbreviation"].upper(), float(row["amount"])
+
+    query = """
         INSERT INTO portfolio (user_id, name, abbreviation, amount)
         VALUES (?, ?, ?, ?)
-    '''
+    """
     load_data_from_csv(csv_file_path, query, params)
 
 
@@ -60,20 +61,21 @@ def load_transactions_from_csv(csv_file_path: str, user_id: int) -> None:
         csv_file_path (str): Path to the transactions CSV file.
         user_id (int): ID of the user the data belongs to.
     """
+
     def params(row):
         return (
             user_id,
-            row['name'],
-            row['abbreviation'].upper(),
-            row['transaction_date'],
-            float(row['amount']),
-            float(row['price']),
-            row['transaction_id'],
-            float(row['rate']),
+            row["name"],
+            row["abbreviation"].upper(),
+            row["transaction_date"],
+            float(row["amount"]),
+            float(row["price"]),
+            row["transaction_id"],
+            float(row["rate"]),
         )
 
-    query = '''
+    query = """
         INSERT INTO transactions (user_id, name, abbreviation, transaction_date, amount, price, transaction_id, rate)
         VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-    '''
+    """
     load_data_from_csv(csv_file_path, query, params)

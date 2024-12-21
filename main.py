@@ -1,6 +1,7 @@
 import os
 from flask import Flask
 from dotenv import load_dotenv
+
 load_dotenv()
 
 from api.api import api
@@ -17,10 +18,10 @@ from utils.logger import logger
 
 app = Flask(__name__)
 app.secret_key = os.environ.get("SECRET_KEY")
-app.config['SESSION_TYPE'] = 'filesystem'
-app.config['SESSION_FILE_DIR'] = './sessions'
-app.config['ALERT_CHECK_INTERVAL'] = 2  # Check alerts every 2 minutes
-app.config['ALERT_MAX_INSTANCES'] = 2
+app.config["SESSION_TYPE"] = "filesystem"
+app.config["SESSION_FILE_DIR"] = "./sessions"
+app.config["ALERT_CHECK_INTERVAL"] = 2  # Check alerts every 2 minutes
+app.config["ALERT_MAX_INSTANCES"] = 2
 Session(app)
 
 app.register_blueprint(api)
@@ -52,8 +53,8 @@ except Exception as e:
 
 
 # Run the Flask web server on port 8000
-if __name__ == '__main__':
+if __name__ == "__main__":
     app.run(
-        host=os.environ.get('FLASK_HOST', '0.0.0.0'),
-        port=int(os.environ.get('FLASK_PORT', 8000))
+        host=os.environ.get("FLASK_HOST", "0.0.0.0"),
+        port=int(os.environ.get("FLASK_PORT", 8000)),
     )

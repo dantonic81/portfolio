@@ -17,16 +17,16 @@ def configure_scheduler(app: Flask, check_alerts_func: Callable) -> None:
         Exception: If an error occurs during scheduler initialization or job addition.
     """
     scheduler = APScheduler()
-    app.config['SCHEDULER_API_ENABLED'] = True
+    app.config["SCHEDULER_API_ENABLED"] = True
     try:
         scheduler.init_app(app)
         scheduler.add_job(
-            id='check_alerts',
+            id="check_alerts",
             func=check_alerts_func,
-            trigger='interval',
-            minutes=int(app.config.get('ALERT_CHECK_INTERVAL', 1)),
+            trigger="interval",
+            minutes=int(app.config.get("ALERT_CHECK_INTERVAL", 1)),
             replace_existing=True,
-            max_instances=int(app.config.get('ALERT_MAX_INSTANCES', 1))
+            max_instances=int(app.config.get("ALERT_MAX_INSTANCES", 1)),
         )
         scheduler.start()
         logger.info("Scheduler started and 'check_alerts' job added successfully.")

@@ -15,13 +15,17 @@ def admin_required(f: Callable) -> Callable:
     Returns:
         Callable: The decorated function.
     """
+
     @wraps(f)
     def decorated_function(*args, **kwargs) -> Any:
-        user_id = session.get('user_id')
+        user_id = session.get("user_id")
         if not user_id or not is_admin(user_id):
             logger.warning(f"Unauthorized access attempt by user: {user_id}")
-            return redirect(url_for('login_api.login'))  # Redirect to login if not an admin
+            return redirect(
+                url_for("login_api.login")
+            )  # Redirect to login if not an admin
         return f(*args, **kwargs)
+
     return decorated_function
 
 
@@ -41,7 +45,7 @@ def is_admin(user_id: int) -> bool:
             logger.error("Database cursor is None. Cannot verify admin status.")
             return False
 
-        cursor.execute('SELECT is_admin FROM users WHERE user_id = ?', (user_id,))
+        cursor.execute("SELECT is_admin FROM users WHERE user_id = ?", (user_id,))
         user = cursor.fetchone()
 
         if not user:

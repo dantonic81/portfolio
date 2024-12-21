@@ -16,7 +16,9 @@ def send_notification(alert: Dict[str, Any], current_price: float) -> None:
     Returns:
         None
     """
-    logger.info(f"Alert: {alert['cryptocurrency']} price is {current_price}. Threshold: {alert['threshold']}")
+    logger.info(
+        f"Alert: {alert['cryptocurrency']} price is {current_price}. Threshold: {alert['threshold']}"
+    )
 
 
 def save_notification(alert: Dict[str, Any], current_price: float) -> None:
@@ -30,7 +32,7 @@ def save_notification(alert: Dict[str, Any], current_price: float) -> None:
     Returns:
         None
     """
-    user_id = alert['user_id']
+    user_id = alert["user_id"]
     notification_text = (
         f"{alert['name'].capitalize()} is now {'above' if alert['alert_type'] == 'more' else 'below'} "
         f"{alert['threshold']} USD (current price: {current_price} USD)."
@@ -42,18 +44,22 @@ def save_notification(alert: Dict[str, Any], current_price: float) -> None:
             cursor = conn.cursor()
 
             # Get the last active notification's price for this alert
-            cursor.execute('''
+            cursor.execute(
+                """
                 SELECT current_price FROM notifications 
                 WHERE alert_id = ? AND user_id = ? AND is_read = 0 
                 ORDER BY created_at DESC LIMIT 1
-            ''', (alert['id'], user_id))
+            """,
+                (alert["id"], user_id),
+            )
             last_notification = cursor.fetchone()
 
             # Determine if a new notification should be inserted
             if last_notification:
                 last_price = last_notification[0]
-                if (alert['alert_type'] == 'more' and current_price <= last_price) or \
-                   (alert['alert_type'] == 'below' and current_price >= last_price):
+                if (alert["alert_type"] == "more" and current_price <= last_price) or (
+                    alert["alert_type"] == "below" and current_price >= last_price
+                ):
                     return  # No need to insert a new notification
 
             # Insert a new notification
@@ -61,7 +67,7 @@ def save_notification(alert: Dict[str, Any], current_price: float) -> None:
             INSERT INTO notifications (alert_id, user_id, notification_text, current_price)
             VALUES (?, ?, ?, ?);
             """
-            values = (alert['id'], user_id, notification_text, current_price)
+            values = (alert["id"], user_id, notification_text, current_price)
 
             try:
                 cursor.execute(query, values)

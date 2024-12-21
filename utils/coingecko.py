@@ -53,7 +53,9 @@ class CryptoData(BaseModel):
     last_updated: Optional[str]
 
 
-def fetch_data_from_api(endpoint: str, params: Dict[str, Any]) -> Optional[Dict[str, Any]]:
+def fetch_data_from_api(
+    endpoint: str, params: Dict[str, Any]
+) -> Optional[Dict[str, Any]]:
     """
     Fetch data from CoinGecko API.
 
@@ -105,7 +107,7 @@ def is_cache_valid(cursor, query: str, params: Tuple) -> bool:
 
 
 # Function to get current price from CoinGecko API
-def get_current_price(name: str, target_currency: str = 'usd') -> Optional[float]:
+def get_current_price(name: str, target_currency: str = "usd") -> Optional[float]:
     """
     Get the current price of a cryptocurrency.
 
@@ -116,7 +118,7 @@ def get_current_price(name: str, target_currency: str = 'usd') -> Optional[float
     Returns:
         Optional[float]: Current price or None if not found.
     """
-    params = {'ids': name, 'vs_currencies': target_currency}
+    params = {"ids": name, "vs_currencies": target_currency}
     data = fetch_data_from_api("simple/price", params)
     if data and name in data:
         return data[name].get(target_currency)
@@ -126,10 +128,10 @@ def get_current_price(name: str, target_currency: str = 'usd') -> Optional[float
 
 
 def cache_cryptos_in_db(cursor, cryptos: List[CryptoData]):
-    cursor.execute('DELETE FROM cryptocurrencies')  # Clear old data
+    cursor.execute("DELETE FROM cryptocurrencies")  # Clear old data
     for crypto in cryptos:
         cursor.execute(
-            '''
+            """
             INSERT INTO cryptocurrencies (
                 name, symbol, image, current_price, market_cap, market_cap_rank,
                 fully_diluted_valuation, total_volume, high_24h, low_24h,
@@ -138,17 +140,34 @@ def cache_cryptos_in_db(cursor, cryptos: List[CryptoData]):
                 max_supply, ath, ath_change_percentage, ath_date, atl,
                 atl_change_percentage, atl_date, last_updated, timestamp
             ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-            ''',
+            """,
             (
-                crypto.name, crypto.symbol, crypto.image, crypto.current_price,
-                crypto.market_cap, crypto.market_cap_rank, crypto.fully_diluted_valuation,
-                crypto.total_volume, crypto.high_24h, crypto.low_24h, crypto.price_change_24h,
-                crypto.price_change_percentage_24h, crypto.market_cap_change_24h,
-                crypto.market_cap_change_percentage_24h, crypto.circulating_supply,
-                crypto.total_supply, crypto.max_supply, crypto.ath, crypto.ath_change_percentage,
-                crypto.ath_date, crypto.atl, crypto.atl_change_percentage, crypto.atl_date,
-                crypto.last_updated, datetime.now().isoformat()
-            )
+                crypto.name,
+                crypto.symbol,
+                crypto.image,
+                crypto.current_price,
+                crypto.market_cap,
+                crypto.market_cap_rank,
+                crypto.fully_diluted_valuation,
+                crypto.total_volume,
+                crypto.high_24h,
+                crypto.low_24h,
+                crypto.price_change_24h,
+                crypto.price_change_percentage_24h,
+                crypto.market_cap_change_24h,
+                crypto.market_cap_change_percentage_24h,
+                crypto.circulating_supply,
+                crypto.total_supply,
+                crypto.max_supply,
+                crypto.ath,
+                crypto.ath_change_percentage,
+                crypto.ath_date,
+                crypto.atl,
+                crypto.atl_change_percentage,
+                crypto.atl_date,
+                crypto.last_updated,
+                datetime.now().isoformat(),
+            ),
         )
 
 
@@ -172,15 +191,15 @@ def get_top_1000_crypto() -> List[Dict[str, Any]]:
     logger.info("Fetching data from CoinGecko API.")
     all_cryptos = []
     params = {
-        'vs_currency': 'usd',
-        'order': 'market_cap_desc',
-        'per_page': 250,
-        'sparkline': 'false',
-        'price_change_percentage': '24h',
+        "vs_currency": "usd",
+        "order": "market_cap_desc",
+        "per_page": 250,
+        "sparkline": "false",
+        "price_change_percentage": "24h",
     }
 
     for page in range(1, 5):
-        params['page'] = page
+        params["page"] = page
         data = fetch_data_from_api("coins/markets", params)
         if data:
             validated_data = validate_crypto_data(data)
@@ -196,7 +215,9 @@ def get_top_1000_crypto() -> List[Dict[str, Any]]:
     return [crypto.model_dump() for crypto in all_cryptos]
 
 
-def fetch_gainers_and_losers_owned(user_id: int, owned_coins: List[str]) -> Tuple[List[Dict[str, Any]], List[Dict[str, Any]]]:
+def fetch_gainers_and_losers_owned(
+    user_id: int, owned_coins: List[str]
+) -> Tuple[List[Dict[str, Any]], List[Dict[str, Any]]]:
     """
     Fetch the top gainers and losers for owned coins with caching.
 
@@ -219,7 +240,7 @@ def fetch_gainers_and_losers_owned(user_id: int, owned_coins: List[str]) -> Tupl
             if is_cache_valid(
                 cursor,
                 "SELECT timestamp FROM gainers_losers_cache WHERE user_id = ? AND owned_coins = ?",
-                (user_id, ",".join(owned_coins))
+                (user_id, ",".join(owned_coins)),
             ):
                 logger.info("Using cached gainers/losers data.")
                 cursor.execute(SELECT_CACHE_QUERY, (user_id, ",".join(owned_coins)))
@@ -234,7 +255,7 @@ def fetch_gainers_and_losers_owned(user_id: int, owned_coins: List[str]) -> Tupl
                 "ids": ",".join(owned_coins),
                 "order": "market_cap_desc",
                 "per_page": len(owned_coins),
-                "price_change_percentage": "24h"
+                "price_change_percentage": "24h",
             }
             data = fetch_data_from_api("coins/markets", params)
             if not data:
@@ -242,15 +263,31 @@ def fetch_gainers_and_losers_owned(user_id: int, owned_coins: List[str]) -> Tupl
                 return [], []
 
             # Filter and sort data
-            filtered_data = [coin for coin in data if coin.get("price_change_percentage_24h") is not None]
-            gainers = sorted(filtered_data, key=lambda x: x["price_change_percentage_24h"], reverse=True)
-            losers = sorted(filtered_data, key=lambda x: x["price_change_percentage_24h"])
+            filtered_data = [
+                coin
+                for coin in data
+                if coin.get("price_change_percentage_24h") is not None
+            ]
+            gainers = sorted(
+                filtered_data,
+                key=lambda x: x["price_change_percentage_24h"],
+                reverse=True,
+            )
+            losers = sorted(
+                filtered_data, key=lambda x: x["price_change_percentage_24h"]
+            )
 
             # Cache results
             cursor.execute(DELETE_CACHE_QUERY, (user_id, ",".join(owned_coins)))
             cursor.execute(
                 INSERT_CACHE_QUERY,
-                (user_id, ",".join(owned_coins), json.dumps(gainers), json.dumps(losers), datetime.now().isoformat())
+                (
+                    user_id,
+                    ",".join(owned_coins),
+                    json.dumps(gainers),
+                    json.dumps(losers),
+                    datetime.now().isoformat(),
+                ),
             )
             conn.commit()
 

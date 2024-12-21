@@ -9,7 +9,8 @@ from utils.logger import logger
 def create_tables(cursor: sqlite3.Cursor) -> None:
     """Create necessary database tables."""
     try:
-        cursor.executescript('''
+        cursor.executescript(
+            """
             CREATE TABLE IF NOT EXISTS users (
                 user_id INTEGER PRIMARY KEY AUTOINCREMENT,
                 username TEXT UNIQUE NOT NULL,
@@ -129,7 +130,8 @@ def create_tables(cursor: sqlite3.Cursor) -> None:
                 error_message TEXT,                    -- For recording failure reasons
                 created_at DATETIME DEFAULT CURRENT_TIMESTAMP -- Automatically logs the time of the event
             );
-        ''')
+        """
+        )
         logger.info("Database tables created successfully.")
     except sqlite3.Error as e:
         logger.error(f"Error creating tables: {e}")
@@ -139,22 +141,25 @@ def create_tables(cursor: sqlite3.Cursor) -> None:
 def ensure_admin_account(cursor: sqlite3.Cursor, conn: sqlite3.Connection) -> int:
     """Ensure a default admin account exists."""
     try:
-        username = os.getenv('ADMIN_USERNAME')
-        email = os.getenv('ADMIN_EMAIL')
-        password = os.getenv('ADMIN_PASSWORD')
+        username = os.getenv("ADMIN_USERNAME")
+        email = os.getenv("ADMIN_EMAIL")
+        password = os.getenv("ADMIN_PASSWORD")
 
         if not all([username, email, password]):
             raise ValueError("Admin credentials not set in environment variables.")
 
         password_hash = generate_password_hash(password)
-        cursor.execute('''
+        cursor.execute(
+            """
             INSERT INTO users (username, email, password_hash, is_admin, is_active)
             VALUES (?, ?, ?, 1, 1)
             ON CONFLICT (email) DO NOTHING
-        ''', (username, email, password_hash))
+        """,
+            (username, email, password_hash),
+        )
         conn.commit()
 
-        cursor.execute('SELECT user_id FROM users WHERE email = ?', (email,))
+        cursor.execute("SELECT user_id FROM users WHERE email = ?", (email,))
         admin_user_id = cursor.fetchone()[0]
         logger.info(f"Default admin account ensured: {username} ({email})")
         return admin_user_id
@@ -166,24 +171,23 @@ def ensure_admin_account(cursor: sqlite3.Cursor, conn: sqlite3.Connection) -> in
 def load_initial_data(cursor: sqlite3.Cursor, admin_user_id: int) -> None:
     """Load initial data from CSV files if tables are empty."""
     try:
-        cursor.execute('SELECT COUNT(*) FROM portfolio')
+        cursor.execute("SELECT COUNT(*) FROM portfolio")
         portfolio_count = cursor.fetchone()[0]
         if portfolio_count == 0:
             logger.info("Loading portfolio data from CSV...")
-            load_portfolio_from_csv('crypto_portfolio.csv', admin_user_id)
+            load_portfolio_from_csv("crypto_portfolio.csv", admin_user_id)
         else:
             logger.info("Portfolio data already loaded.")
 
-        cursor.execute('SELECT COUNT(*) FROM transactions')
+        cursor.execute("SELECT COUNT(*) FROM transactions")
         transactions_count = cursor.fetchone()[0]
         if transactions_count == 0:
             logger.info("Loading transactions data from CSV...")
-            load_transactions_from_csv('crypto_transactions.csv', admin_user_id)
+            load_transactions_from_csv("crypto_transactions.csv", admin_user_id)
         else:
             logger.info("Transactions data already loaded.")
     except Exception as e:
         logger.error(f"Error loading initial data: {e}")
-
 
 
 def init_db() -> None:

@@ -113,12 +113,8 @@ Also there's nothing there to indicate that cards are editable when I hover abov
 
 ## TODO:
 
-- type hints
-- docstrings
-- error handling
 - tests
 - linting
-- formatting
 - coverage
 - ORM?
 - modern styling
