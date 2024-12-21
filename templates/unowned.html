@@ -3,11 +3,14 @@
 {% block title %}Unowned Crypto (Top 100){% endblock %}
 
 {% block styles %}
-    <!-- Link to the specific CSS for this page -->
     <link rel="stylesheet" href="{{ url_for('static', filename='portfolio.css') }}">
 {% endblock %}
 
 {% block content %}
+   {% block modals %}
+        {{ super() }}
+        {% include 'modals/add_to_portfolio_modal.html' %}
+    {% endblock %}
 <div class="container">
     <h1 class="dashboard-title text-center mb-5 text-dark">Watch List (Top 100)</h1>
 
@@ -35,8 +38,13 @@
                             </p>
                         </div>
                         <div class="card-footer text-right">
-                            <!-- Button with feedback -->
-                            <button class="btn btn-sm btn-outline-primary add-to-portfolio" data-id="{{ crypto.id }}" aria-label="Add {{ crypto.name }} to portfolio" onclick="this.innerHTML = '<i class=\'fa fa-check\'></i> Added'; this.disabled = true;">
+                            <!-- Button to trigger modal -->
+                            <button class="btn btn-sm btn-outline-primary add-to-portfolio"
+                                    data-id="{{ crypto.abbreviation }}"
+                                    data-name="{{ crypto.name }}"
+                                    aria-label="Add {{ crypto.name }} to portfolio"
+                                    data-toggle="modal"
+                                    data-target="#addToPortfolioModal">
                                 <i class="fa fa-plus"></i> Add to Portfolio
                             </button>
                         </div>
@@ -48,4 +56,11 @@
         {% endif %}
     </div>
 </div>
+
+
+
+{% endblock %}
+
+{% block scripts %}
+    <script src="{{ url_for('static', filename='js/add_to_portfolio.js') }}" defer></script>
 {% endblock %}

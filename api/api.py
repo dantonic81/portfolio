@@ -507,3 +507,33 @@ def add_asset():
         # Log any error that occurs
         logger.error("Error while adding asset: %s", e)
         return jsonify({"success": False, "error": str(e)})
+
+
+@api.route('/portfolio/add', methods=['POST'])
+@login_required
+def add_to_portfolio():
+    user_id = session['user_id']
+    data = request.json
+    name = data.get('name')
+    abbreviation = data.get('abbreviation')
+    amount = data.get('amount')
+
+    if not name or not abbreviation or not amount or amount <= 0:
+        return jsonify({'success': False, 'error': 'Invalid input'}), 400
+
+    try:
+        cursor, conn = get_db_cursor()
+
+        # Insert into portfolio
+        cursor.execute('''
+            INSERT INTO portfolio (user_id, name, abbreviation, amount)
+            VALUES (?, ?, ?, ?)
+            ON CONFLICT(user_id, abbreviation)
+            DO UPDATE SET amount = portfolio.amount + excluded.amount
+        ''', (user_id, name, abbreviation.upper(), amount))
+
+        conn.commit()
+        conn.close()
+        return jsonify({'success': True})
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)}), 500
