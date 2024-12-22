@@ -8,7 +8,7 @@ import json
 
 
 # Constants
-CACHE_EXPIRY = 120  # Cache expiry time in seconds
+CACHE_EXPIRY = 180  # Cache expiry time in seconds
 COINGECKO_API_BASE_URL = "https://api.coingecko.com/api/v3"
 
 # SQL Query Constants
@@ -273,6 +273,17 @@ def fetch_gainers_and_losers_owned(
         losers = sorted(
             filtered_data, key=lambda x: x["price_change_percentage_24h"]
         )
+
+        # Adjust results based on the number of items
+        if len(filtered_data) < 4:
+            gainers = gainers[:1]
+            losers = losers[:1]
+        elif len(filtered_data) < 6:
+            gainers = gainers[:2]
+            losers = losers[:2]
+        else:
+            gainers = gainers[:3]
+            losers = losers[:3]
 
         # Cache results
         cursor.execute(DELETE_CACHE_QUERY, (user_id, ",".join(owned_coins)))
