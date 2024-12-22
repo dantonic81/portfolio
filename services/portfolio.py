@@ -96,7 +96,7 @@ def fetch_owned_coins_from_db(user_id, db_path="crypto_portfolio.db"):
     with sqlite3.connect(db_path) as connection:
         cursor = connection.cursor()
         cursor.execute(
-            "SELECT abbreviation FROM portfolio WHERE user_id = ?", (user_id,)
+            "SELECT name FROM portfolio WHERE user_id = ?", (user_id,)
         )
         owned_coins = [row[0].lower() for row in cursor.fetchall()]
     return owned_coins

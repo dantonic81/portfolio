@@ -232,66 +232,66 @@ def fetch_gainers_and_losers_owned(
         logger.info("No owned coins provided.")
         return [], []
 
+    conn = None
     try:
-        with get_db_connection() as conn:
-            cursor = conn.cursor()
+        conn = get_db_connection()
+        cursor = conn.cursor()
 
-            # Check cache validity
-            if is_cache_valid(
-                cursor,
-                "SELECT timestamp FROM gainers_losers_cache WHERE user_id = ? AND owned_coins = ?",
-                (user_id, ",".join(owned_coins)),
-            ):
-                logger.info("Using cached gainers/losers data.")
-                cursor.execute(SELECT_CACHE_QUERY, (user_id, ",".join(owned_coins)))
-                result = cursor.fetchone()
-                if result:
-                    return json.loads(result[0]), json.loads(result[1])
+        # Check cache validity
+        if is_cache_valid(
+            cursor,
+            "SELECT timestamp FROM gainers_losers_cache WHERE user_id = ? AND owned_coins = ?",
+            (user_id, ",".join(owned_coins)),
+        ):
+            logger.info("Using cached gainers/losers data.")
+            cursor.execute(SELECT_CACHE_QUERY, (user_id, ",".join(owned_coins)))
+            result = cursor.fetchone()
+            if result:
+                return json.loads(result[0]), json.loads(result[1])
 
-            # Fetch data from API
-            logger.info("Fetching gainers and losers from API.")
-            params = {
-                "vs_currency": "usd",
-                "ids": ",".join(owned_coins),
-                "order": "market_cap_desc",
-                "per_page": len(owned_coins),
-                "price_change_percentage": "24h",
-            }
-            data = fetch_data_from_api("coins/markets", params)
-            if not data:
-                logger.error("Failed to fetch data from API.")
-                return [], []
+        # Fetch data from API
+        logger.info("Fetching gainers and losers from API.")
+        params = {
+            "vs_currency": "usd",
+            "ids": ",".join(owned_coins),
+            "order": "market_cap_desc",
+            "per_page": len(owned_coins),
+            "price_change_percentage": "24h",
+        }
+        data = fetch_data_from_api("coins/markets", params)
+        if not data:
+            logger.error("Failed to fetch data from API.")
+            return [], []
 
-            # Filter and sort data
-            filtered_data = [
-                coin
-                for coin in data
-                if coin.get("price_change_percentage_24h") is not None
-            ]
-            gainers = sorted(
-                filtered_data,
-                key=lambda x: x["price_change_percentage_24h"],
-                reverse=True,
-            )
-            losers = sorted(
-                filtered_data, key=lambda x: x["price_change_percentage_24h"]
-            )
+        # Filter and sort data
+        filtered_data = [
+            coin for coin in data if coin.get("price_change_percentage_24h") is not None
+        ]
+        gainers = sorted(
+            filtered_data, key=lambda x: x["price_change_percentage_24h"], reverse=True
+        )
+        losers = sorted(
+            filtered_data, key=lambda x: x["price_change_percentage_24h"]
+        )
 
-            # Cache results
-            cursor.execute(DELETE_CACHE_QUERY, (user_id, ",".join(owned_coins)))
-            cursor.execute(
-                INSERT_CACHE_QUERY,
-                (
-                    user_id,
-                    ",".join(owned_coins),
-                    json.dumps(gainers),
-                    json.dumps(losers),
-                    datetime.now().isoformat(),
-                ),
-            )
-            conn.commit()
+        # Cache results
+        cursor.execute(DELETE_CACHE_QUERY, (user_id, ",".join(owned_coins)))
+        cursor.execute(
+            INSERT_CACHE_QUERY,
+            (
+                user_id,
+                ",".join(owned_coins),
+                json.dumps(gainers),
+                json.dumps(losers),
+                datetime.now().isoformat(),
+            ),
+        )
+        conn.commit()
 
-            return gainers, losers
+        return gainers, losers
     except Exception as e:
         logger.error(f"Error fetching gainers and losers: {e}")
         return [], []
+    finally:
+        if conn:
+            conn.close()

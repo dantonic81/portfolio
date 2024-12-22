@@ -114,10 +114,8 @@ Also there's nothing there to indicate that cards are editable when I hover abov
 ## TODO:
 
 - tests
-- linting
 - coverage
 - ORM?
-- modern styling
 - withdrawal fee calculation and transactions
 - logos for all tokens
 - I need a notification center accessible as an icon on every page, user preference control (opt-in/opt-out)

@@ -26,7 +26,7 @@
       <h2 class="header-title">Portfolio Value</h2>
       <div class="portfolio-value">
         <span id="portfolio-value" class="value">${{ total_portfolio_value }}</span>
-        <span id="percentage-change" class="change {{ 'positive' if percentage_change > 0 else 'negative' }}">
+        <span id="percentage-change" class="change {{ 'positive' if percentage_change > 0 else 'negative' }}" data-toggle="tooltip" data-placement="top" title="At least two days worth of data is needed to obtain percentage change.">
           {{ formatted_percentage_change }}
         </span>
       </div>
@@ -35,7 +35,7 @@
     <!-- Total Investment Section -->
     <section class="total-investment-section mb-4">
       <h3>Your Total Investment</h3>
-      <p class="investment-amount">{{ total_investment }} EUR</p>
+      <p class="investment-amount" data-toggle="tooltip" data-placement="top" title="See README on providing transactions CSV file">{{ total_investment }} EUR</p>
     </section>
 
     <!-- Return on Investment Section -->
