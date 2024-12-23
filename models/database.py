@@ -31,12 +31,6 @@ def create_tables(cursor: sqlite3.Cursor) -> None:
                 created_at TEXT DEFAULT (DATETIME('now')),
                 FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
             );
-            CREATE TABLE IF NOT EXISTS guest_data (
-                session_id TEXT PRIMARY KEY,
-                crypto_name TEXT NOT NULL,
-                quantity REAL NOT NULL,
-                added_at TEXT DEFAULT (DATETIME('now'))
-            );
             CREATE TABLE IF NOT EXISTS portfolio (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 user_id INTEGER NOT NULL REFERENCES users(user_id),
