@@ -11,6 +11,7 @@
     {% include 'modals/edit_asset_modal.html' %}
     {% include 'modals/set_alerts_modal.html' %}
     {% include 'modals/edit_alerts_modal.html' %}
+    {% include 'modals/upload_csv_modal.html' %}
 {% endblock %}
 
 <!-- Jumbotron Section -->
@@ -83,7 +84,8 @@
           {'target': '#addAssetModal', 'icon': 'fas fa-plus-square', 'text': 'Add Asset', 'title': 'Add a new asset'},
           {'target': '#editAssetModal', 'icon': 'fas fa-edit', 'text': 'Edit Asset', 'title': 'Edit an existing asset'},
           {'target': '#setAlertsModal', 'icon': 'fas fa-bell', 'text': 'Set Alerts', 'title': 'Set price alerts'},
-          {'target': '#openEditAlertsModal', 'icon': 'fas fa-trash-alt', 'text': 'Delete Alerts', 'title': 'Edit Active Alerts'}
+          {'target': '#openEditAlertsModal', 'icon': 'fas fa-trash-alt', 'text': 'Delete Alerts', 'title': 'Edit Active Alerts'},
+          {'target': '#uploadCsvModal', 'icon': 'fas fa-file-upload', 'text': 'Import Transactions', 'title': 'Import Transactions'}
         ] %}
         <button type="button" class="btn btn-primary w-100" data-toggle="modal" data-target="{{ action.target }}" title="{{ action.title }}" aria-label="{{ action.text }}">
           <i class="{{ action.icon }}"></i> {{ action.text }}
@@ -100,4 +102,5 @@
     <script src="{{ url_for('static', filename='js/alerts.js') }}" defer></script>
     <script src="{{ url_for('static', filename='js/edit_alerts.js') }}" defer></script>
     <script src="{{ url_for('static', filename='js/index.js') }}" defer></script>
+    <script src="{{ url_for('static', filename='js/upload_csv.js') }}" defer></script>
 {% endblock %}

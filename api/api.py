@@ -1,4 +1,7 @@
-from flask import Blueprint, jsonify, request, render_template, session, redirect
+import csv
+import os
+
+from flask import Blueprint, jsonify, request, render_template, session, redirect, current_app
 from dateutil.parser import parse
 
 from models.db_connection import get_db_cursor
@@ -15,6 +18,7 @@ from datetime import datetime
 from utils.logger import logger
 from utils.login_required import login_required
 from math import ceil
+from werkzeug.utils import secure_filename
 
 
 api = Blueprint("api", __name__)
@@ -652,3 +656,62 @@ def add_to_portfolio():
         return jsonify({"success": True})
     except Exception as e:
         return jsonify({"success": False, "error": str(e)}), 500
+
+
+ALLOWED_EXTENSIONS = {'csv'}
+
+
+
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+
+@api.route('/upload_csv', methods=['POST'])
+def upload_csv():
+    user_id = session["user_id"]
+    upload_folder = current_app.config.get('UPLOAD_FOLDER')
+    if 'csvFile' not in request.files:
+        return jsonify({'error': 'No file part'}), 400
+
+    file = request.files['csvFile']
+
+    if file.filename == '':
+        return jsonify({'error': 'No selected file'}), 400
+
+    if file and allowed_file(file.filename):
+        filename = secure_filename(file.filename)
+        filepath = os.path.join(upload_folder, filename)
+        file.save(filepath)
+
+        try:
+            # Open the database connection
+            cursor, conn = get_db_cursor()
+
+            # Process the CSV file
+            with open(filepath, newline='', encoding='utf-8') as csvfile:
+                reader = csv.DictReader(csvfile)
+                for row in reader:
+                    # Insert each row into the transactions table
+                    cursor.execute('''
+                        INSERT INTO transactions (
+                            user_id, name, abbreviation, transaction_date, 
+                            amount, price, transaction_id, rate
+                        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                    ''', (
+                        user_id, row['name'], row['abbreviation'], row['transaction_date'],
+                        float(row['amount']), float(row['price']), row['transaction_id'], float(row['rate'])
+                    ))
+
+            conn.commit()
+            conn.close()
+            os.remove(filepath)
+
+            return jsonify({'message': 'File successfully processed'}), 200
+
+        except Exception as e:
+            conn.rollback()
+            conn.close()
+            os.remove(filepath)
+            return jsonify({'error': str(e)}), 500
+
+    return jsonify({'error': 'Invalid file type'}), 400

@@ -22,6 +22,8 @@ app.config["SESSION_TYPE"] = "filesystem"
 app.config["SESSION_FILE_DIR"] = "./sessions"
 app.config["ALERT_CHECK_INTERVAL"] = 2  # Check alerts every 2 minutes
 app.config["ALERT_MAX_INSTANCES"] = 2
+app.config['UPLOAD_FOLDER'] = './uploads'
+
 Session(app)
 
 app.register_blueprint(api)

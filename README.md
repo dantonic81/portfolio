@@ -111,6 +111,8 @@ Also there's nothing there to indicate that cards are editable when I hover abov
 - we should have a token that expires for users confirming email during registration
 
 
+- provide users with a way to upload their own transactions file
+
 ## TODO:
 
 - tests
@@ -129,6 +131,8 @@ Also there's nothing there to indicate that cards are editable when I hover abov
 - price volatility
 - database replication
 - right now we're just creating and deleting users, we need functionality to edit them and change roles as well
+
+
 
 ## FIX
 
