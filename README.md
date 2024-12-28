@@ -113,6 +113,9 @@ Also there's nothing there to indicate that cards are editable when I hover abov
 
 - provide users with a way to upload their own transactions file
 
+
+- the next commit we make will mark the start of a new kafka app into which this app will be integrated
+
 ## TODO:
 
 - tests
